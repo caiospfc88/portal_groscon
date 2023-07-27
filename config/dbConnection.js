@@ -20,8 +20,8 @@ var conexao = async (sqlQuery) => {
    // make sure that any items are correctly URL encoded in the connection string
    await sql.connect(sqlConfig)
    var result = await sql.query(sqlQuery);
-   var resposta = JSON.stringify(result.recordset);
-      return resposta;
+   result = JSON.stringify(result.recordset);
+   console.log(result);
    } catch (err) {
    console.log(err);
   }

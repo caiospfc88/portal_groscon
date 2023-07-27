@@ -1,10 +1,10 @@
-module.exports.index = function(app, req, res){
+module.exports.index = function(application, req, res){
 
-    var connection = app.config.dbConnection;
-    var consultaModel = new app.app.models.ConsultasDAO(connection);
+    var connection = application.config.dbConnection;
+    var consultaModel = new application.app.models.ConsultasDAO(connection);
     
     consultaModel.getTeste(function(error, result){
-        console.log(result);
+        console.log('teste');
         res.render("home/index", {selectTeste : result});
     });
 
