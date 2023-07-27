@@ -1,0 +1,19 @@
+{
+  "name": "portal_groscon",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Caio",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "consign": "^0.1.6",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "mssql": "^9.1.1",
+    "tedious": "^16.2.0"
+  }
+}
