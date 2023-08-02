@@ -15,7 +15,7 @@ const sqlConfig = {
   }
 }
 
-var conexao = async (sqlQuery) => {
+/*var conexao = async (sqlQuery) => {
   try {
    // make sure that any items are correctly URL encoded in the connection string
    await sql.connect(sqlConfig)
@@ -24,12 +24,10 @@ var conexao = async (sqlQuery) => {
    console.log(result);
    } catch (err) {
    console.log(err);
-  }
- };
+  }return result
+ };*/
 
-module.exports = function(){
-    return conexao;
-};
+module.exports = sqlConfig;
 
 /*async () => {
  try {

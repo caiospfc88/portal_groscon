@@ -1,13 +1,9 @@
 module.exports.index = function(application, req, res){
 
-    var connection = application.config.dbConnection;
-    var consultaModel = new application.app.models.ConsultasDAO(connection);
+   var consultaModel = new application.app.models.ConsultasDAO();
     
-    consultaModel.getTeste(function(error, result){
-        console.log('teste');
+    let result = consultaModel.getTeste();
+        console.log('controller',result);
         res.render("home/index", {selectTeste : result});
-    });
-
-    //app.app.controllers.home
-
+    
 };
