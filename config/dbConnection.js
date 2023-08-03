@@ -15,19 +15,22 @@ const sqlConfig = {
   }
 }
 
-/*var conexao = async (sqlQuery) => {
-  try {
-   // make sure that any items are correctly URL encoded in the connection string
-   await sql.connect(sqlConfig)
-   var result = await sql.query(sqlQuery);
-   result = JSON.stringify(result.recordset);
-   console.log(result);
-   } catch (err) {
-   console.log(err);
-  }return result
- };*/
+var conexao = async function(sqlQuery) {
+  await sql.connect(sqlConfig)
+  await sql.query(sqlQuery).then((result)=>{
+    var resultado = JSON.stringify(result.recordset);
+    console.log('resultado:', resultado)
+    return resultado;
+})
+};  
 
-module.exports = sqlConfig;
+/*const conexão = new Promise((resolve,reject)=>{
+
+})*/   
+
+module.exports = function(){
+    return conexao;
+};
 
 /*async () => {
  try {
