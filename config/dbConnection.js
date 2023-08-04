@@ -16,12 +16,11 @@ const sqlConfig = {
 }
 
 var conexao = async function(sqlQuery) {
-  await sql.connect(sqlConfig)
-  await sql.query(sqlQuery).then((result)=>{
-    var resultado = JSON.stringify(result.recordset);
-    console.log('resultado:', resultado)
-    return resultado;
-})
+    await sql.connect(sqlConfig)
+    var result = await sql.query(sqlQuery)
+    //var resultado = JSON.stringify(result.recordset);
+    console.log('resultado:', result.recordset)
+    return result.recordset;
 };  
 
 /*const conexão = new Promise((resolve,reject)=>{

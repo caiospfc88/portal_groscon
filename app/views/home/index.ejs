@@ -6,10 +6,22 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Resultado do teste do select</h1>
     <div>
-        <%console.log('view',selectTeste)%>
-       <%=selectTeste[0].codigo_grupo%>
+        <% for(var i = 0; i < selectTeste.length; i++){ %>
+        <div>
+            <div>
+                <span>Cota: </span>
+                <span><%=selectTeste[i].codigo_grupo%></span>
+                <span><%=selectTeste[i].codigo_cota%></span>
+                <span><%=selectTeste[i].versao%></span>
+                <br />
+                <p>
+                    <span>CPF/CNPJ: </span>
+                    <%=selectTeste[i].cgc_cpf_cliente%>
+                </p>
+            </div>
+        </div>
+        <% } %>
     </div>
 </body>
 </html>
