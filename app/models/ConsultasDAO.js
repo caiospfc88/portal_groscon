@@ -2,7 +2,7 @@ function ConsultasDAO(connection){
 	this._connection = connection;
 };
 
-ConsultasDAO.prototype.getTeste = async function(){
+ConsultasDAO.prototype.getComissoesSemReducao = async function(){
     var result = await this._connection(`select distinct 
                                             ct.CODIGO_GRUPO as GRUPO
                                             ,ct.CODIGO_COTA as COTA
