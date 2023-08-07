@@ -110,6 +110,9 @@ dist
 # Serverless directories
 .serverless/
 
+# Arquivo de acesso a banco local
+.config/dbConnection.js
+
 # FuseBox cache
 .fusebox/
 
