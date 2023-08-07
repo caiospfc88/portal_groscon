@@ -473,6 +473,59 @@ ConsultasDAO.prototype.getComissoesComReducao = async function(){
     return result
 };
 
+ConsultasDAO.prototype.getQuitados = async function(){
+    var result = await this._connection(`select ct.CODIGO_GRUPO as 'Grupo',
+                                                ct.CODIGO_COTA as 'Cota',
+                                                ct.VERSAO as 'Versão',
+                                                format (ct.DATA_SITUACAO,'dd/MM/yyyy', 'en-US') as 'Data da quitação',
+                                                Cl.DDD_RESIDENCIAL as 'DDD',
+                                                Cl.fone_fax as 'Telefone',
+                                                cl.CELULAR as 'Celular',
+                                                tc.DDD as 'DDD Tab.',
+                                                tc.FONE_FAX as 'Telefone tab.',
+                                                cl.NOME as 'Nome',
+                                                cl.E_MAIL as 'E-mail'
+                                            from cotas ct
+                                            inner join clientes cl 
+                                            on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+                                            and cl.tipo = ct.tipo     
+                                            left join (select CODIGO_GRUPO, 
+                                                            CODIGO_COTA, 
+                                                            VERSAO,
+                                                            count(*) as QTD_SIT
+                                                        from COTAS_SITUACOES cs 
+                                                        where cs.CODIGO_SITUACAO = 'Q01'
+                                                        group by cs.CODIGO_GRUPO
+                                                            ,cs.CODIGO_COTA
+                                                            ,cs.VERSAO) a 
+                                            on a.CODIGO_GRUPO = ct.CODIGO_GRUPO
+                                            and a.CODIGO_COTA = ct.CODIGO_COTA
+                                            and a.VERSAO = ct.VERSAO
+                                            LEFT JOIN TELEFONES_COTAS TC ON CL.CGC_CPF_CLIENTE = TC.CGC_CPF_CLIENTE
+                                            where ct.CODIGO_SITUACAO = 'Q00'
+                                            and ct.DATA_SITUACAO between '20220801' and '20220831'
+                                            and a.QTD_SIT is null`)
+    return result
+};    
+
+ConsultasDAO.prototype.getAniversariantesMesAtual = async function(){
+    var result = await this._connection(`select 
+                                                ct.CODIGO_GRUPO as 'GRUPO',
+                                                ct.CODIGO_COTA as 'COTA',
+                                                ct.VERSAO as 'VERSÃO',
+                                                sc.DESCRICAO as 'SITUAÇÃO', 
+                                                NOME,
+                                                ct.NUMERO_CONTRATO as 'CONTRATO',
+                                                E_MAIL as 'E-MAIL',
+                                                format (cl.DATA_NASCIMENTO,'dd/MM/yyyy', 'en-US') as 'DATA DE NASCIMENTO'
+                                            from clientes cl inner join COTAS ct on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+                                            inner join SITUACOES_COBRANCAS sc on sc.codigo_situacao = ct.CODIGO_SITUACAO
+                                            inner join GRUPOS g on ct.CODIGO_GRUPO = g.CODIGO_GRUPO
+                                            where month(data_nascimento) = month(GETDATE()) and g.CODIGO_SITUACAO = 'A' and ct.VERSAO = 00 and PESSOA = 'F' and sc.CODIGO_SITUACAO like 'N%%'
+                                            order by ct.CODIGO_GRUPO,ct.CODIGO_COTA`)
+    return result
+};    
+
 module.exports = function(){
     return ConsultasDAO;
 };
