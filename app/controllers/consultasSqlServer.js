@@ -41,3 +41,25 @@ module.exports.aniversariantesMesAtual = async function(application, req, res){
     res.send(resConsulta)
     //res.render('home/comissoes',{selectTeste : resConsulta});
 };
+
+module.exports.relatorioRenegociacoes = async function(application, req, res){
+
+    var connection = application.config.dbConnection;
+    var consultaModel = new application.app.models.ConsultasDAO(connection);
+    
+    var resConsulta = await consultaModel.getRelatorioRenegociacoes();
+    //console.log(resConsulta);
+    res.send(resConsulta)
+    //res.render('home/comissoes',{selectTeste : resConsulta});
+};
+
+module.exports.relatorioRenegociacoes = async function(application, req, res){
+
+    var connection = application.config.dbConnection;
+    var consultaModel = new application.app.models.ConsultasDAO(connection);
+    
+    var resConsulta = await consultaModel.getRelatorioAproveitamento();
+    //console.log(resConsulta);
+    res.send(resConsulta)
+    //res.render('home/comissoes',{selectTeste : resConsulta});
+};

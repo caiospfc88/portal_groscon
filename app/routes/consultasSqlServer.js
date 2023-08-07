@@ -11,6 +11,12 @@ module.exports = function(application){
         application.get('/aniversariantesMesAtual', function(req, res){        
         application.app.controllers.consultasSqlServer.aniversariantesMesAtual(application, req, res);
     });
+        application.get('/relatorioRenegociacoes', function(req, res){        
+        application.app.controllers.consultasSqlServer.relatorioRenegociacoes(application, req, res);
+    });
+        application.get('/relatorioAproveitamento', function(req, res){        
+        application.app.controllers.consultasSqlServer.relatorioRenegociacoes(application, req, res);
+    });
 };
 
 

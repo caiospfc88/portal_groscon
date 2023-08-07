@@ -524,7 +524,143 @@ ConsultasDAO.prototype.getAniversariantesMesAtual = async function(){
                                             where month(data_nascimento) = month(GETDATE()) and g.CODIGO_SITUACAO = 'A' and ct.VERSAO = 00 and PESSOA = 'F' and sc.CODIGO_SITUACAO like 'N%%'
                                             order by ct.CODIGO_GRUPO,ct.CODIGO_COTA`)
     return result
-};    
+};
+
+ConsultasDAO.prototype.getRelatorioRenegociacoes = async function(){
+    var result = await this._connection(`select
+                                            ct.CODIGO_GRUPO as GRUPO
+                                            ,ct.CODIGO_COTA AS COTA
+                                            ,ct.VERSAO AS VERSAO
+                                            ,cl.NOME AS NOME_CLIENTE
+                                            ,RP.NOME AS NOME_REPRESENTANTE
+                                            ,cd.nome as CIDADE
+                                            ,CD.ESTADO AS ESTADO
+                                            ,(isnull(PAG.VALOR_FC,0)+isnull(PAG2.VALOR_FC,0)+isnull(PAG3.VALOR_FC,0)) AS VALOR_FC
+                                            ,(isnull(PAG.VALOR_TX,0)+isnull(pag2.VALOR_TX,0)+isnull(pag3.VALOR_TX,0)) AS VALOR_TX
+                                            ,(isnull(PAG.VALOR_TOTAL,0)+isnull(pag2.VALOR_TOTAL,0)+ISNULL(PAG3.VALOR_TOTAL,0)) AS VALOR_TOTAL
+                                            ,QTD_PAG.QTD_PAG AS QUANTIDADE_PAG
+                                            ,format (ct.DATA_REATIVACAO,'dd/MM/yyyy', 'en-US') as 'DATA REATIVAÇÃO'
+                                            ,NEG.STATUS
+                                            ,format (neg.DATA_ALTERACAO,'dd/MM/yyyy', 'en-US') as 'DATA NEGOCIAÇÃO'
+                                            ,NEG.PARCELAS AS PARCELAS_NEGOCIADAS
+
+                                        from
+                                            cotas ct inner join clientes cl on
+                                                ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE
+                                                and ct.tipo = cl.tipo
+                                            INNER join representantes rp on
+                                                ct.CODIGO_REPRESENTANTE = rp.CODIGO_REPRESENTANTE
+                                            INNER join CIDADES cd on
+                                                cd.CODIGO_CIDADE = cl.CODIGO_CIDADE
+                                            OUTER APPLY (
+                                                SELECT 
+                                                    sum(mg.VALOR_FUNDO_COMUM) AS VALOR_FC, sum(mg.VALOR_TAXA_ADMINISTRACAO) AS VALOR_TX,sum(MG.TOTAL_LANCAMENTO) AS VALOR_TOTAL
+                                                FROM 
+                                                    MOVIMENTOS_GRUPOS MG
+                                                WHERE
+                                                    MG.CODIGO_GRUPO = CT.CODIGO_GRUPO
+                                                    AND MG.CODIGO_COTA = CT.CODIGO_COTA
+                                                    AND MG.VERSAO = CT.VERSAO
+                                                    AND DATA_PAGAMENTO BETWEEN '20230101' AND '20230131'
+                                                    AND DATEDIFF(DAY,MG.DATA_VENCIMENTO,MG.DATA_PAGAMENTO)+1 > 10
+
+                                            ) AS PAG
+                                            OUTER APPLY (
+                                                SELECT 
+                                                    COUNT(MG.CODIGO_COTA) AS QTD_PAG
+                                                FROM 
+                                                    MOVIMENTOS_GRUPOS MG
+                                                WHERE
+                                                    MG.CODIGO_GRUPO = CT.CODIGO_GRUPO
+                                                    AND MG.CODIGO_COTA = CT.CODIGO_COTA
+                                                    AND MG.VERSAO = CT.VERSAO
+                                                    AND DATA_PAGAMENTO BETWEEN '20230101' AND '20230131'
+                                            ) AS QTD_PAG
+                                            OUTER APPLY(
+                                                select
+                                                    top 1 
+                                                    pt.data_alteracao, 
+                                                    STATUS, 
+                                                    parcelas 
+                                                from 
+                                                    PLANOS_TAXAS pt
+                                                where 
+                                                    STATUS in ('ta','rp')
+                                                    AND pt.CODIGO_GRUPO = ct.CODIGO_GRUPO
+                                                    and pt.CODIGO_COTA = ct.CODIGO_COTA
+                                                    and pt.VERSAO = ct.VERSAO
+                                                    AND PT.DATA_ALTERACAO BETWEEN '20230101' AND '20230131'
+                                                order by
+                                                    pt.DATA_ALTERACAO
+                                                desc
+                                                ) as Neg
+                                            OUTER APPLY (
+                                                SELECT 
+                                                    sum(mg.VALOR_FUNDO_COMUM) AS VALOR_FC, sum(mg.VALOR_TAXA_ADMINISTRACAO) AS VALOR_TX,sum(MG.TOTAL_LANCAMENTO) AS VALOR_TOTAL
+                                                FROM 
+                                                    MOVIMENTOS_GRUPOS MG
+                                                WHERE
+                                                    MG.CODIGO_GRUPO = CT.CODIGO_GRUPO
+                                                    AND MG.CODIGO_COTA = CT.CODIGO_COTA
+                                                    AND MG.VERSAO = CT.VERSAO
+                                                    AND DATA_PAGAMENTO BETWEEN '20230101' AND '20230131'
+                                                    AND CODIGO_MOVIMENTO = '010'
+                                                    AND PAG.VALOR_TOTAL > 0
+                                                    AND DATEDIFF(DAY,MG.DATA_VENCIMENTO,MG.DATA_PAGAMENTO)+1 <= 10
+                                                ) AS PAG2
+                                            OUTER APPLY (
+                                                SELECT 
+                                                    sum(mg.VALOR_FUNDO_COMUM) AS VALOR_FC, sum(mg.VALOR_TAXA_ADMINISTRACAO) AS VALOR_TX,sum(MG.TOTAL_LANCAMENTO) AS VALOR_TOTAL
+                                                FROM 
+                                                    MOVIMENTOS_GRUPOS MG
+                                                WHERE
+                                                    MG.CODIGO_GRUPO = CT.CODIGO_GRUPO
+                                                    AND MG.CODIGO_COTA = CT.CODIGO_COTA
+                                                    AND MG.VERSAO = CT.VERSAO
+                                                    AND DATA_PAGAMENTO BETWEEN '20230101' AND '20230131'
+                                                    AND CODIGO_MOVIMENTO = '010'
+                                                    AND neg.STATUS in ('ta','rp')
+                                                    and pag.VALOR_FC IS NULL
+                                                    AND NEG.DATA_ALTERACAO > MG.DATA_PAGAMENTO
+                                                ) AS PAG3
+                                        where
+                                            ct.DATA_CONTEMPLACAO is null
+                                            AND (isnull(PAG.VALOR_FC,0)+isnull(PAG2.VALOR_FC,0)+isnull(PAG3.VALOR_FC,0)) > 0
+                                        order by
+                                            ct.CODIGO_GRUPO
+                                            ,ct.CODIGO_COTA
+                                            ,ct.VERSAO`)
+    return result
+};
+
+ConsultasDAO.prototype.getRelatorioAproveitamento = async function(){
+    var result = await this._connection(`select CODIGO_GRUPO as GRUPO,
+                                            CODIGO_COTA AS COTA,
+                                            VERSAO AS 'VERSÃO',
+                                            CT.CODIGO_SITUACAO as 'SITUAÇÃO',
+                                            FORMAT(CT.DATA_VENDA, 'dd/MM/yyyy', 'en-US') as 'DATA DA VENDA',
+                                            CT.CODIGO_REPRESENTANTE AS 'REPRESENTANTE',
+                                            rep.NOME 
+                                        from COTAS ct 
+                                        inner join REPRESENTANTES rep 
+                                        on ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
+                                        where ct.DATA_VENDA BETWEEN '20221101' AND '20230430' --and rep.CODIGO_EQUIPE = 107
+                                        order by rep.CODIGO_REPRESENTANTE
+
+                                        SELECT rep.CODIGO_REPRESENTANTE AS 'REPRESENTANTE',
+                                            CT.CODIGO_SITUACAO as 'SITUAÇÃO',
+                                            COUNT(CODIGO_SITUACAO) AS QUANTIDADE,
+                                            sum(pp.VALOR_BEM) as 'TOTAL VALOR'
+                                        from COTAS ct 
+                                        inner join REPRESENTANTES rep 
+                                        on ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
+                                        inner join PROPOSTAS pp
+                                        on ct.CODIGO_GRUPO = pp.CODIGO_GRUPO and ct.CODIGO_COTA = pp.CODIGO_COTA and ct.VERSAO = pp.VERSAO
+                                        where ct.DATA_VENDA BETWEEN '20221101' AND '20230430' --and rep.CODIGO_EQUIPE = 107
+                                        GROUP BY ct.CODIGO_SITUACAO, rep.CODIGO_REPRESENTANTE
+                                        order by rep.CODIGO_REPRESENTANTE`)
+    return result
+};
 
 module.exports = function(){
     return ConsultasDAO;
