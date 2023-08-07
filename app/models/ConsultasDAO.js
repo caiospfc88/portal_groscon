@@ -634,20 +634,20 @@ ConsultasDAO.prototype.getRelatorioRenegociacoes = async function(){
 };
 
 ConsultasDAO.prototype.getRelatorioAproveitamento = async function(){
-    var result = await this._connection(`select CODIGO_GRUPO as GRUPO,
+    var result1 = await this._connection(`select CODIGO_GRUPO as GRUPO,
                                             CODIGO_COTA AS COTA,
                                             VERSAO AS 'VERSÃO',
                                             CT.CODIGO_SITUACAO as 'SITUAÇÃO',
                                             FORMAT(CT.DATA_VENDA, 'dd/MM/yyyy', 'en-US') as 'DATA DA VENDA',
-                                            CT.CODIGO_REPRESENTANTE AS 'REPRESENTANTE',
+                                            CT.CODIGO_REPRESENTANTE AS 'COD. REP',
                                             rep.NOME 
                                         from COTAS ct 
                                         inner join REPRESENTANTES rep 
                                         on ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
                                         where ct.DATA_VENDA BETWEEN '20221101' AND '20230430' --and rep.CODIGO_EQUIPE = 107
-                                        order by rep.CODIGO_REPRESENTANTE
-
-                                        SELECT rep.CODIGO_REPRESENTANTE AS 'REPRESENTANTE',
+                                        order by rep.CODIGO_REPRESENTANTE `)
+                                           
+    var result2 = await this._connection(`SELECT rep.CODIGO_REPRESENTANTE AS 'REPRESENTANTE',
                                             CT.CODIGO_SITUACAO as 'SITUAÇÃO',
                                             COUNT(CODIGO_SITUACAO) AS QUANTIDADE,
                                             sum(pp.VALOR_BEM) as 'TOTAL VALOR'
@@ -659,6 +659,7 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function(){
                                         where ct.DATA_VENDA BETWEEN '20221101' AND '20230430' --and rep.CODIGO_EQUIPE = 107
                                         GROUP BY ct.CODIGO_SITUACAO, rep.CODIGO_REPRESENTANTE
                                         order by rep.CODIGO_REPRESENTANTE`)
+    var result = result1.concat(result2);
     return result
 };
 
