@@ -15,7 +15,7 @@ module.exports = function(application){
         application.app.controllers.consultasSqlServer.relatorioRenegociacoes(application, req, res);
     });
         application.get('/relatorioAproveitamento', function(req, res){        
-        application.app.controllers.consultasSqlServer.relatorioRenegociacoes(application, req, res);
+        application.app.controllers.consultasSqlServer.relatorioAproveitamento(application, req, res);
     });
 };
 

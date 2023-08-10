@@ -2,7 +2,7 @@ function ConsultasDAO(connection){
 	this._connection = connection;
 };
 
-ConsultasDAO.prototype.getComissoesSemReducao = async function(){
+ConsultasDAO.prototype.getComissoesSemReducao = async function(req){
     var result = await this._connection(`select distinct 
                                             ct.CODIGO_GRUPO as GRUPO
                                             ,ct.CODIGO_COTA as COTA
@@ -212,7 +212,7 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function(){
     return result
 };
 
-ConsultasDAO.prototype.getComissoesComReducao = async function(){
+ConsultasDAO.prototype.getComissoesComReducao = async function(req){
     var result = await this._connection(`select
                                             ct.CODIGO_GRUPO as GRUPO
                                             ,ct.CODIGO_COTA as COTA
@@ -473,7 +473,7 @@ ConsultasDAO.prototype.getComissoesComReducao = async function(){
     return result
 };
 
-ConsultasDAO.prototype.getQuitados = async function(){
+ConsultasDAO.prototype.getQuitados = async function(req){
     var result = await this._connection(`select ct.CODIGO_GRUPO as 'Grupo',
                                                 ct.CODIGO_COTA as 'Cota',
                                                 ct.VERSAO as 'Versão',
@@ -508,7 +508,7 @@ ConsultasDAO.prototype.getQuitados = async function(){
     return result
 };    
 
-ConsultasDAO.prototype.getAniversariantesMesAtual = async function(){
+ConsultasDAO.prototype.getAniversariantesMesAtual = async function(req){
     var result = await this._connection(`select 
                                                 ct.CODIGO_GRUPO as 'GRUPO',
                                                 ct.CODIGO_COTA as 'COTA',
@@ -526,7 +526,8 @@ ConsultasDAO.prototype.getAniversariantesMesAtual = async function(){
     return result
 };
 
-ConsultasDAO.prototype.getRelatorioRenegociacoes = async function(){
+ConsultasDAO.prototype.getRelatorioRenegociacoes = async function(req){
+    const { data_inicial, data_final } = req.headers;
     var result = await this._connection(`select
                                             ct.CODIGO_GRUPO as GRUPO
                                             ,ct.CODIGO_COTA AS COTA
@@ -561,7 +562,7 @@ ConsultasDAO.prototype.getRelatorioRenegociacoes = async function(){
                                                     MG.CODIGO_GRUPO = CT.CODIGO_GRUPO
                                                     AND MG.CODIGO_COTA = CT.CODIGO_COTA
                                                     AND MG.VERSAO = CT.VERSAO
-                                                    AND DATA_PAGAMENTO BETWEEN '20230101' AND '20230131'
+                                                    AND DATA_PAGAMENTO BETWEEN '${data_inicial}' AND '${data_final}'
                                                     AND DATEDIFF(DAY,MG.DATA_VENCIMENTO,MG.DATA_PAGAMENTO)+1 > 10
 
                                             ) AS PAG
@@ -574,7 +575,7 @@ ConsultasDAO.prototype.getRelatorioRenegociacoes = async function(){
                                                     MG.CODIGO_GRUPO = CT.CODIGO_GRUPO
                                                     AND MG.CODIGO_COTA = CT.CODIGO_COTA
                                                     AND MG.VERSAO = CT.VERSAO
-                                                    AND DATA_PAGAMENTO BETWEEN '20230101' AND '20230131'
+                                                    AND DATA_PAGAMENTO BETWEEN '${data_inicial}' AND '${data_final}'
                                             ) AS QTD_PAG
                                             OUTER APPLY(
                                                 select
@@ -589,7 +590,7 @@ ConsultasDAO.prototype.getRelatorioRenegociacoes = async function(){
                                                     AND pt.CODIGO_GRUPO = ct.CODIGO_GRUPO
                                                     and pt.CODIGO_COTA = ct.CODIGO_COTA
                                                     and pt.VERSAO = ct.VERSAO
-                                                    AND PT.DATA_ALTERACAO BETWEEN '20230101' AND '20230131'
+                                                    AND PT.DATA_ALTERACAO BETWEEN '${data_inicial}' AND '${data_final}'
                                                 order by
                                                     pt.DATA_ALTERACAO
                                                 desc
@@ -603,7 +604,7 @@ ConsultasDAO.prototype.getRelatorioRenegociacoes = async function(){
                                                     MG.CODIGO_GRUPO = CT.CODIGO_GRUPO
                                                     AND MG.CODIGO_COTA = CT.CODIGO_COTA
                                                     AND MG.VERSAO = CT.VERSAO
-                                                    AND DATA_PAGAMENTO BETWEEN '20230101' AND '20230131'
+                                                    AND DATA_PAGAMENTO BETWEEN '${data_inicial}' AND '${data_final}'
                                                     AND CODIGO_MOVIMENTO = '010'
                                                     AND PAG.VALOR_TOTAL > 0
                                                     AND DATEDIFF(DAY,MG.DATA_VENCIMENTO,MG.DATA_PAGAMENTO)+1 <= 10
@@ -617,7 +618,7 @@ ConsultasDAO.prototype.getRelatorioRenegociacoes = async function(){
                                                     MG.CODIGO_GRUPO = CT.CODIGO_GRUPO
                                                     AND MG.CODIGO_COTA = CT.CODIGO_COTA
                                                     AND MG.VERSAO = CT.VERSAO
-                                                    AND DATA_PAGAMENTO BETWEEN '20230101' AND '20230131'
+                                                    AND DATA_PAGAMENTO BETWEEN '${data_inicial}' AND '${data_final}'
                                                     AND CODIGO_MOVIMENTO = '010'
                                                     AND neg.STATUS in ('ta','rp')
                                                     and pag.VALOR_FC IS NULL
@@ -633,7 +634,8 @@ ConsultasDAO.prototype.getRelatorioRenegociacoes = async function(){
     return result
 };
 
-ConsultasDAO.prototype.getRelatorioAproveitamento = async function(){
+ConsultasDAO.prototype.getRelatorioAproveitamento = async function(req){
+    const { data_inicial, data_final, equipe_inicial, equipe_final } = req.headers;
     var result1 = await this._connection(`select CODIGO_GRUPO as GRUPO,
                                             CODIGO_COTA AS COTA,
                                             VERSAO AS 'VERSÃO',
@@ -644,7 +646,7 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function(){
                                         from COTAS ct 
                                         inner join REPRESENTANTES rep 
                                         on ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
-                                        where ct.DATA_VENDA BETWEEN '20221101' AND '20230430' --and rep.CODIGO_EQUIPE = 107
+                                        where ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}' and rep.codigo_equipe between '${equipe_inicial}' AND '${equipe_final}'
                                         order by rep.CODIGO_REPRESENTANTE `)
                                            
     var result2 = await this._connection(`SELECT rep.CODIGO_REPRESENTANTE AS 'REPRESENTANTE',
@@ -656,7 +658,7 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function(){
                                         on ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
                                         inner join PROPOSTAS pp
                                         on ct.CODIGO_GRUPO = pp.CODIGO_GRUPO and ct.CODIGO_COTA = pp.CODIGO_COTA and ct.VERSAO = pp.VERSAO
-                                        where ct.DATA_VENDA BETWEEN '20221101' AND '20230430' --and rep.CODIGO_EQUIPE = 107
+                                        where ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}' and rep.codigo_equipe between '${equipe_inicial}' AND '${equipe_final}'
                                         GROUP BY ct.CODIGO_SITUACAO, rep.CODIGO_REPRESENTANTE
                                         order by rep.CODIGO_REPRESENTANTE`)
     var result = result1.concat(result2);
