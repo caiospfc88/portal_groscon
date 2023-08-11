@@ -8,8 +8,8 @@ module.exports = function(application){
         application.get('/quitados', function(req, res){        
         application.app.controllers.consultasSqlServer.quitados(application, req, res);
     });
-        application.get('/aniversariantesMesAtual', function(req, res){        
-        application.app.controllers.consultasSqlServer.aniversariantesMesAtual(application, req, res);
+        application.get('/aniversariantesMes', function(req, res){        
+        application.app.controllers.consultasSqlServer.aniversariantesMes(application, req, res);
     });
         application.get('/relatorioRenegociacoes', function(req, res){        
         application.app.controllers.consultasSqlServer.relatorioRenegociacoes(application, req, res);

@@ -31,13 +31,15 @@ module.exports.quitados = async function(application, req, res){
     //res.render('home/comissoes',{selectTeste : resConsulta});
 };
 
-module.exports.aniversariantesMesAtual = async function(application, req, res){
+module.exports.aniversariantesMes = async function(application, req, res){
 
     var connection = application.config.dbConnection;
     var consultaModel = new application.app.models.ConsultasDAO(connection);
+
+    console.log(req.headers);
+
+    var resConsulta = await consultaModel.getAniversariantesMes(req);
     
-    var resConsulta = await consultaModel.getAniversariantesMesAtual(req);
-    //console.log(resConsulta);
     res.send(resConsulta)
     //res.render('home/comissoes',{selectTeste : resConsulta});
 };
