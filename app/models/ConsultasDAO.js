@@ -3,8 +3,14 @@ function ConsultasDAO(connection){
 };
 
 ConsultasDAO.prototype.getComissoesSemReducao = async function(req){
-    const { data_inicial, data_final, equipe_inicial, equipe_final } = req.headers;
-    var result = await this._connection(`select distinct
+    const { data_inicial, data_final, periodo, opcao, codigo } = req.headers;
+    var complemento = '';
+    if (opcao == 2) {
+        complemento = `and ((nivel1.CODIGO_EQUIPE = ${codigo}) or (nivel2.CODIGO_EQUIPE = ${codigo}) or (nivel3.CODIGO_EQUIPE = ${codigo}) or (nivel4.CODIGO_EQUIPE = ${codigo}))`
+     }else{
+        complemento = `and ((nivel1.CODIGO_REPRESENTANTE = ${codigo}) or (nivel2.CODIGO_REPRESENTANTE = ${codigo}) or (nivel3.CODIGO_REPRESENTANTE = ${codigo}) or (nivel4.CODIGO_REPRESENTANTE = ${codigo}))`
+     }   
+    var result1 = await this._connection(`select distinct
     ct.CODIGO_GRUPO as GRUPO
     ,ct.CODIGO_COTA as COTA
     ,ct.VERSAO AS VS
@@ -77,7 +83,7 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function(req){
        from
        PERIODOS_COMISSOES pc
        where
-       CODIGO_PERIODO = '$tipo'
+       CODIGO_PERIODO = ${periodo}
        and DATA_CONTABILIZACAO_INICIAL <= ct.DATA_VENDA
        ORDER BY PC.DATA_CONTABILIZACAO_INICIAL DESC
      ) PC_DT1
@@ -87,7 +93,7 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function(req){
        from
        PERIODOS_COMISSOES pc
        where
-       CODIGO_PERIODO = '$tipo'
+       CODIGO_PERIODO = ${periodo}
        and DATA_CONTABILIZACAO_FINAL >= ct.DATA_VENDA
        ORDER BY PC.DATA_CONTABILIZACAO_INICIAL
      ) PC_DT2
@@ -271,13 +277,9 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function(req){
      (select max(NUMERO_PARCELA) as NUMERO_PARCELAS_MAXIMO from COMISSOES_CATEGORIAS where NUMERO_PARCELA < 500 AND CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO) as QUANTIDADE_PARCELAS
 
   where
-    --ct.CODIGO_GRUPO = '056'
-    --and ct.CODIGO_COTA = '028'
-    --and ct.VERSAO = '00'
-    mg.CODIGO_MOVIMENTO in ('010','011') 
-    ". ($opcao == 2 ? " and ((nivel1.CODIGO_EQUIPE = ${codigo}) or (nivel2.CODIGO_EQUIPE = $codigo) or (nivel3.CODIGO_EQUIPE = $codigo) or (nivel4.CODIGO_EQUIPE = $codigo))" : "and ((nivel1.CODIGO_REPRESENTANTE = $codigo) or (nivel2.CODIGO_REPRESENTANTE = $codigo) or (nivel3.CODIGO_REPRESENTANTE = $codigo) or (nivel4.CODIGO_REPRESENTANTE = $codigo))") ."
-        
-    and ct.VERSAO < '40'
+    mg.CODIGO_MOVIMENTO in ('010','011') `
+    + complemento +    
+    ` and ct.VERSAO < '40'
     and mg.DATA_CONTABILIZACAO between '${data_inicial}' and '${data_final}'
     and ct.DATA_VENDA between pc.DATA_CONTABILIZACAO_INICIAL and pc.DATA_CONTABILIZACAO_FINAL
     and (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) <= QUANTIDADE_PARCELAS.NUMERO_PARCELAS_MAXIMO
@@ -285,96 +287,156 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function(req){
     ct.CODIGO_GRUPO
     ,ct.CODIGO_COTA
     ,ct.VERSAO`)
+
+var result2;
+
+    if(opcao == 1){
+        result2 = await this._connection(`
+         select 
+           rp.CODIGO_REPRESENTANTE, 
+           rp.NOME, 
+           rp.CODIGO_CATEGORIA,
+           cr.DESCRICAO AS DESCRICAO_CATEGORIA,
+           rp.CODIGO_CATEGORIA_SUPERVISAO, 
+           cs.DESCRICAO AS DESCRICAO_SUPERVISAO,
+           rp.CODIGO_ENCARREGADO,
+           RC.NOME AS NOME_ENCARREGADO
+         from 
+           REPRESENTANTES rp
+           outer apply(
+           select 
+           * 
+           from 
+           CATEGORIAS_REPRESENTANTES cr
+           where
+           cr.CODIGO_CATEGORIA = rp.CODIGO_CATEGORIA ) as cr
+           outer apply(
+           select 
+           * 
+           from 
+           CATEGORIAS_REPRESENTANTES cr
+           where
+           cr.CODIGO_CATEGORIA = rp.CODIGO_CATEGORIA_SUPERVISAO ) as cs
+           outer apply(
+             select
+             NOME
+             from
+             REPRESENTANTES rpp
+             where
+             rpp.CODIGO_REPRESENTANTE = rp.CODIGO_ENCARREGADO) as rc
+           where 
+             rp.CODIGO_REPRESENTANTE = ${codigo}`)
+   
+    }else{
+        result2 = await this._connection(`
+           select
+           eq.CODIGO_EQUIPE
+           ,eq.DESCRICAO
+           from
+           EQUIPES_VENDAS eq
+           where
+           eq.CODIGO_EQUIPE = ${codigo}`);
+        }
                                 
-    return result
+        var result = result1.concat(result2);
+        return result
 };
 
 ConsultasDAO.prototype.getComissoesComReducao = async function(req){
-    const {data_inicial, data_final} = req.headers;
-    var result = await this._connection(`select
+    const { data_inicial, data_final, periodo, opcao, codigo } = req.headers;
+    var complemento = '';
+    if (opcao == 2) {
+        complemento = `and ((nivel1.CODIGO_EQUIPE = ${codigo}) or (nivel2.CODIGO_EQUIPE = ${codigo}) or (nivel3.CODIGO_EQUIPE = ${codigo}) or (nivel4.CODIGO_EQUIPE = ${codigo}))`
+     }else{
+        complemento = `and ((nivel1.CODIGO_REPRESENTANTE = ${codigo}) or (nivel2.CODIGO_REPRESENTANTE = ${codigo}) or (nivel3.CODIGO_REPRESENTANTE = ${codigo}) or (nivel4.CODIGO_REPRESENTANTE = ${codigo}))`
+     }
+    var result = await this._connection(`select distinct
                                             ct.CODIGO_GRUPO as GRUPO
                                             ,ct.CODIGO_COTA as COTA
                                             ,ct.VERSAO AS VS
                                             ,mg.DATA_PAGAMENTO AS DT_PAG
+                                            ,mg.DATA_CONTABILIZACAO AS DT_CONT
                                             ,mg.VALOR_TAXA_ADMINISTRACAO AS VL_TX_ADM
                                             ,mg.VALOR_BEM AS VL_BEM
                                             ,(mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) as NUM_PAR
                                             ,ct.CODIGO_TABELA_COMISSAO AS COD_TAB_COM
                                             ,QUANTIDADE_PARCELAS.NUMERO_PARCELAS_MAXIMO AS MAX_COM
                                             ,RP.CODIGO_EQUIPE AS COD_EQ
-                                            ,nivel1.NUMERO_PARCELA AS N1_NUM_PAR
                                             ,nivel1.CODIGO_REPRESENTANTE AS N1_COD
-                                            ,nivel1.DESCRICAO
-                                            ,nivel1.PERC_COMISSAO as PERC_COM
-                                            ,Perc_reduz.PERCENTUAL_NORMAL
+                                            ,nivel1.NUMERO_PARCELAS_MAXIMO as N1_MAXIMO
+                                            ,nivel1.DESCRICAO as N1_DESCRICAO
+                                            ,nivel1.PERC_COMISSAO as PERC_COM_N1
                                             ,case
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 THEN format(nivel1.PERC_COMISSAO*PP.VALOR_BEM/100, 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 and nivel1.CODIGO_REPRESENTANTE not IN (2288,2171,2291,2290) THEN FORMAT(nivel1.PERC_COMISSAO*((pp.VALOR_BEM*0.90)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 and nivel1.CODIGO_REPRESENTANTE not IN (2288,2171,2291,2290) THEN format(nivel1.PERC_COMISSAO*((pp.VALOR_BEM*0.80)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 and nivel1.CODIGO_REPRESENTANTE not IN (2288,2171,2291,2290) THEN format(nivel1.PERC_COMISSAO*((pp.VALOR_BEM*0.70)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 and nivel1.CODIGO_REPRESENTANTE not IN (2288,2171,2291,2290) THEN format(nivel1.PERC_COMISSAO*((pp.VALOR_BEM*0.60)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 and nivel1.CODIGO_REPRESENTANTE not IN (2288,2171,2291,2290) THEN format(nivel1.PERC_COMISSAO*((pp.VALOR_BEM*0.50)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 THEN format(nivel1.PERC_COMISSAO*mg.VALOR_BEM/100, 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 and nivel1.CODIGO_REPRESENTANTE not IN (2288,2171,2291,2290) THEN format(nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.90)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 and nivel1.CODIGO_REPRESENTANTE not IN (2288,2171,2291,2290) THEN format(nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.80)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 and nivel1.CODIGO_REPRESENTANTE not IN (2288,2171,2291,2290) THEN format(nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.70)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 and nivel1.CODIGO_REPRESENTANTE not IN (2288,2171,2291,2290) THEN format(nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.60)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 and nivel1.CODIGO_REPRESENTANTE not IN (2288,2171,2291,2290) THEN format(nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.50)/100), 'N', 'pt-br')
-                                                else format(nivel1.PERC_COMISSAO*mg.VALOR_BEM/100, 'N', 'pt-br')
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 then nivel1.PERC_COMISSAO*PP.VALOR_BEM/100
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 THEN nivel1.PERC_COMISSAO*((pp.VALOR_BEM*0.90)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 THEN nivel1.PERC_COMISSAO*((pp.VALOR_BEM*0.80)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 THEN nivel1.PERC_COMISSAO*((pp.VALOR_BEM*0.70)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 THEN nivel1.PERC_COMISSAO*((pp.VALOR_BEM*0.60)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 THEN nivel1.PERC_COMISSAO*((pp.VALOR_BEM*0.50)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 THEN nivel1.PERC_COMISSAO*mg.VALOR_BEM/100
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.90)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.80)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.70)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.60)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.50)/100)
+                                            else nivel1.PERC_COMISSAO*mg.VALOR_BEM/100
                                             end as VAL_N1
                                             ,nivel2.CODIGO_REPRESENTANTE AS N2_COD
-                                            ,nivel2.DESCRICAO
-                                            ,nivel2.PERC_COMISSAO as PERC_COM
+                                            ,nivel2.NUMERO_PARCELAS_MAXIMO as N2_MAXIMO
+                                            ,nivel2.DESCRICAO as N2_DESCRICAO
+                                            ,nivel2.PERC_COMISSAO as PERC_COM_N2
                                             ,case
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 THEN format(nivel2.PERC_COMISSAO*PP.VALOR_BEM/100, 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 and nivel2.CODIGO_REPRESENTANTE not IN (902,909,910,914) THEN format(nivel2.PERC_COMISSAO*((pp.VALOR_BEM*0.90)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 and nivel2.CODIGO_REPRESENTANTE not IN (902,909,910,914) THEN format(nivel2.PERC_COMISSAO*((pp.VALOR_BEM*0.80)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 and nivel2.CODIGO_REPRESENTANTE not IN (902,909,910,914) THEN format(nivel2.PERC_COMISSAO*((pp.VALOR_BEM*0.70)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 and nivel2.CODIGO_REPRESENTANTE not IN (902,909,910,914) THEN format(nivel2.PERC_COMISSAO*((pp.VALOR_BEM*0.60)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 and nivel2.CODIGO_REPRESENTANTE not IN (902,909,910,914) THEN format(nivel2.PERC_COMISSAO*((pp.VALOR_BEM*0.50)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 THEN format(nivel2.PERC_COMISSAO*mg.VALOR_BEM/100, 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 and nivel2.CODIGO_REPRESENTANTE not IN (902,909,910,914) THEN format(nivel2.PERC_COMISSAO*((mg.VALOR_BEM*0.90)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 and nivel2.CODIGO_REPRESENTANTE not IN (902,909,910,914) THEN format(nivel2.PERC_COMISSAO*((mg.VALOR_BEM*0.80)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 and nivel2.CODIGO_REPRESENTANTE not IN (902,909,910,914) THEN format(nivel2.PERC_COMISSAO*((mg.VALOR_BEM*0.70)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 and nivel2.CODIGO_REPRESENTANTE not IN (902,909,910,914) THEN format(nivel2.PERC_COMISSAO*((mg.VALOR_BEM*0.60)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 and nivel2.CODIGO_REPRESENTANTE not IN (902,909,910,914) THEN format(nivel2.PERC_COMISSAO*((mg.VALOR_BEM*0.50)/100), 'N', 'pt-br')
-                                                else format(nivel2.PERC_COMISSAO*mg.VALOR_BEM/100, 'N', 'pt-br')
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 THEN nivel2.PERC_COMISSAO*PP.VALOR_BEM/100
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 THEN nivel2.PERC_COMISSAO*((pp.VALOR_BEM*0.90)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 THEN nivel2.PERC_COMISSAO*((pp.VALOR_BEM*0.80)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 THEN nivel2.PERC_COMISSAO*((pp.VALOR_BEM*0.70)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 THEN nivel2.PERC_COMISSAO*((pp.VALOR_BEM*0.60)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 THEN nivel2.PERC_COMISSAO*((pp.VALOR_BEM*0.50)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 THEN nivel1.PERC_COMISSAO*mg.VALOR_BEM/100
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.90)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.80)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.70)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.60)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.50)/100)
+                                            else nivel2.PERC_COMISSAO*mg.VALOR_BEM/100
                                             end as VAL_N2
                                             ,nivel3.CODIGO_REPRESENTANTE AS N3_COD
-                                            ,nivel3.DESCRICAO
-                                            ,nivel3.PERC_COMISSAO as PERC_COM
+                                            ,nivel3.NUMERO_PARCELAS_MAXIMO as N3_MAXIMO
+                                            ,nivel3.DESCRICAO as N3_DESCRICAO
+                                            ,nivel3.PERC_COMISSAO as PERC_COM_N3
                                             ,case
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 THEN format(nivel3.PERC_COMISSAO*PP.VALOR_BEM/100, 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 and nivel3.CODIGO_REPRESENTANTE not IN (912) THEN format(nivel3.PERC_COMISSAO*((pp.VALOR_BEM*0.90)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 and nivel3.CODIGO_REPRESENTANTE not IN (912) THEN format(nivel3.PERC_COMISSAO*((pp.VALOR_BEM*0.80)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 and nivel3.CODIGO_REPRESENTANTE not IN (912) THEN format(nivel3.PERC_COMISSAO*((pp.VALOR_BEM*0.70)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 and nivel3.CODIGO_REPRESENTANTE not IN (912) THEN format(nivel3.PERC_COMISSAO*((pp.VALOR_BEM*0.60)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 and nivel3.CODIGO_REPRESENTANTE not IN (912) THEN format(nivel3.PERC_COMISSAO*((pp.VALOR_BEM*0.50)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 THEN format(nivel1.PERC_COMISSAO*mg.VALOR_BEM/100, 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 and nivel1.CODIGO_REPRESENTANTE not IN (912) THEN format(nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.90)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 and nivel1.CODIGO_REPRESENTANTE not IN (912) THEN format(nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.80)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 and nivel1.CODIGO_REPRESENTANTE not IN (912) THEN format(nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.70)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 and nivel1.CODIGO_REPRESENTANTE not IN (912) THEN format(nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.60)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 and nivel1.CODIGO_REPRESENTANTE not IN (912) THEN format(nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.50)/100), 'N', 'pt-br')
-                                                else format(nivel3.PERC_COMISSAO*mg.VALOR_BEM/100, 'N', 'pt-br')
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 THEN nivel3.PERC_COMISSAO*PP.VALOR_BEM/100
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 THEN nivel3.PERC_COMISSAO*((pp.VALOR_BEM*0.90)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 THEN nivel3.PERC_COMISSAO*((pp.VALOR_BEM*0.80)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 THEN nivel3.PERC_COMISSAO*((pp.VALOR_BEM*0.70)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 THEN nivel3.PERC_COMISSAO*((pp.VALOR_BEM*0.60)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 THEN nivel3.PERC_COMISSAO*((pp.VALOR_BEM*0.50)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 THEN nivel1.PERC_COMISSAO*mg.VALOR_BEM/100
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.90)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.80)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.70)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.60)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.50)/100)
+                                            else nivel3.PERC_COMISSAO*mg.VALOR_BEM/100
                                             end as VAL_N3
                                             ,nivel4.CODIGO_REPRESENTANTE AS N4_COD
-                                            ,nivel4.DESCRICAO
-                                            ,nivel4.PERC_COMISSAO as PERC_COM
+                                            ,nivel4.NUMERO_PARCELAS_MAXIMO as N4_MAXIMO
+                                            ,nivel4.DESCRICAO as N4_DESCRICAO
+                                            ,nivel4.PERC_COMISSAO as PERC_COM_N4
                                             ,case
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 THEN format(nivel4.PERC_COMISSAO*PP.VALOR_BEM/100, 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 THEN format(nivel4.PERC_COMISSAO*((pp.VALOR_BEM*0.90)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 THEN format(nivel4.PERC_COMISSAO*((pp.VALOR_BEM*0.80)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 THEN format(nivel4.PERC_COMISSAO*((pp.VALOR_BEM*0.70)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 THEN format(nivel4.PERC_COMISSAO*((pp.VALOR_BEM*0.60)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 THEN format(nivel4.PERC_COMISSAO*((pp.VALOR_BEM*0.50)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 THEN format(nivel1.PERC_COMISSAO*mg.VALOR_BEM/100, 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 THEN format(nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.90)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 THEN format(nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.80)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 THEN format(nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.70)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 THEN format(nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.60)/100), 'N', 'pt-br')
-                                                when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 THEN format(nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.50)/100), 'N', 'pt-br')
-                                                else format(nivel4.PERC_COMISSAO*mg.VALOR_BEM/100, 'N', 'pt-br')
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 THEN nivel4.PERC_COMISSAO*PP.VALOR_BEM/100
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 THEN nivel4.PERC_COMISSAO*((pp.VALOR_BEM*0.90)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 THEN nivel4.PERC_COMISSAO*((pp.VALOR_BEM*0.80)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 THEN nivel4.PERC_COMISSAO*((pp.VALOR_BEM*0.70)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 THEN nivel4.PERC_COMISSAO*((pp.VALOR_BEM*0.60)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) = 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 THEN nivel4.PERC_COMISSAO*((pp.VALOR_BEM*0.50)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL < 10 THEN nivel1.PERC_COMISSAO*mg.VALOR_BEM/100
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 10 and 20 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.90)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 20 and 30 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.80)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 30 and 40 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.70)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL between 40 and 50 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.60)/100)
+                                            when (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) > 1 AND MG.CODIGO_MOVIMENTO = '010' and Perc_reduz.PERCENTUAL_NORMAL > 50 THEN nivel1.PERC_COMISSAO*((mg.VALOR_BEM*0.50)/100)
+                                            else nivel4.PERC_COMISSAO*mg.VALOR_BEM/100
                                             end as VAL_N4
                                             ,ct.CODIGO_REPRESENTANTE
                                             ,ct.DATA_VENDA
@@ -384,163 +446,228 @@ ConsultasDAO.prototype.getComissoesComReducao = async function(req){
                                             ,mg.CODIGO_MOVIMENTO
                                         from 
                                             COTAS ct inner join MOVIMENTOS_GRUPOS mg on
-                                                ct.CODIGO_GRUPO = mg.CODIGO_GRUPO
-                                                and ct.CODIGO_COTA = mg.CODIGO_COTA
-                                                and ct.VERSAO = mg.VERSAO
+                                            ct.CODIGO_GRUPO = mg.CODIGO_GRUPO
+                                            and ct.CODIGO_COTA = mg.CODIGO_COTA
+                                            and ct.VERSAO = mg.VERSAO
                                             inner join REPRESENTANTES rp on
-                                                rp.CODIGO_REPRESENTANTE = ct.CODIGO_REPRESENTANTE
+                                            rp.CODIGO_REPRESENTANTE = ct.CODIGO_REPRESENTANTE
                                             inner join CATEGORIAS_REPRESENTANTES ctr on
-                                                case 
-                                                    when rp.CODIGO_CATEGORIA is null 
-                                                    then rp.CODIGO_CATEGORIA_SUPERVISAO
-                                                    else rp.CODIGO_CATEGORIA
-                                                    end = ctr.CODIGO_CATEGORIA
+                                            case 
+                                                when rp.CODIGO_CATEGORIA is null 
+                                                then rp.CODIGO_CATEGORIA_SUPERVISAO
+                                                else rp.CODIGO_CATEGORIA
+                                                end = ctr.CODIGO_CATEGORIA
                                             inner join PROPOSTAS pp on
-                                                pp.NUMERO_CONTRATO = ct.NUMERO_CONTRATO
+                                            pp.NUMERO_CONTRATO = ct.NUMERO_CONTRATO
                                             inner join PERIODOS_COMISSOES pc on
-                                                pc.CODIGO_PERIODO = rp.CODIGO_PERIODO
+                                            pc.CODIGO_PERIODO = rp.CODIGO_PERIODO or mg.DATA_CONTABILIZACAO between pc.DATA_CONTABILIZACAO_INICIAL and pc.DATA_CONTABILIZACAO_FINAL
+                                            outer apply(
+                                            select
+                                            TOP 1 (pc.DATA_CONTABILIZACAO_INICIAL) AS DATA_INICIAL_VENDA
+                                            from
+                                            PERIODOS_COMISSOES pc
+                                            where
+                                            CODIGO_PERIODO = ${periodo}
+                                            and DATA_CONTABILIZACAO_INICIAL <= ct.DATA_VENDA
+                                            ORDER BY PC.DATA_CONTABILIZACAO_INICIAL DESC
+                                            ) PC_DT1
+                                            outer apply(
+                                            select
+                                            TOP 1 (pc.DATA_CONTABILIZACAO_FINAL) AS DATA_FINAL_VENDA
+                                            from
+                                            PERIODOS_COMISSOES pc
+                                            where
+                                            CODIGO_PERIODO = ${periodo}
+                                            and DATA_CONTABILIZACAO_FINAL >= ct.DATA_VENDA
+                                            ORDER BY PC.DATA_CONTABILIZACAO_INICIAL
+                                            ) PC_DT2
                                             outer apply
-                                            (
-                                                    select 
+                                                    (
+                                                        select 
                                                         SUM(pp.VALOR_BEM) as total 
-                                                    from 
+                                                        from 
                                                         PROPOSTAS pp 
-                                                    where 
-                                                        pp.DATA_VENDA between pc.DATA_CONTABILIZACAO_INICIAL and pc.DATA_CONTABILIZACAO_FINAL 
+                                                        where 
+                                                        pp.DATA_VENDA between PC_DT1.DATA_INICIAL_VENDA and PC_DT2.DATA_FINAL_VENDA
                                                         and pp.CODIGO_REPRESENTANTE = ct.CODIGO_REPRESENTANTE
-                                                ) as TOTAL_VENDAS
+                                                    ) as TOTAL_VENDAS
                                             outer apply
-                                            (select top 1 pce.PERCENTUAL_NORMAL from COBRANCAS_ESPECIAIS ce inner join PERC_COBRANCAS_ESPECIAIS pce 
-                                                on ce.CODIGO_COBRANCA_ESPECIAL = pce.CODIGO_COBRANCA_ESPECIAL
-                                                where ce.CODIGO_GRUPO = ct.CODIGO_GRUPO and ce.CODIGO_COTA = ct.CODIGO_COTA and ce.VERSAO = ct.VERSAO
-                                                order by ce.PARCELA desc
-                                            ) as Perc_reduz
+                                                    (select top 1 pce.PERCENTUAL_NORMAL from COBRANCAS_ESPECIAIS ce inner join PERC_COBRANCAS_ESPECIAIS pce 
+                                                        on ce.CODIGO_COBRANCA_ESPECIAL = pce.CODIGO_COBRANCA_ESPECIAL
+                                                        where ce.CODIGO_GRUPO = ct.CODIGO_GRUPO and ce.CODIGO_COTA = ct.CODIGO_COTA and ce.VERSAO = ct.VERSAO
+                                                        order by ce.PARCELA desc
+                                                    ) as Perc_reduz       
                                             outer apply
                                             (select
-                                                case 
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_1  THEN cc.PERC_1
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_2  THEN cc.PERC_2
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_3  THEN cc.PERC_3
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_4  THEN cc.PERC_4
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_5  THEN cc.PERC_5
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_6  THEN cc.PERC_6
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_7  THEN cc.PERC_7
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_8  THEN cc.PERC_8
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_9  THEN cc.PERC_9
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_10  THEN cc.PERC_10
-                                                END AS PERC_COMISSAO  
-                                                ,cc.NUMERO_PARCELA
-                                                ,cc.PERC_1
-                                                ,ctr.DESCRICAO
-                                                ,rp.CODIGO_REPRESENTANTE
-                                                ,rp.CODIGO_ENCARREGADO 
+                                            case 
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_1  THEN cc.PERC_1
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_2  THEN cc.PERC_2
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_3  THEN cc.PERC_3
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_4  THEN cc.PERC_4
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_5  THEN cc.PERC_5
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_6  THEN cc.PERC_6
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_7  THEN cc.PERC_7
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_8  THEN cc.PERC_8
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_9  THEN cc.PERC_9
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_10  THEN cc.PERC_10
+                                            END AS PERC_COMISSAO  
+                                            ,cc.NUMERO_PARCELA
+                                            ,cc.PERC_1
+                                            ,ctr.DESCRICAO
+                                            ,rp.CODIGO_REPRESENTANTE
+                                            ,rp.CODIGO_ENCARREGADO
+                                            ,rp.CODIGO_EQUIPE
+                                            ,QPC.NUMERO_PARCELAS_MAXIMO
                                             from 
-                                                COMISSOES_CATEGORIAS cc 
+                                            COMISSOES_CATEGORIAS cc
+                                            outer apply
+                                            (select 
+                                                max(NUMERO_PARCELA) as NUMERO_PARCELAS_MAXIMO 
+                                                from COMISSOES_CATEGORIAS 
+                                                where 
+                                                    NUMERO_PARCELA < 500 
+                                                    AND CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+                                                    and case when RP.CODIGO_CATEGORIA IS NULL THEN RP.CODIGO_CATEGORIA_SUPERVISAO ELSE RP.CODIGO_CATEGORIA END = CODIGO_CATEGORIA
+                                                ) as QPC
                                             where 
-                                                cc.CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
-                                                and cc.NUMERO_PARCELA = (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1)
-                                                and case when RP.CODIGO_CATEGORIA IS NULL THEN RP.CODIGO_CATEGORIA_SUPERVISAO ELSE RP.CODIGO_CATEGORIA END = CC.CODIGO_CATEGORIA
+                                            cc.CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+                                            and cc.NUMERO_PARCELA = (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1)
+                                            and case when RP.CODIGO_CATEGORIA IS NULL THEN RP.CODIGO_CATEGORIA_SUPERVISAO ELSE RP.CODIGO_CATEGORIA END = CC.CODIGO_CATEGORIA
                                             ) as nivel1
                                             outer apply
-                                            (select rp2.CODIGO_REPRESENTANTE, rp2.CODIGO_ENCARREGADO, rp2.CODIGO_CATEGORIA, rp2.CODIGO_CATEGORIA_SUPERVISAO from REPRESENTANTES rp2 where rp2.CODIGO_REPRESENTANTE = rp.CODIGO_ENCARREGADO) as rep2
+                                            (select rp2.CODIGO_REPRESENTANTE, rp2.CODIGO_ENCARREGADO, rp2.CODIGO_CATEGORIA, rp2.CODIGO_CATEGORIA_SUPERVISAO, rp2.CODIGO_EQUIPE from REPRESENTANTES rp2 where rp2.CODIGO_REPRESENTANTE = rp.CODIGO_ENCARREGADO) as rep2
                                             outer apply
                                             (select
-                                                case 
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_1  THEN cc.PERC_1
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_2  THEN cc.PERC_2
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_3  THEN cc.PERC_3
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_4  THEN cc.PERC_4
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_5  THEN cc.PERC_5
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_6  THEN cc.PERC_6
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_7  THEN cc.PERC_7
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_8  THEN cc.PERC_8
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_9  THEN cc.PERC_9
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_10  THEN cc.PERC_10
-                                                END AS PERC_COMISSAO 
-                                                ,cc.NUMERO_PARCELA
-                                                ,cc.PERC_1
-                                                ,rep2.CODIGO_CATEGORIA_SUPERVISAO
-                                                ,rep2.CODIGO_REPRESENTANTE
-                                                ,rep2.CODIGO_ENCARREGADO
-                                                ,cr.DESCRICAO 
+                                            case 
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_1  THEN cc.PERC_1
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_2  THEN cc.PERC_2
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_3  THEN cc.PERC_3
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_4  THEN cc.PERC_4
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_5  THEN cc.PERC_5
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_6  THEN cc.PERC_6
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_7  THEN cc.PERC_7
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_8  THEN cc.PERC_8
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_9  THEN cc.PERC_9
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_10  THEN cc.PERC_10
+                                            END AS PERC_COMISSAO 
+                                            ,cc.NUMERO_PARCELA
+                                            ,cc.PERC_1
+                                            ,rep2.CODIGO_CATEGORIA_SUPERVISAO
+                                            ,rep2.CODIGO_REPRESENTANTE
+                                            ,rep2.CODIGO_ENCARREGADO
+                                            ,rep2.CODIGO_EQUIPE
+                                            ,cr.DESCRICAO
+                                            ,QPC.NUMERO_PARCELAS_MAXIMO 
                                             from 
-                                                COMISSOES_CATEGORIAS cc inner join CATEGORIAS_REPRESENTANTES cr on
-                                                cc.CODIGO_CATEGORIA = cr.CODIGO_CATEGORIA
+                                            COMISSOES_CATEGORIAS cc inner join CATEGORIAS_REPRESENTANTES cr on
+                                            cc.CODIGO_CATEGORIA = cr.CODIGO_CATEGORIA
+                                            outer apply
+                                            (select 
+                                                max(NUMERO_PARCELA) as NUMERO_PARCELAS_MAXIMO 
+                                                from COMISSOES_CATEGORIAS 
+                                                where 
+                                                    NUMERO_PARCELA < 500 
+                                                    AND CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+                                                    and case when rep2.CODIGO_CATEGORIA_SUPERVISAO IS NULL THEN rep2.CODIGO_CATEGORIA ELSE rep2.CODIGO_CATEGORIA_SUPERVISAO END = CODIGO_CATEGORIA
+                                                ) as QPC
                                             where 
-                                                cc.CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
-                                                and cc.NUMERO_PARCELA = (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1)
-                                                and case when rep2.CODIGO_CATEGORIA_SUPERVISAO IS NULL THEN rep2.CODIGO_CATEGORIA ELSE rep2.CODIGO_CATEGORIA_SUPERVISAO END = CC.CODIGO_CATEGORIA
+                                            cc.CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+                                            and cc.NUMERO_PARCELA = (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1)
+                                            and case when rep2.CODIGO_CATEGORIA_SUPERVISAO IS NULL THEN rep2.CODIGO_CATEGORIA ELSE rep2.CODIGO_CATEGORIA_SUPERVISAO END = CC.CODIGO_CATEGORIA
                                             ) as nivel2
                                             outer apply
-                                            (select rp3.CODIGO_REPRESENTANTE, rp3.CODIGO_ENCARREGADO, rp3.CODIGO_CATEGORIA, rp3.CODIGO_CATEGORIA_SUPERVISAO from REPRESENTANTES rp3 where rp3.CODIGO_REPRESENTANTE = rep2.CODIGO_ENCARREGADO) as rep3
+                                            (select rp3.CODIGO_REPRESENTANTE, rp3.CODIGO_ENCARREGADO, rp3.CODIGO_CATEGORIA, rp3.CODIGO_CATEGORIA_SUPERVISAO, rp3.CODIGO_EQUIPE from REPRESENTANTES rp3 where rp3.CODIGO_REPRESENTANTE = rep2.CODIGO_ENCARREGADO) as rep3
                                             outer apply
                                             (select 
-                                                cc.NUMERO_PARCELA
-                                                ,case 
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_1  THEN cc.PERC_1
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_2  THEN cc.PERC_2
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_3  THEN cc.PERC_3
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_4  THEN cc.PERC_4
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_5  THEN cc.PERC_5
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_6  THEN cc.PERC_6
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_7  THEN cc.PERC_7
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_8  THEN cc.PERC_8
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_9  THEN cc.PERC_9
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_10  THEN cc.PERC_10
-                                                END AS PERC_COMISSAO 
-                                                ,cc.PERC_1
-                                                ,rep3.CODIGO_CATEGORIA_SUPERVISAO
-                                                ,rep3.CODIGO_REPRESENTANTE
-                                                ,rep3.CODIGO_ENCARREGADO
-                                                ,cr.DESCRICAO 
+                                            cc.NUMERO_PARCELA
+                                            ,case 
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_1  THEN cc.PERC_1
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_2  THEN cc.PERC_2
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_3  THEN cc.PERC_3
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_4  THEN cc.PERC_4
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_5  THEN cc.PERC_5
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_6  THEN cc.PERC_6
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_7  THEN cc.PERC_7
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_8  THEN cc.PERC_8
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_9  THEN cc.PERC_9
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_10  THEN cc.PERC_10
+                                            END AS PERC_COMISSAO 
+                                            ,cc.PERC_1
+                                            ,rep3.CODIGO_CATEGORIA_SUPERVISAO
+                                            ,rep3.CODIGO_REPRESENTANTE
+                                            ,rep3.CODIGO_ENCARREGADO
+                                            ,rep3.codigo_equipe
+                                            ,cr.DESCRICAO
+                                            ,qpc.NUMERO_PARCELAS_MAXIMO
                                             from 
-                                                COMISSOES_CATEGORIAS cc inner join CATEGORIAS_REPRESENTANTES cr on
-                                                cc.CODIGO_CATEGORIA = cr.CODIGO_CATEGORIA
+                                            COMISSOES_CATEGORIAS cc inner join CATEGORIAS_REPRESENTANTES cr on
+                                            cc.CODIGO_CATEGORIA = cr.CODIGO_CATEGORIA
+                                            outer apply
+                                            (select 
+                                                max(NUMERO_PARCELA) as NUMERO_PARCELAS_MAXIMO 
+                                                from COMISSOES_CATEGORIAS 
+                                                where 
+                                                    NUMERO_PARCELA < 500 
+                                                    AND CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+                                                    and case when rep3.CODIGO_CATEGORIA_SUPERVISAO IS NULL THEN rep3.CODIGO_CATEGORIA ELSE Rep3.CODIGO_CATEGORIA_SUPERVISAO END = CODIGO_CATEGORIA
+                                                ) as QPC
                                             where 
-                                                cc.CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
-                                                and cc.NUMERO_PARCELA = (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1)
-                                                and case when rep3.CODIGO_CATEGORIA_SUPERVISAO IS NULL THEN rep3.CODIGO_CATEGORIA ELSE Rep3.CODIGO_CATEGORIA_SUPERVISAO END = CC.CODIGO_CATEGORIA
+                                            cc.CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+                                            and cc.NUMERO_PARCELA = (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1)
+                                            and case when rep3.CODIGO_CATEGORIA_SUPERVISAO IS NULL THEN rep3.CODIGO_CATEGORIA ELSE Rep3.CODIGO_CATEGORIA_SUPERVISAO END = CC.CODIGO_CATEGORIA
                                             ) as nivel3
                                             outer apply
-                                            (select rp4.CODIGO_REPRESENTANTE, rp4.CODIGO_ENCARREGADO, rp4.CODIGO_CATEGORIA, rp4.CODIGO_CATEGORIA_SUPERVISAO from REPRESENTANTES rp4 where rp4.CODIGO_REPRESENTANTE = rep3.CODIGO_ENCARREGADO) as rep4
+                                            (select rp4.CODIGO_REPRESENTANTE, rp4.CODIGO_ENCARREGADO, rp4.CODIGO_CATEGORIA, rp4.CODIGO_CATEGORIA_SUPERVISAO, rp4.CODIGO_EQUIPE from REPRESENTANTES rp4 where rp4.CODIGO_REPRESENTANTE = rep3.CODIGO_ENCARREGADO) as rep4
                                             outer apply
                                             (select 
-                                                case 
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_1  THEN cc.PERC_1
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_2  THEN cc.PERC_2
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_3  THEN cc.PERC_3
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_4  THEN cc.PERC_4
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_5  THEN cc.PERC_5
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_6  THEN cc.PERC_6
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_7  THEN cc.PERC_7
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_8  THEN cc.PERC_8
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_9  THEN cc.PERC_9
-                                                    WHEN TOTAL_VENDAS.total <= cc.FAIXA_10  THEN cc.PERC_10
-                                                END AS PERC_COMISSAO 
-                                                ,cc.NUMERO_PARCELA
-                                                ,cc.PERC_1
-                                                ,rep4.CODIGO_CATEGORIA_SUPERVISAO
-                                                ,rep4.CODIGO_REPRESENTANTE
-                                                ,rep4.CODIGO_ENCARREGADO
-                                                ,cr.DESCRICAO 
+                                            case 
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_1  THEN cc.PERC_1
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_2  THEN cc.PERC_2
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_3  THEN cc.PERC_3
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_4  THEN cc.PERC_4
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_5  THEN cc.PERC_5
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_6  THEN cc.PERC_6
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_7  THEN cc.PERC_7
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_8  THEN cc.PERC_8
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_9  THEN cc.PERC_9
+                                                WHEN TOTAL_VENDAS.total <= cc.FAIXA_10  THEN cc.PERC_10
+                                            END AS PERC_COMISSAO 
+                                            ,cc.NUMERO_PARCELA
+                                            ,cc.PERC_1
+                                            ,rep4.CODIGO_CATEGORIA_SUPERVISAO
+                                            ,rep4.CODIGO_REPRESENTANTE
+                                            ,rep4.CODIGO_ENCARREGADO
+                                            ,rep4.CODIGO_EQUIPE
+                                            ,cr.DESCRICAO
+                                            ,qpc.NUMERO_PARCELAS_MAXIMO 
                                             from 
-                                                COMISSOES_CATEGORIAS cc inner join CATEGORIAS_REPRESENTANTES cr on
-                                                cc.CODIGO_CATEGORIA = cr.CODIGO_CATEGORIA
+                                            COMISSOES_CATEGORIAS cc inner join CATEGORIAS_REPRESENTANTES cr on
+                                            cc.CODIGO_CATEGORIA = cr.CODIGO_CATEGORIA
+                                            outer apply
+                                            (select 
+                                                max(NUMERO_PARCELA) as NUMERO_PARCELAS_MAXIMO 
+                                                from COMISSOES_CATEGORIAS 
+                                                where 
+                                                    NUMERO_PARCELA < 500 
+                                                    AND CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+                                                    and case when rep4.CODIGO_CATEGORIA_SUPERVISAO IS NULL THEN rep4.CODIGO_CATEGORIA ELSE Rep4.CODIGO_CATEGORIA_SUPERVISAO END = CODIGO_CATEGORIA
+                                                ) as QPC
                                             where 
-                                                cc.CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
-                                                and cc.NUMERO_PARCELA = (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1)
-                                                and case when rep4.CODIGO_CATEGORIA_SUPERVISAO IS NULL THEN rep4.CODIGO_CATEGORIA ELSE Rep4.CODIGO_CATEGORIA_SUPERVISAO END = CC.CODIGO_CATEGORIA
+                                            cc.CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+                                            and cc.NUMERO_PARCELA = (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1)
+                                            and case when rep4.CODIGO_CATEGORIA_SUPERVISAO IS NULL THEN rep4.CODIGO_CATEGORIA ELSE Rep4.CODIGO_CATEGORIA_SUPERVISAO END = CC.CODIGO_CATEGORIA
                                             ) as nivel4
                                             outer apply
                                             (select max(NUMERO_PARCELA) as NUMERO_PARCELAS_MAXIMO from COMISSOES_CATEGORIAS where NUMERO_PARCELA < 500 AND CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO) as QUANTIDADE_PARCELAS
 
                                         where
                                             --ct.CODIGO_GRUPO = '056'
-                                            --and ct.CODIGO_COTA = '281'
-                                            --and ct.VERSAO = '00' and
-                                            mg.CODIGO_MOVIMENTO in ('010','011')
-                                            and ct.VERSAO < '40'
-                                            and mg.DATA_CONTABILIZACAO between '20220701' and '20220801'
+                                            --and ct.CODIGO_COTA = '028'
+                                            --and ct.VERSAO = '00'
+                                            mg.CODIGO_MOVIMENTO in ('010','011')`                                           
+                                            + complemento +
+                                            ` and ct.VERSAO < '40'
+                                            and mg.DATA_CONTABILIZACAO between '${data_inicial}' and '${data_final}'
                                             and ct.DATA_VENDA between pc.DATA_CONTABILIZACAO_INICIAL and pc.DATA_CONTABILIZACAO_FINAL
                                             and (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) <= QUANTIDADE_PARCELAS.NUMERO_PARCELAS_MAXIMO
                                         order by
