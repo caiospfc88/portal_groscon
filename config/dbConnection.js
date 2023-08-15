@@ -26,21 +26,7 @@ var conexao = async function(sqlQuery) {
     return result.recordset;
 };  
 
-/*const conexão = new Promise((resolve,reject)=>{
-
-})*/   
-
 module.exports = function(){
     return conexao;
 };
 
-/*async () => {
- try {
-  // make sure that any items are correctly URL encoded in the connection string
-  await sql.connect(sqlConfig)
-  const result = await sql.query`select * from mytable where id = ${value}`
-  console.dir(result)
- } catch (err) {
-  // ... error checks
- }
-};*/

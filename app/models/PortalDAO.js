@@ -1,3 +1,5 @@
+const db = require('../../db/models/index.js');
+
 function PortalDAO(mySqlConnection){
     this._mySqlConnection = mySqlConnection;
 }
