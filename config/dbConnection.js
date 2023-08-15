@@ -1,9 +1,11 @@
+require('dotenv').config()
+
 const sql = require('mssql')
 const sqlConfig = {
-  user: 'microserv',
-  password: 'xpmsv',
-  database: 'NewconPlus050423',
-  server: 'WIN',
+  user: process.env.DB_SSQL_USER,
+  password: process.env.DB_SSQL_PASS,
+  database: process.env.DB_SSQL_BASE,
+  server: process.env.DB_SSQL_HOST,
   pool: {
     max: 10,
     min: 0,
