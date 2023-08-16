@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   mural_dados.init({
-    ano_mes: {DataTypes: INTEGER, unique:true, allowNull:false},
+    ano_mes: DataTypes.INTEGER,
     bens_entregues: DataTypes.INTEGER,
     percent_inadimplencia: DataTypes.FLOAT,
     bens_pendentes_entrega: DataTypes.INTEGER,
