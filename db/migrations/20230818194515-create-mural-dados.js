@@ -9,43 +9,17 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      ano_mes: {
-        type: Sequelize.INTEGER,
-        unique:true,
-        allowNull:false
-      },
-      bens_entregues: {
+      ano: {
         type: Sequelize.INTEGER
       },
-      percent_inadimplencia: {
+      mes: {
+        type: Sequelize.INTEGER
+      },
+      tipo: {
+        type: Sequelize.INTEGER
+      },
+      valor: {
         type: Sequelize.FLOAT
-      },
-      bens_pendentes_entrega: {
-        type: Sequelize.INTEGER
-      },
-      recuperacao_cotas: {
-        type: Sequelize.INTEGER
-      },
-      boletos_dev_nao_entregues: {
-        type: Sequelize.INTEGER
-      },
-      impressoes_n_copias: {
-        type: Sequelize.INTEGER
-      },
-      agua: {
-        type: Sequelize.FLOAT
-      },
-      luz: {
-        type: Sequelize.FLOAT
-      },
-      telefone: {
-        type: Sequelize.FLOAT
-      },
-      vendas: {
-        type: Sequelize.INTEGER
-      },
-      vendas_franca: {
-        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
