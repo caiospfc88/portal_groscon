@@ -1,12 +1,20 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var consign = require('consign');
+const express = require('express');
+const bodyParser = require('body-parser');
+const consign = require('consign');
+const session = require('express-session');
+const jwt = require('jsonwebtoken');
+
 
 var app = express();
 
 app.set('view engine', 'ejs');
 app.set('views', './app/views');
 
+app.use(session({
+	secret:'groscon@2023',
+	resave:true,
+	saveUninitialized:true
+}));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
