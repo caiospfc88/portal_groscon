@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 module.exports = function(application){
         application.get('/comissoesSemReducao', function(req, res){        
         application.app.controllers.consultasSqlServer.comissoesSemReducao(application, req, res);
