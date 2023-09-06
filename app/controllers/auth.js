@@ -1,2 +1,2 @@
 import jwt from "jsonwebtoken";
-import usuario;
+const usuarios = require('../../db/models/usuarios.js');
