@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   mural_descricao.init({
-    descricao: DataTypes.STRING
+    descricao: DataTypes.STRING,
+    id_usuario: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'mural_descricao',

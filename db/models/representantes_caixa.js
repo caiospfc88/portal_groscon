@@ -15,10 +15,21 @@ module.exports = (sequelize, DataTypes) => {
   }
   representantes_caixa.init({
     nome: DataTypes.STRING,
-    cnpj: DataTypes.STRING,
-    cod_uni_negocio: DataTypes.STRING,
-    cod_comissionado: DataTypes.STRING,
-    cod_grupo_usuario: DataTypes.STRING
+    nome_empresa: DataTypes.STRING,
+    usuario_caixa: DataTypes.STRING,
+    email: DataTypes.STRING,
+    cpf: DataTypes.STRING,
+    data_nascimento: DataTypes.DATE,
+    tipo: DataTypes.INTEGER,
+    estado: DataTypes.STRING,
+    cidade: DataTypes.STRING,
+    ddd: DataTypes.INTEGER,
+    telefone: DataTypes.INTEGER,
+    ativo: DataTypes.BOOLEAN,
+    data_desligamento: DataTypes.DATE,
+    data_cadastro: DataTypes.DATE,
+    status_caixa: DataTypes.BOOLEAN,
+    id_empresa: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'representantes_caixa',

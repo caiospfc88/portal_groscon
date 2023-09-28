@@ -2,14 +2,26 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('mural_descricaos', {
+    await queryInterface.createTable('empresas', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      descricao: {
+      nome: {
+        type: Sequelize.STRING
+      },
+      cnpj: {
+        type: Sequelize.STRING
+      },
+      cod_uni_negocio: {
+        type: Sequelize.STRING
+      },
+      cod_comissionado: {
+        type: Sequelize.STRING
+      },
+      cod_grupo_usuario: {
         type: Sequelize.STRING
       },
       createdAt: {
@@ -23,6 +35,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('mural_descricaos');
+    await queryInterface.dropTable('empresas');
   }
 };

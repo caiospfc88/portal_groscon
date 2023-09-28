@@ -7,67 +7,67 @@ module.exports = {
     await queryInterface.bulkInsert('usuarios', [
       {
         descricao : "Bens Entregues",
-        responsavel: null,
+        id_usuario : null,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "% Inadimplência",
-        responsavel: null,
+        id_usuario : null,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Bens Pendentes de Entrega",
-        responsavel: null,
+        id_usuario : null,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Recuperações",
-        responsavel: null,
+        id_usuario : null,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Boletos Dev./N Entregues",
-        responsavel: null,
+        id_usuario : null,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Impressões Nº Cópias",
-        responsavel: null,
+        id_usuario : null,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Água",
-        responsavel: null,
+        id_usuario : null,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Luz",
-        responsavel: null,
+        id_usuario : null,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Telefone",
-        responsavel: null,
+        id_usuario : null,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Vendas",
-        responsavel: null,
+        id_usuario : null,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Vendas Franca",
-        responsavel: null,
+        id_usuario : null,
         createdAt: new Date(),
         updatedAt: new Date()
       }

@@ -10,25 +10,19 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       ano: {
-        type: Sequelize.INTEGER,
-        allowNull: false
+        type: Sequelize.INTEGER
       },
       mes: {
-        type: Sequelize.INTEGER,
-        allowNull: false
+        type: Sequelize.INTEGER
       },
       tipo: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: {
-            tableName: 'mural_descricao',
-            schema: 'portal_groscon'
-          },
-          key: 'id'
-        },
+        type: Sequelize.INTEGER
       },
       valor: {
         type: Sequelize.FLOAT
+      },
+      id_mural_descricao: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
@@ -38,14 +32,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-    }).then((queryInterface, Sequelize) => {
-      queryInterface.addIndex(
-        'AnoMes',
-        ['ano', 'mes'],
-        {
-          type: 'UNIQUE'
-        }
-      );
     });
   },
   async down(queryInterface, Sequelize) {

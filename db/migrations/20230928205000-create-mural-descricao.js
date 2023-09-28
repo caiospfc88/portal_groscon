@@ -2,27 +2,18 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('representantes_caixas', {
+    await queryInterface.createTable('mural_descricaos', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      nome: {
+      descricao: {
         type: Sequelize.STRING
       },
-      cnpj: {
-        type: Sequelize.STRING
-      },
-      cod_uni_negocio: {
-        type: Sequelize.STRING
-      },
-      cod_comissionado: {
-        type: Sequelize.STRING
-      },
-      cod_grupo_usuario: {
-        type: Sequelize.STRING
+      id_usuario: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
@@ -35,6 +26,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('representantes_caixas');
+    await queryInterface.dropTable('mural_descricaos');
   }
 };
