@@ -7,9 +7,9 @@ module.exports = {
     await queryInterface.bulkInsert('empresa', [{
       nome: 'GROSCON ADMINISTRADORA DE CONSÓRCIOS LTDA',
       cnpj: '26.228.270/0001-48',
-      cod_uni_negocio: DataTypes.STRING,
-      cod_comissionado: DataTypes.STRING,
-      cod_grupo_usuario: DataTypes.STRING,
+      cod_uni_negocio: '100036',
+      cod_comissionado: 'GC0001',
+      cod_grupo_usuario: 'GC0001',
       createdAt: new Date(),
       updatedAt: new Date()
     }])
