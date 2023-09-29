@@ -4,7 +4,7 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
    
-    await queryInterface.bulkInsert('usuarios', [
+    await queryInterface.bulkInsert('mural_descricao', [
       {
         descricao : "Bens Entregues",
         id_usuario : null,
