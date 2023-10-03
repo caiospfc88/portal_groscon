@@ -1,4 +1,7 @@
 'use strict';
+
+const { BelongsTo } = require('sequelize');
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -22,7 +25,12 @@ module.exports = {
         type: Sequelize.FLOAT
       },
       id_mural_descricao: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull : false,
+        references: { //mural_dados BelongsTo mural_descricao
+            model : 'mural_descricao',
+            key : 'id'
+        }
       },
       createdAt: {
         allowNull: false,
