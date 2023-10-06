@@ -26,11 +26,7 @@ module.exports = {
       },
       id_mural_descricao: {
         type: Sequelize.INTEGER,
-        allowNull : false,
-        references: { //mural_dados BelongsTo mural_descricao
-            model : 'mural_descricao',
-            key : 'id'
-        }
+        allowNull : false
       },
       createdAt: {
         allowNull: false,

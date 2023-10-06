@@ -55,12 +55,7 @@ module.exports = {
         type: Sequelize.BOOLEAN
       },
       id_empresa: {
-        type: Sequelize.INTEGER,
-        allowNull : false,
-        references: { 
-            model : 'empresa',
-            key : 'id'
-        }
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,

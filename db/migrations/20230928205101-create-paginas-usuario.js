@@ -10,20 +10,11 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       id_pagina: {
-        type: Sequelize.INTEGER,
-        allowNull : false,
-        references: { 
-            model : 'paginas_portal',
-            key : 'id'
-        }
+        type: Sequelize.INTEGER
       },
       id_usuario: {
         type: Sequelize.INTEGER,
-        allowNull : false,
-        references: { 
-            model : 'usuarios',
-            key : 'id'
-        }
+        allowNull : false
       },
       createdAt: {
         allowNull: false,
