@@ -4,11 +4,11 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     
-    await queryInterface.addConstraint('mural_dados','id_mural_descricao',{
+    await queryInterface.addConstraint('representantes_caixa','id_empresa',{
       type: 'foreign key',
-      name: 'id_mural_descricao_fk',
+      name: 'id_empresa_fk',
       references:{
-        model : 'mural_descricao',
+        model : 'empresa',
         key : 'id' 
       }
     })
@@ -17,7 +17,7 @@ module.exports = {
 
   async down (queryInterface, Sequelize) {
     
-     await queryInterface.removeConstraint('id_mural_descricao_fk');
+     await queryInterface.removeConstraint('id_empresa_fk');
     
   }
 };
