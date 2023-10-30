@@ -4,15 +4,19 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     
-    await queryInterface.addConstraint('paginas_usuario','id_usuario',{
+    await queryInterface.addConstraint('paginas_usuario',{
+      fields:['id_usuario'],
       type: 'foreign key',
       name: 'id_usuario_fk2',
       references:{
-        model : 'usuarios',
-        key : 'id' 
-      }
+        table : 'usuarios',
+        field : 'id' 
+      },
+      onDelete: 'cascade',
+      onUpdate: 'cascade'
     }),
-    await queryInterface.addConstraint('paginas_usuario','id_pagina',{
+    await queryInterface.addConstraint('paginas_usuario',{
+      fields:['id_pagina'],
       type: 'foreign key',
       name: 'id_pagina_fk',
       references:{

@@ -4,13 +4,16 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     
-    await queryInterface.addConstraint('mural_dados','id_mural_descricao',{
+    await queryInterface.addConstraint('mural_dados',{
+      fields: ['id_mural_descricao'],  
       type: 'foreign key',
       name: 'id_mural_descricao_fk',
       references:{
-        model : 'mural_descricao',
-        key : 'id' 
-      }
+        table : 'mural_descricao',
+        field : 'id' 
+      },
+      onDelete: 'cascade',
+      onUpdate: 'cascade'
     })
 
   },
