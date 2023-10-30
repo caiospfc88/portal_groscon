@@ -2,15 +2,30 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('paginas_portal', {
+    await queryInterface.createTable('arquivos_bradescos', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      descricao: {
+      nome: {
         type: Sequelize.STRING
+      },
+      data: {
+        type: Sequelize.DATE
+      },
+      contabil_ini: {
+        type: Sequelize.DATE
+      },
+      contabil_fin: {
+        type: Sequelize.DATE
+      },
+      envio_arquivo: {
+        type: Sequelize.DATE
+      },
+      visualiza: {
+        type: Sequelize.BOOLEAN
       },
       createdAt: {
         allowNull: false,
@@ -23,6 +38,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('paginas_portal');
+    await queryInterface.dropTable('arquivos_bradescos');
   }
 };
