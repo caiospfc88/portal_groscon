@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('arquivos_bradescos', {
+    await queryInterface.createTable('arquivos_bradesco', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -38,6 +38,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('arquivos_bradescos');
+    await queryInterface.dropTable('arquivos_bradesco');
   }
 };
