@@ -20,9 +20,11 @@ module.exports = {
       type: 'foreign key',
       name: 'id_pagina_fk',
       references:{
-        model : 'paginas_portal',
-        key : 'id' 
-      }
+        table : 'paginas_portal',
+        field : 'id' 
+      },
+      onDelete: 'cascade',
+      onUpdate: 'cascade'
     })
 
   },
