@@ -21,7 +21,6 @@ app.use(bodyParser.json());
 consign()
 	.include('app/routes')
 	.then('config/dbConnection.js')
-	.then('config/mySqlDb.js')
 	.then('app/models')
 	.then('app/controllers')
 	.into(app);
