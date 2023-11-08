@@ -11,7 +11,7 @@ module.exports = {
       senha: 'tempDev2023',
       email: 'ti@consorciogroscon.com.br',
       data_nascimento: '1988-4-07',
-      celular: 16991827470,
+      celular: '16991827470',
       createdAt: new Date(),
       updatedAt: new Date()
     }])

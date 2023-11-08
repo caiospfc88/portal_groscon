@@ -28,7 +28,7 @@ module.exports = {
         type: Sequelize.DATE
       },
       celular: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
