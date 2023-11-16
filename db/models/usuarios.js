@@ -2,8 +2,11 @@
 const {
   Model
 } = require('sequelize');
+
+import Bcrypt from 'bcrypt';
+
 module.exports = (sequelize, DataTypes) => {
-  class usuarios extends Model {
+  class Usuarios extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  usuarios.init({
+  Usuarios.init({
     nome: DataTypes.STRING,
     sobrenome: DataTypes.STRING,
     login: DataTypes.STRING,
@@ -25,5 +28,15 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'usuarios',
   });
-  return usuarios;
+
+  Usuarios.associate = models => {
+    models.usuarios.hasMany(models.mural_descricao);
+  }
+
+  Usuarios.addHook('beforeCreate', async (usuarios) => {
+    const hash = await Bcrypt.hash(usuarios.senha, 10);
+    usuarios.senha = hash;
+});
+
+  return Usuarios;
 };
