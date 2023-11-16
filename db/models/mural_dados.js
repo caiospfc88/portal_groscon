@@ -23,5 +23,10 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'mural_dados',
   });
+
+  Mural_dados.associate = models =>{
+    models.mural_dados.belongsTo(models.mural_descricao)
+  }
+
   return Mural_dados;
 };
