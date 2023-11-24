@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
   Usuarios.addHook('beforeCreate', async (usuarios) => {
     const hash = await Bcrypt.hash(usuarios.senha, 1035);
     usuarios.senha = hash;
-});
+  });
 
   return Usuarios;
 };

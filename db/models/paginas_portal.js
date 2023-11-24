@@ -19,5 +19,10 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'paginas_portal',
   });
+
+  Paginas_portal.associate = models =>{
+    models.paginas_portal.belongsToMany(models.usuarios, {through : models.paginas_usuario})
+  }
+
   return Paginas_portal;
 };
