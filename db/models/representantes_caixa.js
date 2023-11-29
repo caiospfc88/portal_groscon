@@ -34,5 +34,10 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'representantes_caixa',
   });
+
+  Mural_descricao.associate = models => {
+    models.representantes_caixa.belongsTo(models.empresa);
+  };
+
   return Representantes_caixa;
 };

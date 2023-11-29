@@ -31,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Usuarios.associate = models => {
     models.usuarios.hasMany(models.mural_descricao);
+    models.usuarios.belongsToMany(models.paginas_portal, {through : models.paginas_usuario});
   }
 
   Usuarios.addHook('beforeCreate', async (usuarios) => {
