@@ -6,7 +6,6 @@ module.exports = {
     
     await queryInterface.bulkInsert('representantes_caixa', [
       {
-        id : 1,
         nome : "MYLENE LADY BARBOSA",
         nome_empresa : "GROSCON ADMINISTRADORA DE CONSÓRCIOS LTDA",
         usuario_caixa : "GAC27035",
@@ -27,7 +26,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 2,
         nome : "THALES DOS REIS MANTOVANI",
         nome_empresa : "GROSCON ADMINISTRADORA DE CONSÓRCIOS LTDA",
         usuario_caixa : "GAC39152",
@@ -48,7 +46,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 3,
         nome : "THALITA DE OLIVEIRA",
         nome_empresa : "GROSCON ADMINISTRADORA DE CONSÓRCIOS LTDA",
         usuario_caixa : "GAC38974",
@@ -69,7 +66,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 4,
         nome : "ANDERSON FERNANDES SOUZA",
         nome_empresa : "BLESSING PRESTACAO DE SERVIÇOS, REPRESENTACAO, CORRETAGEM E EVENTOS EM GERAL LTDA ME",
         usuario_caixa : "GAC32140",
@@ -90,7 +86,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 5,
         nome : "CRISTIANA AMORIM DA SILVA",
         nome_empresa : "DANGELO & SILVA COBRANÇAS LTDA ME",
         usuario_caixa : "GAC18653",
@@ -111,7 +106,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 6,
         nome : "JANAINA ARAUJO SAMPAIO",
         nome_empresa : "JANAINA DE ARAUJO SAMPAIO ME (MARTA)",
         usuario_caixa : "GAC01348",
@@ -132,7 +126,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 7,
         nome : "JOSE LIANDRO PINHEIRO DE QUEIROZ",
         nome_empresa : "JOSE LIANDRO PINHEIRO DE QUEIROZ 95705201320 (MARTA)",
         usuario_caixa : "GAC95705",
@@ -153,7 +146,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 8,
         nome : "LUIS ROGERIO SPINDOLA DA SILVA",
         nome_empresa : "LUIS ROGERIO SPINDOLA DA SILVA",
         usuario_caixa : "GAC40318",
@@ -174,7 +166,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 9,
         nome : "MARCO ANTONIO KRUGER DE OLIVEIRA",
         nome_empresa : "GROSCRED PROMOCAO DE VENDAS EPP",
         usuario_caixa : "GAC58413",
@@ -195,7 +186,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 10,
         nome : "MARIA CONCEICAO VIEIRA",
         nome_empresa : "MARIA CONCEICAO VIEIRA 02634000855",
         usuario_caixa : "GAC63400",
@@ -216,7 +206,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 11,
         nome : "MARIA FABRICIA CALISTO TEIXEIRA",
         nome_empresa : "HABITAÇÃO SERVIÇOS DE INFORMAÇOES CADASTRAIS LTDA (MARTA)",
         usuario_caixa : "GAC76582",
@@ -237,7 +226,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 13,
         nome : "MESSIAS DAMASCENO DOS SANTOS",
         nome_empresa : "MESSIAS DAMASCENO DOS SANTOS (MARTA)",
         usuario_caixa : "GAC91213",
@@ -258,7 +246,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 14,
         nome : "ROSANA APARECIDA CHICHITOSTE",
         nome_empresa : "ROSANA APARECIDA CHICHITOSTE",
         usuario_caixa : "GAC11332",
@@ -279,7 +266,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 15,
         nome : "SERGIO RICARDO DA SILVA",
         nome_empresa : "SERGIO RICARDO DA SILVA PROMOÇÃO DE VENDAS (SÉRGIO)",
         usuario_caixa : "GAC10186",
@@ -300,7 +286,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 16,
         nome : "VINICIUS NETO DA SILVEIRA",
         nome_empresa : "PARCERIA TELEMARKETING LTDA ME (MARCO)",
         usuario_caixa : "GAC94894",
@@ -321,7 +306,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 17,
         nome : "ELIEZER MIRANDA DA SILVA",
         nome_empresa : "RN CONSORCIOS LTDA (MARTA)",
         usuario_caixa : "GAC50689",
@@ -342,7 +326,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 18,
         nome : "FRANCIVANDA DIAS CORDEIRO",
         nome_empresa : "FRANCIVANDA DIAS CORDEIRO ME (MARTA)",
         usuario_caixa : "GAC03879",
@@ -363,7 +346,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 19,
         nome : "NEDSON CABRAL PINTO",
         nome_empresa : "NEDSON CABRAL PINTO 5641322572",
         usuario_caixa : "GAC56417",
@@ -384,7 +366,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 20,
         nome : "LEANDRO VIANA MATIAS",
         nome_empresa : "GROSCRED PROMOCAO DE VENDAS EPP",
         usuario_caixa : "GAC22615",
@@ -405,7 +386,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 21,
         nome : "MARCELO CARVALHO DA SILVA",
         nome_empresa : "GROSCRED PROMOCAO DE VENDAS EPP",
         usuario_caixa : "GAC28188",
@@ -426,7 +406,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 22,
         nome : "CRISTIANE SILVA DOURADO",
         nome_empresa : "GROSCRED PROMOCAO DE VENDAS EPP",
         usuario_caixa : "GAC32906",
@@ -447,7 +426,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 23,
         nome : "DANIEL SILVEIRA DOS SANTOS",
         nome_empresa : "DABELI REPRESENTACOES COMERCIAIS LTDA (MARCO)",
         usuario_caixa : "GAC04287",
@@ -468,7 +446,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 24,
         nome : "ANTONIO MARCOS DE CARVALHO",
         nome_empresa : "FENYX IMÓVEIS DO VALE COMÉRCIO E REPRESENTAÇÕES LTDA ME (MARCO)",
         usuario_caixa : "GAC81711",
@@ -489,7 +466,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 25,
         nome : "AIRTON JOSE MEDEIROS",
         nome_empresa : "FLEXVIA REPRESENTAÇÕES COMERCIAIS LTDA",
         usuario_caixa : "GAC54197",
@@ -510,7 +486,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 26,
         nome : "DORGIVAL RAMOS DE LIMA",
         nome_empresa : "DORGIVAL RAMOS DE LIMA ME (AIRTON)",
         usuario_caixa : "GAC19986",
@@ -531,7 +506,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 27,
         nome : "ARNALDO ALVES PONTES",
         nome_empresa : "ARNALDO ALVES PONTES 44167369320 (MARTA)",
         usuario_caixa : "GAC44167",
@@ -552,7 +526,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 28,
         nome : "PAULO HUMBERTO SOARES DE SOUZA FILHO",
         nome_empresa : "PAULO HUMBERTO SOARES DE SOUZA FILHO 12841511820 (CABRAL)",
         usuario_caixa : "GAC12841",
@@ -573,7 +546,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 29,
         nome : "CLAUDIO DE ALMEIDA MATTOS JUNIOR",
         nome_empresa : "CLAUDIO DE ALMEIDA MATTOS JUNIOR 37776267830 (CABRAL)",
         usuario_caixa : "GAC37776",
@@ -594,7 +566,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 30,
         nome : "EDUARDO DO NASCIMENTO",
         nome_empresa : "PERIM INTERMEDIACOES DE CONSORCIOS LTDA (LEANDRO)",
         usuario_caixa : "GAC08079",
@@ -615,7 +586,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 31,
         nome : "DOUGLAS PAVAN",
         nome_empresa : "DOUGLAS PAVAN ME (AIRTON)",
         usuario_caixa : "GAC04598",
@@ -636,7 +606,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 32,
         nome : "CONSUELO LAURA CAROLINE DE OLIVEIRA",
         nome_empresa : "BRASIL PARTNERS REPRESENTACOES E INTERMEDIACOES FINANCEIRAS LTDA ME",
         usuario_caixa : "GAC35174",
@@ -657,7 +626,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 33,
         nome : "JOSE NAZARIO",
         nome_empresa : "NAZARIO & GOMES LTDA (MARCO)",
         usuario_caixa : "GAC52039",
@@ -678,7 +646,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 34,
         nome : "ROSENILDE ARAUJO SILVA",
         nome_empresa : "RMAX REPRESENTAÇÃO (LEANDRO)",
         usuario_caixa : "GAC03447",
@@ -699,7 +666,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 35,
         nome : "MAURICIO DE SOUSA LIMA",
         nome_empresa : "FAMA CAPTACAO E NEGOCIOS ADMINISTRATIVOS LTDA (CASSIA)",
         usuario_caixa : "GAC17323",
@@ -720,7 +686,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 36,
         nome : "MICHELLE USANA DA SILVA",
         nome_empresa : "MICHELLE USANA SILVA (CABRAL)",
         usuario_caixa : "GAC33437",
@@ -741,7 +706,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 37,
         nome : "CASSIA REGINA ANGELINO",
         nome_empresa : "GROSCRED PROMOCAO DE VENDAS EPP",
         usuario_caixa : "GAC08158",
@@ -762,7 +726,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 38,
         nome : "DANIEL LUIS DE SOUSA",
         nome_empresa : "GROSCRED PROMOCAO DE VENDAS EPP",
         usuario_caixa : "GAC30734",
@@ -783,7 +746,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 39,
         nome : "JULIANA GABRIELLA ALVES MENDES",
         nome_empresa : "GROSCRED PROMOCAO DE VENDAS EPP",
         usuario_caixa : "GAC05692",
@@ -804,7 +766,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 40,
         nome : "SILVIA CRISTINA AQUEMI TA",
         nome_empresa : "SILVIA CRISTINA AQUEMI TAI (ANDERSON)",
         usuario_caixa : "GAC14932",
@@ -825,7 +786,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 41,
         nome : "PEDRO WESLEY DE LIMA CARDOSO",
         nome_empresa : "P & W CONSULTORIA FINANDEIRA SAO PAULO EIRELI (CASSIA)",
         usuario_caixa : "GAC37252",
@@ -846,7 +806,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 42,
         nome : "EBERT SALLES DE OLIVEIRA",
         nome_empresa : "TIFANY REIS BUTTERBY ME (CASSIA)",
         usuario_caixa : "GAC34297",
@@ -867,7 +826,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 43,
         nome : "DAVID MUNIZ DE ANDRADE NETO",
         nome_empresa : "DAVID MUNIZ DE ANDRADE NETO 01825715300 (MARTA)",
         usuario_caixa : "GAC01825",
@@ -888,7 +846,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 44,
         nome : "ITALO OLIVEIRA PAIVA",
         nome_empresa : "SUZY PAIVA REPRESENTACOES COMERCIAIS LTDA ME (MARTA)",
         usuario_caixa : "GAC04062",
@@ -909,7 +866,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 45,
         nome : "HERANEI DE QUEIROZ LEONE",
         nome_empresa : "ESPACO SERVICOS COMERCIAIS LTDA (LEANDRO)",
         usuario_caixa : "GAC08633",
@@ -930,7 +886,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 46,
         nome : "CLODOALDO JOSE DA SILVA",
         nome_empresa : "CLODOALDO JOSE DA SILVA ME (LEANDRO)",
         usuario_caixa : "GAC08809",
@@ -951,7 +906,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 47,
         nome : "LUCIMARA DOS SANTOS DE OLIVEIRA",
         nome_empresa : "ALS REPRESENTACOES E CONSULTORIA LTDA ME (CASSIA)",
         usuario_caixa : "GAC19251",
@@ -972,7 +926,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 48,
         nome : "WALTER HILSDORF JUNIOR",
         nome_empresa : "P & W CONSULTORIA FINANDEIRA SAO PAULO EIRELI (CASSIA)",
         usuario_caixa : "GAC29654",
@@ -993,7 +946,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 49,
         nome : "ANTONIA GONCALVES DO NASCIMENTO",
         nome_empresa : "ANTONIA G DO NASCIMENTO (MARTA)",
         usuario_caixa : "GAC01961",
@@ -1014,7 +966,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 50,
         nome : "LIDIANE DE ASSIS LIMA FREIRE",
         nome_empresa : "LIDIANE DE ASSIS LIMA FREIRE ME (MARTA)",
         usuario_caixa : "GAC92148",
@@ -1035,7 +986,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 51,
         nome : "KELI CRISTINA BECKER JORDANI",
         nome_empresa : "EVOLUCAO CONSORCIOS CHAPECO LTDA ME (MARCO)",
         usuario_caixa : "GAC06402",
@@ -1056,7 +1006,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 52,
         nome : "ELCIO LOPES",
         nome_empresa : "LDL CORRETORA E ASSESSORIA EM SEGUROS LTDA",
         usuario_caixa : "GAC28591",
@@ -1077,7 +1026,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 53,
         nome : "FERNANDA APARECIDA DA ENCARNACAO SANTOS",
         nome_empresa : "FERNANDA APARECIDA DA ENCARNACAO SANTOS ME",
         usuario_caixa : "GAC96886",
@@ -1098,7 +1046,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 54,
         nome : "ISAIAS MIRANDA DA SILVA",
         nome_empresa : "ISAIAS MIRANDA DA SILVA ME (MARTA)",
         usuario_caixa : "GAC19840",
@@ -1119,7 +1066,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 55,
         nome : "GISELE SANTA CRUZ",
         nome_empresa : "GISELE SANTA CRUZ 31107933854 (CABRAL)",
         usuario_caixa : "GAC31107",
@@ -1140,7 +1086,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 56,
         nome : "MICHELLE DANTAS CABRAL PINTO",
         nome_empresa : "MICHELLE DANTAS CABRAL PINTO 30713888881",
         usuario_caixa : "GAC30713",
@@ -1161,7 +1106,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 57,
         nome : "EVILASIO AVELINO DOS SANTOS",
         nome_empresa : "VIA CORRECTA CORRETORA E ADMINISTRADORA DE SEGUROS LTDA (MARTA)",
         usuario_caixa : "GAC26127",
@@ -1182,7 +1126,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 58,
         nome : "ARIEL BASTOS DE OLIVEIRA",
         nome_empresa : "AREL BASTOS DE OLIVEIRA ME",
         usuario_caixa : "GAC36932",
@@ -1203,7 +1146,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 59,
         nome : "AMAURI VASQUES JUNIOR",
         nome_empresa : "AMAURI VASQUE JUNIOR REPRESENTACAO COMERCIAL - EIRELI (CABRAL)",
         usuario_caixa : "GAC22891",
@@ -1224,7 +1166,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 60,
         nome : "BRUNO RIBEIRO",
         nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC35135",
@@ -1245,7 +1186,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 62,
         nome : "CARLOS ALBERTO PEREIRA",
         nome_empresa : "PEREIRA REPRESENTACOES COMERCIAIS EIRELI (MARCO)",
         usuario_caixa : "GAC43295",
@@ -1266,7 +1206,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 63,
         nome : "ROSILA JERONIMO DA COSTA",
         nome_empresa : "ROSILA JERONIMO DA COSTA (LEANDRO)",
         usuario_caixa : "GAC52980",
@@ -1287,7 +1226,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 64,
         nome : "NATALIA MELIANO DOS SANTOS",
         nome_empresa : "IMECRED INTERMEDIACAO DE NEGOCIOS EIRELI (CABRAL)",
         usuario_caixa : "GAC32114",
@@ -1308,7 +1246,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 65,
         nome : "CARLOS ALBERTO ALVES DE OLIVEIRA",
         nome_empresa : "SALMOS PRIME ADMINISTRACAO E CORRETORA DE SEGUROS LTDA ME (VITORIA)",
         usuario_caixa : "GAC36044",
@@ -1329,7 +1266,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 66,
         nome : "LOURENCO ALVES DE OLIVEIRA JUNIOR",
         nome_empresa : "SALMOS PRIME ADMINISTRACAO E CORRETORA DE SEGUROS LTDA ME (VITORIA)",
         usuario_caixa : "GAC92019",
@@ -1350,7 +1286,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 67,
         nome : "AMANDA ZAN",
         nome_empresa : "ZAN BREGOCHI SERVICOS ADMINISTRATIVOS LTDA ME (CABRAL)",
         usuario_caixa : "GAC26478",
@@ -1371,7 +1306,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 68,
         nome : "MARCO AURELIO MEIRELES DOS SANTOS",
         nome_empresa : "M&J ALIANCA BENS REPRESENTACOES LTDA ME (SERGIO)",
         usuario_caixa : "GAC31765",
@@ -1392,7 +1326,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 69,
         nome : "ALEX DE JESUS BAILONA",
         nome_empresa : "ML BAILONA ME (LEANDRO)",
         usuario_caixa : "GAC03216",
@@ -1413,7 +1346,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 70,
         nome : "VANESSA COUTO DE OLIVEIRA PONTES",
         nome_empresa : "COP ADMINISTRADORA E CORRETORA DE SEGUROS EIRELI ME (LEANDRO)",
         usuario_caixa : "GAC24625",
@@ -1434,7 +1366,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 71,
         nome : "RUBENS ALEXANDRE DOS SANTOS",
         nome_empresa : "RUBENS ALEXANDRE DOS SANTOS 330977108 (CABRAL)",
         usuario_caixa : "GAC33097",
@@ -1455,7 +1386,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 72,
         nome : "ODILON WAGNER VILASAR FILHO",
         nome_empresa : "OWX INTERMEDIACAO DE CONSORCIOS EIRELI ME (LEANDRO)",
         usuario_caixa : "GAC03920",
@@ -1476,7 +1406,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 73,
         nome : "MARCOS ANTONIO VENANCIO DA SILVA",
         nome_empresa : "AGIBENS REPRESENTACAO COMERCIAL LTDA EPP (LEANDRO)",
         usuario_caixa : "GAC06937",
@@ -1497,7 +1426,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 74,
         nome : "JOSE ANTONIO DA ROCHA",
         nome_empresa : "MARCIA MOURA DE LUCENA 38134076831",
         usuario_caixa : "GAC25317",
@@ -1518,7 +1446,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 75,
         nome : "EDILSON CARNEIRO MARTINS",
         nome_empresa : "VIA CORRECTA CORRETORA E ADMINISTRADORA DE SEGUROS LTDA (MARTA)",
         usuario_caixa : "GAC10656",
@@ -1539,7 +1466,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 76,
         nome : "LUIZ TORQUATO CORDEIRO JUNIOR",
         nome_empresa : "T4 ADMINISTRACAO E CORRETAGEM DE SEGUROS,IMOVEIS E REPRESENTACOES LTDA ME (LEANDRO)",
         usuario_caixa : "GAC09171",
@@ -1560,7 +1486,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 77,
         nome : "EVILASIO DE ASSIS LIMA E SILVA",
         nome_empresa : "IDEALL INVEST CONSULTORIA LTDA",
         usuario_caixa : "GAC25719",
@@ -1581,7 +1506,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 78,
         nome : "ROBSON HIDEO ISHIMI",
         nome_empresa : "EBENEZER PROMOCAO DE VENDAS LTDA ME (LEANDRO)",
         usuario_caixa : "GAC22251",
@@ -1602,7 +1526,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 79,
         nome : "BRUNO CARVALHO DOS SANTOS",
         nome_empresa : "TSALEACH CAPITAL INVEST PROMOCOES DE VENDAS LTDA (CABRAL)",
         usuario_caixa : "GAC22251",
@@ -1623,7 +1546,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 80,
         nome : "ALLAN BRUNO CARNEIRO MOTA",
         nome_empresa : "VIP INTERMEDIACAO DE NEGOCIOS LTDA (LEANDRO)",
         usuario_caixa : "GAC35252",
@@ -1644,7 +1566,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 81,
         nome : "LEANDRO BELIZARIO MARTINS",
         nome_empresa : "BELIZARIO & MARTINS SERVICOS LTDA (LEANDRO)",
         usuario_caixa : "GAC06991",
@@ -1665,7 +1586,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 82,
         nome : "ROGERIO DIAS",
         nome_empresa : "ESPACO SERVICOS COMERCIAIS LTDA (LEANDRO)",
         usuario_caixa : "GAC01447",
@@ -1686,7 +1606,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 83,
         nome : "WEBSTE RODRIGUES SENA",
         nome_empresa : "MENDES E SENA LTDA",
         usuario_caixa : "GAC00616",
@@ -1707,7 +1626,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 84,
         nome : "JULYANE BANDEIRA DA SILVA",
         nome_empresa : "JULYANE BANDEIRA DA SILVA 34694771833 (CABRAL)",
         usuario_caixa : "GAC34694",
@@ -1728,7 +1646,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 85,
         nome : "LEONARDO VIEIRA DE AMORIM",
         nome_empresa : "LIP SOLUCOES E REPRESENTACOES COMERCIAIS EIRELI - ME (MARTA)",
         usuario_caixa : "GAC67121",
@@ -1749,7 +1666,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 86,
         nome : "RAIMUNDO OLIVEIRA DOS SANTOS",
         nome_empresa : "NEEMIAS SERVICOS DE REMESSA DE DOCUMENTOS E MENSAGENS EM GERAL LTDA (MARCO)",
         usuario_caixa : "GAC01230",
@@ -1770,7 +1686,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 87,
         nome : "GABRIEL DE FREITAS BUENO",
         nome_empresa : "GABRIEL DE FREITAS BUENO 31419956809 (CABRAL)",
         usuario_caixa : "GAC31419",
@@ -1791,7 +1706,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 88,
         nome : "CESAR  MARTINEZ CORREA",
         nome_empresa : "FIBRAX SERVICOS E COMERCIO EM TELECOMUNICACOES LTDA ME (LEANDRO)",
         usuario_caixa : "GAC28347",
@@ -1812,7 +1726,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 89,
         nome : "RENER SOARES DA SILVA",
         nome_empresa : "RS UNIVERSAL INVESTIMENTOS EIRELI (LEANDRO)",
         usuario_caixa : "GAC37230",
@@ -1833,7 +1746,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 90,
         nome : "RICARDO FRANCISCO SANT ANA",
         nome_empresa : "SANT ANA COMERCIO E REPRESENTACOES DE VEICULOS LTDA",
         usuario_caixa : "GAC02696",
@@ -1854,7 +1766,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 91,
         nome : "MARCELO ANTONIO DA SILVA",
         nome_empresa : "MAIS BENS CORRESPONDENTE FINANCEIRO EIRELI  (RICARDO)",
         usuario_caixa : "GAC33062",
@@ -1875,7 +1786,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 92,
         nome : "CLAYTON OLIVEIRA DOS SANTOS LEME",
         nome_empresa : "RC CONSULTORIA E REPRESENTACAO LTDA (LEANDRO)",
         usuario_caixa : "GAC17950",
@@ -1896,7 +1806,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 93,
         nome : "ISACQUIEL OLIVEIRA DE ALMEIDA",
         nome_empresa : "I.O. DE ALMEIDA COMERCIO DE VEICULOS",
         usuario_caixa : "GAC00289",
@@ -1917,7 +1826,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 94,
         nome : "LUIZ ALBERTO FERNANDES",
         nome_empresa : "GROSCRED PROMOCAO DE VENDAS EPP",
         usuario_caixa : "GAC63353",
@@ -1938,7 +1846,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 95,
         nome : "FERNANDO CRISTOFER DA CUNHA BARBOSA",
         nome_empresa : "MAPPI CORRETORA DE SEGUROS LTDA (LEANDRO)",
         usuario_caixa : "GAC31437",
@@ -1959,7 +1866,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 96,
         nome : "MARCELO DE LIMA QUEIROZ",
         nome_empresa : "MARCELO DE LIMA QUEIROZ 30847209830 (LEANDRO)",
         usuario_caixa : "GAC30847",
@@ -1980,7 +1886,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 97,
         nome : "SUELI OLIVEIRA DA SILVA",
         nome_empresa : "SUELI OLIVEIRA DA SILVA 07341421886 (LEANDRO)",
         usuario_caixa : "GAC07341",
@@ -2001,7 +1906,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 98,
         nome : "JAMIL CAETANO DE MELO FILHO",
         nome_empresa : "AVANCO REPRESENTACAO CONSORCIO E TELEATENDIMENTO LTDA (LEANDRO)",
         usuario_caixa : "GAC03694",
@@ -2022,7 +1926,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 99,
         nome : "GILSINEY VANLEY VOLTATTORNNI",
         nome_empresa : "CONSTRUTORA VOLTATTORNI LTDA (LEANDRO)",
         usuario_caixa : "GAC01867",
@@ -2043,7 +1946,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 100,
         nome : "JULIANA JULIANO ",
         nome_empresa : "JULIANA JULIANO VEICULOS (LEANDRO)",
         usuario_caixa : "GAC22527",
@@ -2064,7 +1966,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 101,
         nome : "WELLINGTON ALVES DA SILVA",
         nome_empresa : "WELLINGTON ALVES DA SILVA 291988562860 (LEANDRO)",
         usuario_caixa : "GAC29198",
@@ -2085,7 +1986,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 102,
         nome : "RODRIGO GONCALVES DE OLIVEIRA",
         nome_empresa : "SAFE CONSORCIOS LTDA (LEANDRO)",
         usuario_caixa : "GAC01486",
@@ -2106,7 +2006,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 103,
         nome : "MARIA AUXILIADORA AVELINO FERRIA",
         nome_empresa : "MARIA AUXILIADORA AVELINO FERREIRA PROMOTORA DE VENDAS (LEANDRO)",
         usuario_caixa : "GAC14241",
@@ -2127,7 +2026,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 104,
         nome : "JESSIKA AMANDA PARREIRA CARDOSO",
         nome_empresa : "J. A. P. SERVICOS - JESSIKA AMANDA (LEANDRO)",
         usuario_caixa : "GAC12478",
@@ -2148,7 +2046,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 105,
         nome : "JAMES WILIAM APARECIDO DE OLIVEIRA",
         nome_empresa : "JAMES WILLIAM APAREICIDO DE OLIVEIRA 38280599886 (LEANDRO)",
         usuario_caixa : "GAC38280",
@@ -2169,7 +2066,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 106,
         nome : "EDUARDO MACARIO DURANTE DE OLIVEIRA",
         nome_empresa : "PRONTO SERVICOS ADMINISTRATIVOS EIRELI ME (CABRAL)",
         usuario_caixa : "GAC44223",
@@ -2190,7 +2086,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 107,
         nome : "FELIPE ANDRE DA SILVA NOGUEIRA LAISO",
         nome_empresa : "FELIPE ANDRE DA SILVA NOGUEIRA LAISO 32699516805 (CABRAL)",
         usuario_caixa : "GAC32699",
@@ -2211,7 +2106,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 108,
         nome : "JOSE ALEXON SOARES DE SOUSA",
         nome_empresa : "FINAN FUTURO LTDA ME (LEANDRO)",
         usuario_caixa : "GAC26017",
@@ -2232,7 +2126,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 109,
         nome : "FABIO MATOS COSTA",
         nome_empresa : "V F PROMOCOES DE VENDAS LTDA (LEANDRO)",
         usuario_caixa : "GAC10562",
@@ -2253,7 +2146,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 110,
         nome : "ANTONIO FRANCISCO FIDELI FILHO",
         nome_empresa : "FIDELI REPRESENTACAO COMERCIAL LTDA (LEANDRO)",
         usuario_caixa : "GAC10869",
@@ -2274,7 +2166,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 111,
         nome : "ARIE ARANTES BARBOSA",
         nome_empresa : "ARIE ARANTES BARBOSA 31969318899 (LEANDRO)",
         usuario_caixa : "GAC31969",
@@ -2295,7 +2186,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 112,
         nome : "JOSE DE NOVAES",
         nome_empresa : "NOVAES SERVICOS ADMINISTRATIVOS EIRELI ME (CABRAL)",
         usuario_caixa : "GAC92853",
@@ -2316,7 +2206,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 113,
         nome : "DAVID AUGUSTO DA SILVA",
         nome_empresa : "DAIVID AUGUSTO DA SILVA 77838688191 (LEANDRO)",
         usuario_caixa : "GAC77838",
@@ -2337,7 +2226,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 114,
         nome : "ALANA BARBOSA PASITO",
         nome_empresa : "AB PASITO PROMOCAO DE VENDAS (LEANDRO)",
         usuario_caixa : "GAC43121",
@@ -2358,7 +2246,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 115,
         nome : "WAGNER ACACIO EVANGELISTA",
         nome_empresa : "WJ CONSORCIOS LTDA ME (LEANDRO)",
         usuario_caixa : "GAC05656",
@@ -2379,7 +2266,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 116,
         nome : "MOISES ORTIZ AGUIRRE",
         nome_empresa : "CORRETORA BRASIL IMOVEIS LTDA (LEANDRO)",
         usuario_caixa : "GAC80740",
@@ -2400,7 +2286,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 118,
         nome : "IAGO CARDOSO PINTO",
         nome_empresa : "IAGO CARDOSO PINTO 02468929519 (CABRAL)",
         usuario_caixa : "GAC02468",
@@ -2421,7 +2306,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 119,
         nome : "IRONI DE OLIVEIRA FERNANDES",
         nome_empresa : "IRONI DE OLIVEIRA FERNANDES 92846467900 (CABRAL)",
         usuario_caixa : "GAC92846",
@@ -2442,7 +2326,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 120,
         nome : "ENDREOS ALEXANDRE TONELLO",
         nome_empresa : "ENDREOS ALEXANDRE TONELLO 08326473901 (CABRAL)",
         usuario_caixa : "GAC08326",
@@ -2463,7 +2346,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 121,
         nome : "GUILHERME RODRIGUES GOMES",
         nome_empresa : "GR GOMES REPRESENTACOES  (LEANDRO)",
         usuario_caixa : "GAC10614",
@@ -2484,7 +2366,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 122,
         nome : "ADRIANO VALENTE ROCHA",
         nome_empresa : "VALENTE ROCHA CONS. E CORRETORA DE SEGUROS LTDA (LEANDRO)",
         usuario_caixa : "GAC02453",
@@ -2505,7 +2386,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 123,
         nome : "MIGUEL SILVESTRE DE ALMEIDA",
         nome_empresa : "JMSEG CORRETORA DE SEGUROS LTDA (LEANDRO)",
         usuario_caixa : "GAC45123",
@@ -2526,7 +2406,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 124,
         nome : "JOSE CARLOS DO NASCIMENTO",
         nome_empresa : "JOSE CARLOS DO NASCIMENTO 07554985850 (LEANDRO)",
         usuario_caixa : "GAC07554",
@@ -2547,7 +2426,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 125,
         nome : "JACIMAR GOMES MENDONCA",
         nome_empresa : "HOLD CORRETORA DE SEGUROS, CONSORCIOS E FINANCIAMENTOS LTDA (LEANDRO)",
         usuario_caixa : "GAC99924",
@@ -2568,7 +2446,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 126,
         nome : "PAMELA APARECIDA DE OLIVEIRA",
         nome_empresa : "PAMELA APARECIDA DE OLIVEIRA 46933997871 (LEANDRO)",
         usuario_caixa : "GAC46933",
@@ -2589,7 +2466,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 127,
         nome : "LUIZ JOSE RAMPAZO VIEIRA DE MORAES",
         nome_empresa : "RAVIM CONSULTORIA E REPRESENTACOES EIRELI ME (LEANDRO)",
         usuario_caixa : "GAC30078",
@@ -2610,7 +2486,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 128,
         nome : "BRUNA DAYRELL MEIRA",
         nome_empresa : "BRUNA DAYRELL REPRESENTACOES EIRELI (LEANDRO)",
         usuario_caixa : "GAC12144",
@@ -2631,7 +2506,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 129,
         nome : "MARCIANA PRIMON FORTES",
         nome_empresa : "MARCIANA PRIMON FORTES (LEANDRO)",
         usuario_caixa : "GAC06676",
@@ -2652,7 +2526,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 130,
         nome : "ANTONIO CARLOS VEIGA DE QUADROS",
         nome_empresa : "VEQ INTERMEDIACOES DE NEGOCIOS EIRELI",
         usuario_caixa : "GAC39412",
@@ -2673,7 +2546,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 131,
         nome : "GUILHERME AUGUSTO DA MOTA FILHO",
         nome_empresa : "GUILHERME AUGUSTO DA MOTA FILHO 06380947809 (LEANDRO)",
         usuario_caixa : "GAC06380",
@@ -2694,7 +2566,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 132,
         nome : "ELISANGELA VIEIRA",
         nome_empresa : "ELISANGELA VIEIRA 04080342624 (LEANDRO)",
         usuario_caixa : "GAC04080",
@@ -2715,7 +2586,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 133,
         nome : "MARCELO SILVA DE PAULO",
         nome_empresa : "MSC COMERCIO DE VEICULOS LTDA ",
         usuario_caixa : "GAC12581",
@@ -2736,7 +2606,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 134,
         nome : "ELISANGELA EVARISTO MARTINEZ",
         nome_empresa : "CANAA E. M. & Q. P. REPRESENTACOES COMERCIAIS LTDA (LEANDRO)",
         usuario_caixa : "GAC27720",
@@ -2757,7 +2626,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 135,
         nome : "DIEGO APARECIDO TREVISAN ROCHA",
         nome_empresa : "D. A. TREVISAN ROCHA INTERMEDIACO DE NEGOCIOS (LEANDRO)",
         usuario_caixa : "GAC39066",
@@ -2778,7 +2646,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 136,
         nome : "VALDIR CONCEICAO PADILHA",
         nome_empresa : "PADILHA REPRESENTACAO E CONSULTORIA LTDA (VEQ)",
         usuario_caixa : "GAC95095",
@@ -2799,7 +2666,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 137,
         nome : "PEDRO HENRIQUE SEGATT",
         nome_empresa : "SEGATT & GENRRO LTDA (VEQ)",
         usuario_caixa : "GAC01347",
@@ -2820,7 +2686,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 138,
         nome : "MAURICIO MACHADO GENRRO",
         nome_empresa : "SEGATT & GENRRO LTDA (VEQ)",
         usuario_caixa : "GAC00008",
@@ -2841,7 +2706,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 139,
         nome : "FABIO DANILO DOS SANTOS",
         nome_empresa : "AJF INTERMEDIACAO DE NEGOCIOS E COMERCIO DE CAMINHOES NOVOS E USADOS LTDA (LEANDRO)",
         usuario_caixa : "GAC16155",
@@ -2862,7 +2726,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 140,
         nome : "SHAIANE BERMAN DA SILVA",
         nome_empresa : "SHAIANE BERMAN (VEQ)",
         usuario_caixa : "GAC01979",
@@ -2883,7 +2746,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 141,
         nome : "MARCELLE REZENDE SARGACO",
         nome_empresa : "RS INTERMEDIACAO DE NEGOCIOS EIRELI (LEANDRO)",
         usuario_caixa : "GAC37757",
@@ -2904,7 +2766,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 142,
         nome : "SIMONE RITTER VARGAS",
         nome_empresa : "SIMONE RITTER VARGAS E CIA LTDA (VEQ)",
         usuario_caixa : "GAC00732",
@@ -2925,7 +2786,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 143,
         nome : "BRUNA BUENO DE LIMA CARI",
         nome_empresa : "B. BUENO DE LIMA CARI - APOIO ADMINISTRATIVO (LEANDRO)",
         usuario_caixa : "GAC07126",
@@ -2946,7 +2806,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 144,
         nome : "TALITA NEVES DA SILVA",
         nome_empresa : "NEVES CORRETAGEM DE CONSORCIOS EIRELI (LEANDRO)",
         usuario_caixa : "GAC34501",
@@ -2967,7 +2826,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 145,
         nome : "IVANDA BOSQUETTI MARQUES",
         nome_empresa : "IVANDA BOSQUETTI MARQUES 25912557847 (LEANDRO)",
         usuario_caixa : "GAC25912",
@@ -2988,7 +2846,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 146,
         nome : "ALUAN STEFFES MARTINS PEREIRA",
         nome_empresa : "ALUAN STEFFES MARTINS PEREIRA 06474182660 (LEANDRO)",
         usuario_caixa : "GAC06474",
@@ -3009,7 +2866,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 147,
         nome : "RONALDO ADRIANO KNOPP DA SILVA",
         nome_empresa : "RONALDO ADRIANO CORRETORES DE IMOVEIS LTDA (LEANDRO)",
         usuario_caixa : "GAC03219",
@@ -3030,7 +2886,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 148,
         nome : "FABIO GALVAO",
         nome_empresa : "FABIO GALVAO  - GESTPLAN (CABRAL)",
         usuario_caixa : "GAC30464",
@@ -3051,7 +2906,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 149,
         nome : "CLAUDIA LUCIANA DA SILVA SOUQUE",
         nome_empresa : "C.L DA SILVA SOUQUE - ME (VEQ)",
         usuario_caixa : "GAC65024",
@@ -3072,7 +2926,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 150,
         nome : "BRENO GUSTAVO CINTRA MAURA",
         nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC28642",
@@ -3093,7 +2946,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 151,
         nome : "MAURICIO SWAROWSKY",
         nome_empresa : "MAURICIO SWAROWSKY 00780851013 (VEQ)",
         usuario_caixa : "GAC00780",
@@ -3114,7 +2966,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 152,
         nome : "SILVIO LEAL",
         nome_empresa : "CENTRAL DO CREDITO LTDA (MARCO)",
         usuario_caixa : "GAC02581",
@@ -3135,7 +2986,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 153,
         nome : "THIAGO ZITTO STABEL",
         nome_empresa : "REALIZANDO SOLUCOES INTERMEDIACOES E AGENCIAMENTO LTDA ( MARCO)",
         usuario_caixa : "GAC98985",
@@ -3156,7 +3006,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 155,
         nome : "LAURO CESAR DE OLIVEIRA POMBAL ",
         nome_empresa : "ZAPO PROMOCAO DE VENDAS LTDA ( LEANDRO)",
         usuario_caixa : "GAC05615",
@@ -3177,7 +3026,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 156,
         nome : "JOAO VALDIR MACIEL",
         nome_empresa : "SUCESSO INTERMEDIACOES E NEGOCIOS EIRELI ( MARCO)",
         usuario_caixa : "GAC50178",
@@ -3198,7 +3046,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 157,
         nome : "RONALDO KEMERICH DOS REIS",
         nome_empresa : "ANTONIO VITOR MENNA BARRETO DOS REIS (VEQ)",
         usuario_caixa : "GAC96044",
@@ -3219,7 +3066,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 158,
         nome : "CARLOS AUGUSTO SANTOS BASSI",
         nome_empresa : "CARLOS AUGUSTO SANTOS BASSI 42343241830",
         usuario_caixa : "GAC42343",
@@ -3240,7 +3086,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 159,
         nome : "JULIO CESAR TEODORO",
         nome_empresa : "TROPICAL CALCADOS E REPRESENTACOES EIRELI ( LEANDRO)",
         usuario_caixa : "GAC01454",
@@ -3261,7 +3106,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 160,
         nome : "VINICIUS CUNHA",
         nome_empresa : "DUPLO CONSORCIO EIRELI ( LEANDRO)",
         usuario_caixa : "GAC18773",
@@ -3282,7 +3126,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 161,
         nome : "RICARDO JOSE DAIBERT",
         nome_empresa : "GROSCRED PROMOCAO DE VENDAS LTDA EP",
         usuario_caixa : "GAC44650",
@@ -3303,7 +3146,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 162,
         nome : "VALDECIR NEVES RIBEIRO",
         nome_empresa : "RIBEIRO CORRETORA DE SEGUROS LTDA ( CABRAL)",
         usuario_caixa : "GAC34875",
@@ -3324,7 +3166,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 163,
         nome : "BEATRIS MARTINS STOEBERL",
         nome_empresa : "BEATRIS MARTINS STOEBERL CORRETORA DE IMOVEIS (CABRAL)",
         usuario_caixa : "GAC09052",
@@ -3345,7 +3186,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 164,
         nome : "EDSON ALVES DE SOUZA JUNIOR",
         nome_empresa : "E.ALVES DE SOUZA JUNIOR CONSULTORIA FINANCEIRA (LEANDRO)",
         usuario_caixa : "GAC06404",
@@ -3366,7 +3206,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 165,
         nome : "ROGER BOMFIM DE JESUS AFFONSO",
         nome_empresa : "ROGER BOMFIM DE JESUS AFFONSO 01131236556 (VITORIA)",
         usuario_caixa : "GAC01131",
@@ -3387,7 +3226,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 166,
         nome : "ALINE LOPES DE SOUZA ARANTES ",
         nome_empresa : "ALINE LOPES DE SOUZA ARANTES 40858877856 (LEANDRO)",
         usuario_caixa : "GAC40858",
@@ -3408,7 +3246,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 167,
         nome : "ODAIR FASTRONI DA SILVA",
         nome_empresa : "MAGO GESTAO EMPRESARIAL EIRELI (VEQ)",
         usuario_caixa : "GAC33515",
@@ -3429,7 +3266,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 168,
         nome : "IGOR KALIL JORGE",
         nome_empresa : "BLINKS REPRESENTACOES EIRELI (CABRAL)",
         usuario_caixa : "GAC22378",
@@ -3450,7 +3286,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 169,
         nome : "KAREN COSTA FONSECA SANTOS",
         nome_empresa : "KAREN COSTA FONSECA 43028018837 (CABRAL)",
         usuario_caixa : "GAC43028",
@@ -3471,7 +3306,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 170,
         nome : "ANTONIO ROBERTO RIVELINO FURLAN",
         nome_empresa : "ANTONIO ROBERTO RIVELINO FURLAN (CABRAL)",
         usuario_caixa : "GAC14631",
@@ -3492,7 +3326,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 171,
         nome : "GUILHERME MENDES DE OLIVEIRA",
         nome_empresa : "STAR CEILING PROMOCAO DE VENDAS LTDA (CABRAL)",
         usuario_caixa : "GAC41226",
@@ -3513,7 +3346,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 172,
         nome : "DEIVERSON ROBERTO BAJDIUK",
         nome_empresa : "BAJIDIUK E OBLADEN CORRETORA DE SEGUROS LTDA (CABRAL)",
         usuario_caixa : "GAC04870",
@@ -3534,7 +3366,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 173,
         nome : "RAFAEL DE MOURA SILVA",
         nome_empresa : "RAFAEL DE MOURA SILVA 38482988808 (LEANDRO)",
         usuario_caixa : "GAC38482",
@@ -3555,7 +3386,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 174,
         nome : "JOSIANI APARECIDA DE LIMA",
         nome_empresa : "OWX INTERMEDIACAO DE NEGOCIOS (LEANDRO)",
         usuario_caixa : "GAC01026",
@@ -3576,7 +3406,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 175,
         nome : "RODOLFO CESAR MARCHI",
         nome_empresa : "MARCHI CONSULTORIA E CONSORCIO ( LEANDRO)",
         usuario_caixa : "GAC29981",
@@ -3597,7 +3426,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 176,
         nome : "JOSAFA ALVES DE JESUS",
         nome_empresa : "ZAFA SERVICOS DE APOIO ADMINISTRATIVOS LTDA (CABRAL)",
         usuario_caixa : "GAC08986",
@@ -3618,7 +3446,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 177,
         nome : "FRANCISCO FERREIRA DE FARIA",
         nome_empresa : "FF CONSULTORIA E REPRESENTACAO EIRELI",
         usuario_caixa : "GAC12667",
@@ -3639,7 +3466,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 178,
         nome : "MARCOS PAULO MANTOVANI MARTINES",
         nome_empresa : "PRA JI SOLUCOES E INTERMEDIACOES DE NEGOCIOS LTDA (LEANDRO)",
         usuario_caixa : "GAC73034",
@@ -3660,7 +3486,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 179,
         nome : "CATIA REGINA DA SILVA FERRERIA",
         nome_empresa : "CATIA REGINA DA SILVA FERREIRA (VITORIA)",
         usuario_caixa : "GAC99028",
@@ -3681,7 +3506,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 180,
         nome : "DIOGO PAULINO DA SILVA",
         nome_empresa : "DIOGO PAULINO DA SILVA 33883624837 (CABRAL)",
         usuario_caixa : "GAC33883",
@@ -3702,7 +3526,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 181,
         nome : "JOSE PASSOS GOMES",
         nome_empresa : "JOSE PASSOS GOMES  - EPP (CABRAL)",
         usuario_caixa : "GAC04493",
@@ -3723,7 +3546,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 182,
         nome : "MAICON VIEIRA NOVAIS",
         nome_empresa : "REAL BENS SOLUCOES FINANCEIRAS LTDA (CABRAL)",
         usuario_caixa : "GAC36180",
@@ -3744,7 +3566,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 183,
         nome : "MAURILIO LEONEL",
         nome_empresa : "BPNET SOLUCOES EM NEGOCIOS LTDA (CABRAL)",
         usuario_caixa : "GAC28867",
@@ -3765,7 +3586,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 184,
         nome : "MARIA NILDA FINELLI",
         nome_empresa : "AGIBENS REPRESENTACAO COMERCIAL LTDA EPP (LEANDRO)",
         usuario_caixa : "GAC07757",
@@ -3786,7 +3606,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 185,
         nome : "KAREN APARECIDA RODRIGUES DE PAULA",
         nome_empresa : "ATM ",
         usuario_caixa : "GAC27804",
@@ -3807,7 +3626,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 186,
         nome : "WILLIAN DIEGO GUIMARAES ",
         nome_empresa : "WILLIAN DIEGO GUIMARAES CORRESPONDENTE DE INSTITUICOES FINANCEIRAS EIRELI",
         usuario_caixa : "GAC42161",
@@ -3828,7 +3646,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 187,
         nome : "CARLOS AUGUSTO SANTOS BASSI",
         nome_empresa : "CARLOS AUGUSTO SANTOS BASSI 42343241830",
         usuario_caixa : "GAC42343",
@@ -3849,7 +3666,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 188,
         nome : "JOSE MARCELO SOARES",
         nome_empresa : "JOSE MARCELO SOARES 16022455847",
         usuario_caixa : "GAC16022",
@@ -3870,7 +3686,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 189,
         nome : "ARIOVALDO ROSA JUNIOR",
         nome_empresa : "GUDA SERVICOS CADASTRAIS LTDA",
         usuario_caixa : "GAC28422",
@@ -3891,7 +3706,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 190,
         nome : "HENRIQUE AUGUSTO NARCISO",
         nome_empresa : "HENRIQUE AUGUSTO NARCISO EPP",
         usuario_caixa : "GAC40631",
@@ -3912,7 +3726,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 191,
         nome : "CECILIA PAES DE MELO SILVA MARSOLLA ",
         nome_empresa : "CECILIA MELO",
         usuario_caixa : "GAC12538",
@@ -3933,7 +3746,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 192,
         nome : "ROSA CRISTINA DA SILVA GUILHERME",
         nome_empresa : "A H DA COSTA CONSULTORIA EMPRESARIA EIRELI",
         usuario_caixa : "GAC07383",
@@ -3954,7 +3766,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 193,
         nome : "CARLA CRISTINA DA SILVA TELES",
         nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC33900",
@@ -3975,7 +3786,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 194,
         nome : "GEOFREI CORDEIRO",
         nome_empresa : "GEOFREI CORDEIRO 30445104813",
         usuario_caixa : "GAC30445",
@@ -3996,7 +3806,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 195,
         nome : "MATHEOS PAULO LUPO NETO",
         nome_empresa : "RRCM REPRESENTACOES LTDA",
         usuario_caixa : "GAC34788",
@@ -4017,7 +3826,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 196,
         nome : "ALVARO HERNANE FRANCA VERTINO",
         nome_empresa : "ALVARO HERNANE FRANCA VERTINO25808365864",
         usuario_caixa : "GAC25808",
@@ -4038,7 +3846,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 197,
         nome : "ALINE PIEROBOM RAMAGNOLO",
         nome_empresa : "PIERO & ROMA",
         usuario_caixa : "GAC32942",
@@ -4059,7 +3866,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 198,
         nome : "FABIO GALVAO",
         nome_empresa : "GESTPLAN",
         usuario_caixa : "GAC30464",
@@ -4080,7 +3886,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 199,
         nome : "CARMEM LUCIA CEOLATO",
         nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC00856",
@@ -4101,7 +3906,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 200,
         nome : "OSMIRO EVANGELISTA DE SOUZA",
         nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC82145",
@@ -4122,7 +3926,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 201,
         nome : "BRUNO HENRIQUE OTERO DA SILVA",
         nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC41802",
@@ -4143,7 +3946,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 202,
         nome : "RAIMUNDO JOSE DOS SANTOS",
         nome_empresa : "GROSCRED PROMOCAO DE VENDAS EPP",
         usuario_caixa : "GAC24067",
@@ -4164,7 +3966,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 203,
         nome : "MARTA SOUZA RIBEIRO",
         nome_empresa : "GROSCRED PROMOCAO DE VENDAS EPP",
         usuario_caixa : "GAC01253",
@@ -4185,7 +3986,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 204,
         nome : "MARCOS EMANUEL SILVA DA CUNHA",
         nome_empresa : "CENTRAL DOS CREDITOS CORRETAGEM, REPRESENTACAO E INTERMEDIACAO EIRELI",
         usuario_caixa : "GAC85578",
@@ -4206,7 +4006,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 206,
         nome : "BRUNO GIOVANI DE ALMEIDA",
         nome_empresa : "MORAIS E ALMEIDACONSULTORIA EMPRESARIAL LTDA",
         usuario_caixa : "GAC37661",
@@ -4227,7 +4026,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 207,
         nome : "ROBERTO RIVELINO ARAUJO SANTOS",
         nome_empresa : "MONTE SIAOPRESTADORA DE SERV. E CORRETAGEM LTDA",
         usuario_caixa : "GAC51282",
@@ -4248,7 +4046,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 209,
         nome : "LUIS CESAR DEL PAPA",
         nome_empresa : "INVESTBENS ASSESSORIA & INTERM NEGOCIOS EIRELI",
         usuario_caixa : "GAC05704",
@@ -4269,7 +4066,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 210,
         nome : "MAURICIO LIMA DA SILVA",
         nome_empresa : "HDARWIN PROMOCAO DE VENDAS EIRELI",
         usuario_caixa : "GAC91605",
@@ -4290,7 +4086,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 211,
         nome : "RENILSON SANCHES GONCALVES",
         nome_empresa : "RENCAD REPRESENTACOES E SERVICOS LTDA ME",
         usuario_caixa : "GAC27512",
@@ -4311,7 +4106,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 212,
         nome : "LARISSA ACTIS MATA PIRES 79952631553",
         nome_empresa : "JC CONSORCIOS",
         usuario_caixa : "GAC79952",
@@ -4332,7 +4126,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 213,
         nome : "FRANCISCO DAS CHAGAS CARVALHO 45789690378",
         nome_empresa : "CHAGAS CARVALHO NEGOCIOS E SERVICOS",
         usuario_caixa : "GAC45789",
@@ -4353,7 +4146,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 214,
         nome : "MORAIS E ALMEIDA CONSULTORIA EMPRESARIAL LTDA",
         nome_empresa : "MORAIS E ALMEIDA",
         usuario_caixa : "GAC37661",
@@ -4374,7 +4166,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 215,
         nome : "ALLIBERAT CORRETOTA DE SEGUROS LTDA ME",
         nome_empresa : "ANDERSON JOSE BRAGA",
         usuario_caixa : "GAC15976",
@@ -4395,7 +4186,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 216,
         nome : "MARCELO DA SILVA PEREIRA",
         nome_empresa : "TOP INVEST ASSESSORIA LTDA",
         usuario_caixa : "GAC50197",
@@ -4416,7 +4206,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 217,
         nome : "JULIANDERSON OLIVEIRA SANTOS",
         nome_empresa : "EXPANSAO CONSULTORIA EIRELI",
         usuario_caixa : "GAC34488",
@@ -4437,7 +4226,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 218,
         nome : "GENIVALDO DE SOUSA",
         nome_empresa : "GDA INTERMEDIACAO E AGENCIAMENTO LTDA",
         usuario_caixa : "GAC33307",
@@ -4458,7 +4246,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 219,
         nome : "NEWTON RAIMUNDO SANTOS",
         nome_empresa : "MONTE SIAO PRESTADORA DE SERVICOS E CORRETAGEM LTDA",
         usuario_caixa : "GAC01979",
@@ -4479,7 +4266,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 220,
         nome : "ELSON JESUS GOMES",
         nome_empresa : "FINANCORP NEGOCIOS",
         usuario_caixa : "GAC34005",
@@ -4500,7 +4286,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 221,
         nome : "KELLY CRISTINA LUCAS",
         nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC25964",
@@ -4521,7 +4306,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 222,
         nome : "MARCELO FERREIRA BARROS ",
         nome_empresa : "BARROS INTERMEDIACOES LTDA",
         usuario_caixa : "GAC33295",
@@ -4542,7 +4326,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 223,
         nome : "JUVARLISSON MARQUES SILVA",
         nome_empresa : "SM2 PRESTACAO DE SERVICOS LTDA",
         usuario_caixa : "GAC02233",
@@ -4563,7 +4346,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 224,
         nome : "GUILHERME AUGUSTO DA MOTA FILHO",
         nome_empresa : "G A DA MOTA FILHO CONSULTORIA E SERVICOS",
         usuario_caixa : "GAC06380",
@@ -4584,7 +4366,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 225,
         nome : "VITORIA MARIA DE OLIVEIRA MENEZES",
         nome_empresa : "CONSORCIO GROSCON",
         usuario_caixa : "GAC42621",
@@ -4605,7 +4386,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 226,
         nome : "MARCELO PALERMO",
         nome_empresa : "IMOBILIARIA ESPACO NOBRE",
         usuario_caixa : "GAC16219",
@@ -4626,7 +4406,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 227,
         nome : "ALAINE KARINE ALMEIDA RIBEIRO",
         nome_empresa : "K2 CONSORCIOS",
         usuario_caixa : "GAC90174",
@@ -4647,7 +4426,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 228,
         nome : "SHIRLEY FLAVIA FERREIRA FREITAS",
         nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC21308",
@@ -4668,7 +4446,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 229,
         nome : "GEANE SOUSA MATOS OLIVEIRA",
         nome_empresa : "GSM ASSESSORIA DE VENDAS EIRELI",
         usuario_caixa : "GAC00246",
@@ -4689,7 +4466,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 231,
         nome : "LETICIA DA SILVA BUARETTO",
         nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC41643",
@@ -4710,7 +4486,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 232,
         nome : "ANA LAURA DOMICIANO SOARES",
         nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC44197",
@@ -4731,7 +4506,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 233,
         nome : "NOEMIA SILVA LUDWIG",
         nome_empresa : "NOEMIA SILVA LUDWIG 12620927870",
         usuario_caixa : "GAC12620",
@@ -4752,7 +4526,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 234,
         nome : "MARCIO SILVEIRA DE CARVALHO",
         nome_empresa : "SILVEIRA & CARVALHO IMOBILIARIA E PROMOTORA DE VENDAS LTDA",
         usuario_caixa : "GAC87252",
@@ -4773,7 +4546,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 235,
         nome : "BRUNA CAROLINE VITORIO",
         nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC09114",
@@ -4794,7 +4566,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 236,
         nome : "ANA PAULA SILVERIO SOBRINHO MUNIZ",
         nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC41961",
@@ -4815,7 +4586,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 237,
         nome : "JURCINELSON GUEDES DOS SANTOS",
         nome_empresa : "JG DOS SANTOS LTDA",
         usuario_caixa : "GAC01433",
@@ -4836,7 +4606,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 238,
         nome : "MAURICIO JOSE DA COSTA",
         nome_empresa : "M J DA COSTA APOIO ADMINISTRATIVO",
         usuario_caixa : "GAC18449",
@@ -4857,7 +4626,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 239,
         nome : "ANTONIO CAVALCANTE DE SOUZA",
         nome_empresa : "N R CONSULTORIA E NEGOCIOS LTDA",
         usuario_caixa : "GAC48998",
@@ -4878,7 +4646,6 @@ module.exports = {
               updatedAt: new Date()
       },
       {
-        id : 240,
         nome : "VALTENIO SENA DOS SANTOS",
         nome_empresa : "MULTICANAL DE NEGOCIOS",
         usuario_caixa : "GAC23418",
@@ -4899,7 +4666,6 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        id : 241,
         nome : "MARISSOL NASCIMENTO FREIRE",
         nome_empresa : "MARISSOL NASCIMENTO FREIRE ",
         usuario_caixa : "GAC49193",
