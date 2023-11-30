@@ -4,7 +4,7 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     
-    await queryInterface.bulkInsert('mural-dados', [
+    await queryInterface.bulkInsert('mural_dados', [
       {
         ano : 2023,
         mes : 1,

@@ -8,7 +8,7 @@ module.exports = {
       {
         id : 1,
         nome : "MYLENE LADY BARBOSA",
-        nome_empresa : "GROSCON ADMINISTRADORA DE CONSÃ“RCIOS LTDA",
+        nome_empresa : "GROSCON ADMINISTRADORA DE CONSÓRCIOS LTDA",
         usuario_caixa : "GAC27035",
         email : "MYLENE@CONSORCIOGROSCON.COM.BR",
         cpf : "27035292870",
@@ -29,7 +29,7 @@ module.exports = {
       {
         id : 2,
         nome : "THALES DOS REIS MANTOVANI",
-        nome_empresa : "GROSCON ADMINISTRADORA DE CONSÃ“RCIOS LTDA",
+        nome_empresa : "GROSCON ADMINISTRADORA DE CONSÓRCIOS LTDA",
         usuario_caixa : "GAC39152",
         email : "THALES@CONSORCIOGROSCON.COM.BR",
         cpf : "39152981827",
@@ -50,7 +50,7 @@ module.exports = {
       {
         id : 3,
         nome : "THALITA DE OLIVEIRA",
-        nome_empresa : "GROSCON ADMINISTRADORA DE CONSÃ“RCIOS LTDA",
+        nome_empresa : "GROSCON ADMINISTRADORA DE CONSÓRCIOS LTDA",
         usuario_caixa : "GAC38974",
         email : "THALITA@CONSORCIOGROSCON.COM.BR",
         cpf : "38974976897",
@@ -71,7 +71,7 @@ module.exports = {
       {
         id : 4,
         nome : "ANDERSON FERNANDES SOUZA",
-        nome_empresa : "BLESSING PRESTACAO DE SERVIÃ‡OS, REPRESENTACAO, CORRETAGEM E EVENTOS EM GERAL LTDA ME",
+        nome_empresa : "BLESSING PRESTACAO DE SERVIÇOS, REPRESENTACAO, CORRETAGEM E EVENTOS EM GERAL LTDA ME",
         usuario_caixa : "GAC32140",
         email : "ANDERSON@FINANCASCONSULTORIA.COM.BR",
         cpf : "32140993888",
@@ -92,7 +92,7 @@ module.exports = {
       {
         id : 5,
         nome : "CRISTIANA AMORIM DA SILVA",
-        nome_empresa : "DANGELO & SILVA COBRANÃ‡AS LTDA ME",
+        nome_empresa : "DANGELO & SILVA COBRANÇAS LTDA ME",
         usuario_caixa : "GAC18653",
         email : "CRISTIANAAMORIMRP1@GMAIL.COM",
         cpf : "18653779884",
@@ -218,7 +218,7 @@ module.exports = {
       {
         id : 11,
         nome : "MARIA FABRICIA CALISTO TEIXEIRA",
-        nome_empresa : "HABITAÃ‡ÃƒO SERVIÃ‡OS DE INFORMAÃ‡Ã‡Ã•ES CADASTRAIS LTDA (MARTA)",
+        nome_empresa : "HABITAÇÃO SERVIÇOS DE INFORMAÇOES CADASTRAIS LTDA (MARTA)",
         usuario_caixa : "GAC76582",
         email : "MARIA@HABITACAOCONSORCIO.COM",
         cpf : "76582221353",
@@ -281,7 +281,7 @@ module.exports = {
       {
         id : 15,
         nome : "SERGIO RICARDO DA SILVA",
-        nome_empresa : "SERGIO RICARDO DA SILVA PROMOÃ‡ÃƒO DE VENDAS (SÃ‰RGIO)",
+        nome_empresa : "SERGIO RICARDO DA SILVA PROMOÇÃO DE VENDAS (SÉRGIO)",
         usuario_caixa : "GAC10186",
         email : "SERGIOSERCON@UOL.COM.BR",
         cpf : "10186710801",
@@ -470,7 +470,7 @@ module.exports = {
       {
         id : 24,
         nome : "ANTONIO MARCOS DE CARVALHO",
-        nome_empresa : "FENYX IMÃ“VEIS DO VALE COMÃ‰RCIO E REPRESENTAÃ‡Ã•ES LTDA ME (MARCO)",
+        nome_empresa : "FENYX IMÓVEIS DO VALE COMÉRCIO E REPRESENTAÇÕES LTDA ME (MARCO)",
         usuario_caixa : "GAC81711",
         email : "MARCOS@IMOVELEIMOVEIS.COM.BR",
         cpf : "81711654949",
@@ -491,7 +491,7 @@ module.exports = {
       {
         id : 25,
         nome : "AIRTON JOSE MEDEIROS",
-        nome_empresa : "FLEXVIA REPRESENTAÃ‡Ã•ES COMERCIAIS LTDA",
+        nome_empresa : "FLEXVIA REPRESENTAÇÕES COMERCIAIS LTDA",
         usuario_caixa : "GAC54197",
         email : "AIRTON@FLEXVIA.COM.BR",
         cpf : "54197031904",
@@ -680,7 +680,7 @@ module.exports = {
       {
         id : 34,
         nome : "ROSENILDE ARAUJO SILVA",
-        nome_empresa : "RMAX REPRESENTAÃ‡ÃƒO (LEANDRO)",
+        nome_empresa : "RMAX REPRESENTAÇÃO (LEANDRO)",
         usuario_caixa : "GAC03447",
         email : "ROSENILDE@RMAXCONSULTORIA.COM.BR",
         cpf : "03447361646",
@@ -890,7 +890,7 @@ module.exports = {
       {
         id : 44,
         nome : "ITALO OLIVEIRA PAIVA",
-        nome_empresa : "SUZY PAIVA REPRESENTAÃ‡Ã•ES COMERCIAIS LTDA ME (MARTA)",
+        nome_empresa : "SUZY PAIVA REPRESENTACOES COMERCIAIS LTDA ME (MARTA)",
         usuario_caixa : "GAC04062",
         email : "ITALO@PAIVAREPRESENTACOES.COM",
         cpf : "04062512319",
@@ -995,7 +995,7 @@ module.exports = {
       {
         id : 49,
         nome : "ANTONIA GONCALVES DO NASCIMENTO",
-        nome_empresa : "ANTÃ”NIA G DO NASCIMENTO (MARTA)",
+        nome_empresa : "ANTONIA G DO NASCIMENTO (MARTA)",
         usuario_caixa : "GAC01961",
         email : "ANTONIA@ANTONIACONSORCIO.COM",
         cpf : "01961694379",
@@ -1226,7 +1226,7 @@ module.exports = {
       {
         id : 60,
         nome : "BRUNO RIBEIRO",
-        nome_empresa : "GROSCON ADMINISTRADORA DE CONSÃ“RCIOS LTDA",
+        nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC35135",
         email : "BRUNO@CONSORCIOGROSCON.COM.BR",
         cpf : "35135707832",
@@ -1310,7 +1310,7 @@ module.exports = {
       {
         id : 65,
         nome : "CARLOS ALBERTO ALVES DE OLIVEIRA",
-        nome_empresa : "SALMOS PRIME ADMINISTRACAO E CORRETORA DE SEGUROS LTDA ME (VITÃ“RIA)",
+        nome_empresa : "SALMOS PRIME ADMINISTRACAO E CORRETORA DE SEGUROS LTDA ME (VITORIA)",
         usuario_caixa : "GAC36044",
         email : "CARLOS@SALMOSPRIME.COM.BR",
         cpf : "36044970515",
@@ -1331,7 +1331,7 @@ module.exports = {
       {
         id : 66,
         nome : "LOURENCO ALVES DE OLIVEIRA JUNIOR",
-        nome_empresa : "SALMOS PRIME ADMINISTRACAO E CORRETORA DE SEGUROS LTDA ME (VITÃ“RIA)",
+        nome_empresa : "SALMOS PRIME ADMINISTRACAO E CORRETORA DE SEGUROS LTDA ME (VITORIA)",
         usuario_caixa : "GAC92019",
         email : "JUNIOR@SALMOSPRIME.COM.BR",
         cpf : "92019404591",
@@ -1730,7 +1730,7 @@ module.exports = {
       {
         id : 85,
         nome : "LEONARDO VIEIRA DE AMORIM",
-        nome_empresa : "LIP SOLUÃ‡Ã•ES E REPRESENTAÃ‡Ã•ES COMERCIAIS EIRELI - ME (MARTA)",
+        nome_empresa : "LIP SOLUCOES E REPRESENTACOES COMERCIAIS EIRELI - ME (MARTA)",
         usuario_caixa : "GAC67121",
         email : "LEONARDOAMORIM@FOCOCONSORCIOS.COM.BR",
         cpf : "67121950391",
@@ -2045,7 +2045,7 @@ module.exports = {
       {
         id : 100,
         nome : "JULIANA JULIANO ",
-        nome_empresa : "JULIANA JULIANO VEÃ�CULOS (LEANDRO)",
+        nome_empresa : "JULIANA JULIANO VEICULOS (LEANDRO)",
         usuario_caixa : "GAC22527",
         email : "JULIANA@FLASHMOTORS.NET",
         cpf : "22527267840",
@@ -2381,7 +2381,7 @@ module.exports = {
       {
         id : 116,
         nome : "MOISES ORTIZ AGUIRRE",
-        nome_empresa : "CORRETORA BRASIL IMÃ“VEIS LTDA (LEANDRO)",
+        nome_empresa : "CORRETORA BRASIL IMOVEIS LTDA (LEANDRO)",
         usuario_caixa : "GAC80740",
         email : "MOISES@BRASILIMOVEISPF.ONLINE",
         cpf : "80740456091",
@@ -2885,7 +2885,7 @@ module.exports = {
       {
         id : 141,
         nome : "MARCELLE REZENDE SARGACO",
-        nome_empresa : "RS INTERMEDIAÃ‡ÃƒO DE NEGOCIOS EIRELI (LEANDRO)",
+        nome_empresa : "RS INTERMEDIACAO DE NEGOCIOS EIRELI (LEANDRO)",
         usuario_caixa : "GAC37757",
         email : "MARCELLESARGACO@COMPANHIADOCONSORCIO.COM.BR",
         cpf : "37757661897",
@@ -3074,7 +3074,7 @@ module.exports = {
       {
         id : 150,
         nome : "BRENO GUSTAVO CINTRA MAURA",
-        nome_empresa : "GROSCON ADMINISTRADORA DE CONSÃ“RCIOS LTDA",
+        nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC28642",
         email : "BRENO.MAURA@CONSORCIOGROSCON.COM.BR",
         cpf : "28642132817",
@@ -3368,7 +3368,7 @@ module.exports = {
       {
         id : 165,
         nome : "ROGER BOMFIM DE JESUS AFFONSO",
-        nome_empresa : "ROGER BOMFIM DE JESUS AFFONSO 01131236556 (VITÃ“RIA)",
+        nome_empresa : "ROGER BOMFIM DE JESUS AFFONSO 01131236556 (VITORIA)",
         usuario_caixa : "GAC01131",
         email : "roger@rogerafonsoimoveis.com",
         cpf : "01131236556",
@@ -3557,7 +3557,7 @@ module.exports = {
       {
         id : 174,
         nome : "JOSIANI APARECIDA DE LIMA",
-        nome_empresa : "OWX INTERMEDIAÃ‡ÃƒO DE NEGOCIOS (LEANDRO)",
+        nome_empresa : "OWX INTERMEDIACAO DE NEGOCIOS (LEANDRO)",
         usuario_caixa : "GAC01026",
         email : "JOSIANI@OWXCONSORCIO.COM.BR",
         cpf : "01026728908",
@@ -3641,7 +3641,7 @@ module.exports = {
       {
         id : 178,
         nome : "MARCOS PAULO MANTOVANI MARTINES",
-        nome_empresa : "PRA JÃ� SOLUÃ‡Ã•ES E INTERMEDIAÃ‡Ã•ES DE NEGÃ“CIOS LTDA (LEANDRO)",
+        nome_empresa : "PRA JI SOLUCOES E INTERMEDIACOES DE NEGOCIOS LTDA (LEANDRO)",
         usuario_caixa : "GAC73034",
         email : "marcos@prajasolucoes.com.br",
         cpf : "73034860110",
@@ -3662,7 +3662,7 @@ module.exports = {
       {
         id : 179,
         nome : "CATIA REGINA DA SILVA FERRERIA",
-        nome_empresa : "CATIA REGINA DA SILVA FERREIRA (VITÃ“RIA)",
+        nome_empresa : "CATIA REGINA DA SILVA FERREIRA (VITORIA)",
         usuario_caixa : "GAC99028",
         email : "CATIABAHIA@MORADADOBEM.COM.BR",
         cpf : "99028344772",
@@ -3809,7 +3809,7 @@ module.exports = {
       {
         id : 186,
         nome : "WILLIAN DIEGO GUIMARAES ",
-        nome_empresa : "WILLIAN DIEGO GUIMARAES CORRESPONDENTE DE INSTITUIÃ‡Ã•ES FINANCEIRAS EIRELI",
+        nome_empresa : "WILLIAN DIEGO GUIMARAES CORRESPONDENTE DE INSTITUICOES FINANCEIRAS EIRELI",
         usuario_caixa : "GAC42161",
         email : "WILLIAN@WILLIANGUIMARAES.COM.BR",
         cpf : "42161701886",
@@ -3872,14 +3872,14 @@ module.exports = {
       {
         id : 189,
         nome : "ARIOVALDO ROSA JUNIOR",
-        nome_empresa : "GUDA SERVIÃ‡OS CADASTRAIS LTDA",
+        nome_empresa : "GUDA SERVICOS CADASTRAIS LTDA",
         usuario_caixa : "GAC28422",
         email : "ARI@KREDITTUS.COM.BR ",
         cpf : "28422132893",
         data_nascimento : "1979-07-25",
         tipo : 1,
         estado : "SP",
-        cidade : "SÃƒO PAULO",
+        cidade : "SAO PAULO",
         ddd : 11,
         telefone : 965179329,
         ativo : false,
@@ -3921,7 +3921,7 @@ module.exports = {
         data_nascimento : "1966-12-12",
         tipo : 1,
         estado : "SP",
-        cidade : "SÃƒO PAULO",
+        cidade : "SAO PAULO",
         ddd : 11,
         telefone : 991144850,
         ativo : false,
@@ -3956,7 +3956,7 @@ module.exports = {
       {
         id : 193,
         nome : "CARLA CRISTINA DA SILVA TELES",
-        nome_empresa : "GROSCON ADMINISTRADORA DE CONSÃ“RCIOS LTDA",
+        nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC33900",
         email : "CARLA@CONSORCIOGROSCON.COM.BR",
         cpf : "33900967873",
@@ -3984,7 +3984,7 @@ module.exports = {
         data_nascimento : "1979-06-02",
         tipo : 1,
         estado : "SP",
-        cidade : "SÃƒO PAULO",
+        cidade : "SAO PAULO",
         ddd : 11,
         telefone : 954815096,
         ativo : false,
@@ -4005,7 +4005,7 @@ module.exports = {
         data_nascimento : "1985-10-30",
         tipo : 1,
         estado : "SP",
-        cidade : "SÃƒO PAULO",
+        cidade : "SAO PAULO",
         ddd : 11,
         telefone : 953926280,
         ativo : false,
@@ -4026,7 +4026,7 @@ module.exports = {
         data_nascimento : "1976-11-19",
         tipo : 1,
         estado : "SP",
-        cidade : "SÃƒO PAULO",
+        cidade : "SAO PAULO",
         ddd : 11,
         telefone : 981703550,
         ativo : false,
@@ -4187,7 +4187,7 @@ module.exports = {
       {
         id : 204,
         nome : "MARCOS EMANUEL SILVA DA CUNHA",
-        nome_empresa : "CENTRAL DOS CREDITOS CORRETAGEM, REPRESENTAÃ‡ÃƒO E INTERMEDIAÃ‡ÃƒO EIRELI",
+        nome_empresa : "CENTRAL DOS CREDITOS CORRETAGEM, REPRESENTACAO E INTERMEDIACAO EIRELI",
         usuario_caixa : "GAC85578",
         email : "MARCOS@CENTRALDOSCREDITOS.COM.BR",
         cpf : "85578460534",
@@ -4292,7 +4292,7 @@ module.exports = {
       {
         id : 211,
         nome : "RENILSON SANCHES GONCALVES",
-        nome_empresa : "RENCAD REPRESENTAÃ‡Ã•ES E SERVIÃ‡OS LTDA ME",
+        nome_empresa : "RENCAD REPRESENTACOES E SERVICOS LTDA ME",
         usuario_caixa : "GAC27512",
         email : "RENILSON@RENCAD-CONSORCIO.COM.BR",
         cpf : "27512436572",
@@ -4334,7 +4334,7 @@ module.exports = {
       {
         id : 213,
         nome : "FRANCISCO DAS CHAGAS CARVALHO 45789690378",
-        nome_empresa : "CHAGAS CARVALHO NEGOCIOS E SERVIÃ‡OS",
+        nome_empresa : "CHAGAS CARVALHO NEGOCIOS E SERVICOS",
         usuario_caixa : "GAC45789",
         email : "CHAGASCARVALHO@CHAGASCARVALHO.NET.BR",
         cpf : "45789690378",
@@ -4607,7 +4607,7 @@ module.exports = {
       {
         id : 226,
         nome : "MARCELO PALERMO",
-        nome_empresa : "IMOBILIARIA ESPAÃ‡O NOBRE",
+        nome_empresa : "IMOBILIARIA ESPACO NOBRE",
         usuario_caixa : "GAC16219",
         email : "MARCELO@ESPACONOBREIMOVEIS.COM.BR",
         cpf : "16219543823",
@@ -4649,7 +4649,7 @@ module.exports = {
       {
         id : 228,
         nome : "SHIRLEY FLAVIA FERREIRA FREITAS",
-        nome_empresa : "GROSCON ADMINISTRADORA DE CONSÃ“RCIOS LTDA",
+        nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC21308",
         email : "SHIRLEY@CONSORCIOGROSCON.COM.BR",
         cpf : "21308319827",
@@ -4691,7 +4691,7 @@ module.exports = {
       {
         id : 231,
         nome : "LETICIA DA SILVA BUARETTO",
-        nome_empresa : "GROSCON ADMINISTRADORA DE CONSÃ“RCIOS LTDA",
+        nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC41643",
         email : "LETICIA.BUARETTO@GROSCONCONSORCIO.COM.BR",
         cpf : "41643446878",
@@ -4712,7 +4712,7 @@ module.exports = {
       {
         id : 232,
         nome : "ANA LAURA DOMICIANO SOARES",
-        nome_empresa : "GROSCON ADMINISTRADORA DE CONSÃ“RCIOS LTDA",
+        nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC44197",
         email : "ANA.SOARES@GROSCONCONSORCIO.COM.BR",
         cpf : "44197166818",
@@ -4775,7 +4775,7 @@ module.exports = {
       {
         id : 235,
         nome : "BRUNA CAROLINE VITORIO",
-        nome_empresa : "GROSCON ADMINISTRADORA DE CONSÃ“RCIOS LTDA",
+        nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC09114",
         email : "BRUNA.VITORIO@GROSCONCONSORCIO.COM.BR ",
         cpf : "09114000601",
@@ -4796,7 +4796,7 @@ module.exports = {
       {
         id : 236,
         nome : "ANA PAULA SILVERIO SOBRINHO MUNIZ",
-        nome_empresa : "GROSCON ADMINISTRADORA DE CONSÃ“RCIOS LTDA",
+        nome_empresa : "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
         usuario_caixa : "GAC41961",
         email : " ANA.PAULA@GROSCONCONSORCIO.COM.BR",
         cpf : "41961367882",

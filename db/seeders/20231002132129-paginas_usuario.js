@@ -6,31 +6,31 @@ module.exports = {
     
     await queryInterface.bulkInsert('paginas_usuario', [
       {
-        id_pagina_portal: 1,
+        id_pagina: 1,
         id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        id_pagina_portal: 2,
+        id_pagina: 2,
         id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        id_pagina_portal: 3,
+        id_pagina: 3,
         id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        id_pagina_portal: 4,
+        id_pagina: 4,
         id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        id_pagina_portal: 5,
+        id_pagina: 5,
         id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()

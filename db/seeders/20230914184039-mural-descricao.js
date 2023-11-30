@@ -7,67 +7,67 @@ module.exports = {
     await queryInterface.bulkInsert('mural_descricao', [
       {
         descricao : "Bens Entregues",
-        id_usuario : null,
+        id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "% Inadimplência",
-        id_usuario : null,
+        id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Bens Pendentes de Entrega",
-        id_usuario : null,
+        id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Recuperações",
-        id_usuario : null,
+        id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Boletos Dev./N Entregues",
-        id_usuario : null,
+        id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Impressões Nº Cópias",
-        id_usuario : null,
+        id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Água",
-        id_usuario : null,
+        id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Luz",
-        id_usuario : null,
+        id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Telefone",
-        id_usuario : null,
+        id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Vendas",
-        id_usuario : null,
+        id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
         descricao : "Vendas Franca",
-        id_usuario : null,
+        id_usuario : 1,
         createdAt: new Date(),
         updatedAt: new Date()
       }
