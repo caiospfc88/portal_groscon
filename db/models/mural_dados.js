@@ -16,7 +16,6 @@ module.exports = (sequelize, DataTypes) => {
   Mural_dados.init({
     ano: DataTypes.INTEGER,
     mes: DataTypes.INTEGER,
-    tipo: DataTypes.INTEGER,
     valor: DataTypes.FLOAT,
     id_mural_descricao: DataTypes.INTEGER
   }, {

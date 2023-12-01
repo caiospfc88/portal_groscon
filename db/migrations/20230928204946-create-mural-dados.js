@@ -18,9 +18,6 @@ module.exports = {
       mes: {
         type: Sequelize.INTEGER
       },
-      tipo: {
-        type: Sequelize.INTEGER
-      },
       valor: {
         type: Sequelize.FLOAT
       },
