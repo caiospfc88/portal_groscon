@@ -21,8 +21,7 @@ var conexao = async function(sqlQuery) {
     console.log(sqlQuery)
     await sql.connect(sqlConfig)
     var result = await sql.query(sqlQuery)
-    //var resultado = JSON.stringify(result.recordset);
-    console.log('resultado:', result.recordset)
+    //console.log('resultado:', result.recordset)
     return result.recordset;
 };  
 

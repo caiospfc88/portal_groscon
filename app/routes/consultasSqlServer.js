@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+
 
 module.exports = function(application){
         application.get('/comissoesSemReducao', function(req, res){        
