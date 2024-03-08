@@ -1,16 +1,22 @@
-function ConsultasDAO(connection){
-	this._connection = connection;
-};
+function ConsultasDAO(connection) {
+  this._connection = connection;
+}
 
-ConsultasDAO.prototype.getComissoesSemReducao = async function(req){
-    const { data_inicial, data_final, periodo, opcao, codigo } = req.headers;
-    var complemento = '';
-    if (opcao == 2) {
-        complemento = `and ((nivel1.CODIGO_EQUIPE = ${codigo}) or (nivel2.CODIGO_EQUIPE = ${codigo}) or (nivel3.CODIGO_EQUIPE = ${codigo}) or (nivel4.CODIGO_EQUIPE = ${codigo}))`
-     }else{
-        complemento = `and ((nivel1.CODIGO_REPRESENTANTE = ${codigo}) or (nivel2.CODIGO_REPRESENTANTE = ${codigo}) or (nivel3.CODIGO_REPRESENTANTE = ${codigo}) or (nivel4.CODIGO_REPRESENTANTE = ${codigo}))`
-     }   
-    var result1 = await this._connection(`select distinct
+ConsultasDAO.prototype.getComissoesSemReducao = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+  let periodo = req.query.periodo;
+  let opcao = req.query.opcao;
+  let codigo = req.query.codigo;
+
+  var complemento = "";
+  if (opcao == 2) {
+    complemento = `and ((nivel1.CODIGO_EQUIPE = ${codigo}) or (nivel2.CODIGO_EQUIPE = ${codigo}) or (nivel3.CODIGO_EQUIPE = ${codigo}) or (nivel4.CODIGO_EQUIPE = ${codigo}))`;
+  } else {
+    complemento = `and ((nivel1.CODIGO_REPRESENTANTE = ${codigo}) or (nivel2.CODIGO_REPRESENTANTE = ${codigo}) or (nivel3.CODIGO_REPRESENTANTE = ${codigo}) or (nivel4.CODIGO_REPRESENTANTE = ${codigo}))`;
+  }
+  var result1 = await this._connection(
+    `select distinct
     ct.CODIGO_GRUPO as GRUPO
     ,ct.CODIGO_COTA as COTA
     ,ct.VERSAO AS VS
@@ -277,21 +283,22 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function(req){
      (select max(NUMERO_PARCELA) as NUMERO_PARCELAS_MAXIMO from COMISSOES_CATEGORIAS where NUMERO_PARCELA < 500 AND CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO) as QUANTIDADE_PARCELAS
 
   where
-    mg.CODIGO_MOVIMENTO in ('010','011') `
-    + complemento +    
-    ` and ct.VERSAO < '40'
+    mg.CODIGO_MOVIMENTO in ('010','011') ` +
+      complemento +
+      ` and ct.VERSAO < '40'
     and mg.DATA_CONTABILIZACAO between '${data_inicial}' and '${data_final}'
     and ct.DATA_VENDA between pc.DATA_CONTABILIZACAO_INICIAL and pc.DATA_CONTABILIZACAO_FINAL
     and (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) <= QUANTIDADE_PARCELAS.NUMERO_PARCELAS_MAXIMO
   order by
     ct.CODIGO_GRUPO
     ,ct.CODIGO_COTA
-    ,ct.VERSAO`)
+    ,ct.VERSAO`
+  );
 
-var result2;
+  var result2;
 
-    if(opcao == 1){
-        result2 = await this._connection(`
+  if (opcao == 1) {
+    result2 = await this._connection(`
          select 
            rp.CODIGO_REPRESENTANTE, 
            rp.NOME, 
@@ -325,10 +332,9 @@ var result2;
              where
              rpp.CODIGO_REPRESENTANTE = rp.CODIGO_ENCARREGADO) as rc
            where 
-             rp.CODIGO_REPRESENTANTE = ${codigo}`)
-   
-    }else{
-        result2 = await this._connection(`
+             rp.CODIGO_REPRESENTANTE = ${codigo}`);
+  } else {
+    result2 = await this._connection(`
            select
            eq.CODIGO_EQUIPE
            ,eq.DESCRICAO
@@ -336,21 +342,27 @@ var result2;
            EQUIPES_VENDAS eq
            where
            eq.CODIGO_EQUIPE = ${codigo}`);
-        }
-                                
-        var result = result1.concat(result2);
-        return result
+  }
+
+  var result = result1.concat(result2);
+  return result;
 };
 
-ConsultasDAO.prototype.getComissoesComReducao = async function(req){
-    const { data_inicial, data_final, periodo, opcao, codigo } = req.headers;
-    var complemento = '';
-    if (opcao == 2) {
-        complemento = `and ((nivel1.CODIGO_EQUIPE = ${codigo}) or (nivel2.CODIGO_EQUIPE = ${codigo}) or (nivel3.CODIGO_EQUIPE = ${codigo}) or (nivel4.CODIGO_EQUIPE = ${codigo}))`
-     }else{
-        complemento = `and ((nivel1.CODIGO_REPRESENTANTE = ${codigo}) or (nivel2.CODIGO_REPRESENTANTE = ${codigo}) or (nivel3.CODIGO_REPRESENTANTE = ${codigo}) or (nivel4.CODIGO_REPRESENTANTE = ${codigo}))`
-     }
-    var result = await this._connection(`select distinct
+ConsultasDAO.prototype.getComissoesComReducao = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+  let periodo = req.query.periodo;
+  let opcao = req.query.opcao;
+  let codigo = req.query.codigo;
+
+  var complemento = "";
+  if (opcao == 2) {
+    complemento = `and ((nivel1.CODIGO_EQUIPE = ${codigo}) or (nivel2.CODIGO_EQUIPE = ${codigo}) or (nivel3.CODIGO_EQUIPE = ${codigo}) or (nivel4.CODIGO_EQUIPE = ${codigo}))`;
+  } else {
+    complemento = `and ((nivel1.CODIGO_REPRESENTANTE = ${codigo}) or (nivel2.CODIGO_REPRESENTANTE = ${codigo}) or (nivel3.CODIGO_REPRESENTANTE = ${codigo}) or (nivel4.CODIGO_REPRESENTANTE = ${codigo}))`;
+  }
+  var result1 = await this._connection(
+    `select distinct
                                             ct.CODIGO_GRUPO as GRUPO
                                             ,ct.CODIGO_COTA as COTA
                                             ,ct.VERSAO AS VS
@@ -664,23 +676,76 @@ ConsultasDAO.prototype.getComissoesComReducao = async function(req){
                                             --ct.CODIGO_GRUPO = '056'
                                             --and ct.CODIGO_COTA = '028'
                                             --and ct.VERSAO = '00'
-                                            mg.CODIGO_MOVIMENTO in ('010','011')`                                           
-                                            + complemento +
-                                            ` and ct.VERSAO < '40'
+                                            mg.CODIGO_MOVIMENTO in ('010','011')` +
+      complemento +
+      ` and ct.VERSAO < '40'
                                             and mg.DATA_CONTABILIZACAO between '${data_inicial}' and '${data_final}'
                                             and ct.DATA_VENDA between pc.DATA_CONTABILIZACAO_INICIAL and pc.DATA_CONTABILIZACAO_FINAL
                                             and (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) <= QUANTIDADE_PARCELAS.NUMERO_PARCELAS_MAXIMO
                                         order by
                                             ct.CODIGO_GRUPO
                                             ,ct.CODIGO_COTA
-                                            ,ct.VERSAO`)
-                                
-    return result
+                                            ,ct.VERSAO`
+  );
+
+  var result2;
+
+  if (opcao == 1) {
+    result2 = await this._connection(`
+         select 
+           rp.CODIGO_REPRESENTANTE, 
+           rp.NOME, 
+           rp.CODIGO_CATEGORIA,
+           cr.DESCRICAO AS DESCRICAO_CATEGORIA,
+           rp.CODIGO_CATEGORIA_SUPERVISAO, 
+           cs.DESCRICAO AS DESCRICAO_SUPERVISAO,
+           rp.CODIGO_ENCARREGADO,
+           RC.NOME AS NOME_ENCARREGADO
+         from 
+           REPRESENTANTES rp
+           outer apply(
+           select 
+           * 
+           from 
+           CATEGORIAS_REPRESENTANTES cr
+           where
+           cr.CODIGO_CATEGORIA = rp.CODIGO_CATEGORIA ) as cr
+           outer apply(
+           select 
+           * 
+           from 
+           CATEGORIAS_REPRESENTANTES cr
+           where
+           cr.CODIGO_CATEGORIA = rp.CODIGO_CATEGORIA_SUPERVISAO ) as cs
+           outer apply(
+             select
+             NOME
+             from
+             REPRESENTANTES rpp
+             where
+             rpp.CODIGO_REPRESENTANTE = rp.CODIGO_ENCARREGADO) as rc
+           where 
+             rp.CODIGO_REPRESENTANTE = ${codigo}`);
+  } else {
+    result2 = await this._connection(`
+           select
+           eq.CODIGO_EQUIPE
+           ,eq.DESCRICAO
+           from
+           EQUIPES_VENDAS eq
+           where
+           eq.CODIGO_EQUIPE = ${codigo}`);
+  }
+
+  var result = result1.concat(result2);
+  return result;
 };
 
-ConsultasDAO.prototype.getQuitados = async function(req){
-    const { data_inicial, data_final } = req.headers;
-    var result = await this._connection(`select ct.CODIGO_GRUPO as 'Grupo',
+ConsultasDAO.prototype.getQuitados = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+
+  var result = await this._connection(`select ct.CODIGO_GRUPO as 'Grupo',
                                                 ct.CODIGO_COTA as 'Cota',
                                                 ct.VERSAO as 'Versão',
                                                 format (ct.DATA_SITUACAO,'dd/MM/yyyy', 'en-US') as 'Data da quitação',
@@ -710,13 +775,14 @@ ConsultasDAO.prototype.getQuitados = async function(req){
                                             LEFT JOIN TELEFONES_COTAS TC ON CL.CGC_CPF_CLIENTE = TC.CGC_CPF_CLIENTE
                                             where ct.CODIGO_SITUACAO = 'Q00'
                                             and ct.DATA_SITUACAO between '${data_inicial}' and '${data_final}'
-                                            and a.QTD_SIT is null`)
-    return result
-};    
+                                            and a.QTD_SIT is null`);
+  return result;
+};
 
-ConsultasDAO.prototype.getAniversariantesMes = async function(req){
-    const {mes_nascimento} = req.headers;
-    var result = await this._connection(`select 
+ConsultasDAO.prototype.getAniversariantesMes = async function (req) {
+  let mes_nascimento = req.query.mes_nascimento;
+
+  var result = await this._connection(`select 
                                                 ct.CODIGO_GRUPO as 'GRUPO',
                                                 ct.CODIGO_COTA as 'COTA',
                                                 ct.VERSAO as 'VERSÃO',
@@ -729,13 +795,15 @@ ConsultasDAO.prototype.getAniversariantesMes = async function(req){
                                             inner join SITUACOES_COBRANCAS sc on sc.codigo_situacao = ct.CODIGO_SITUACAO
                                             inner join GRUPOS g on ct.CODIGO_GRUPO = g.CODIGO_GRUPO
                                             where month(data_nascimento) = ${mes_nascimento} and g.CODIGO_SITUACAO = 'A' and ct.VERSAO = 00 and PESSOA = 'F' and sc.CODIGO_SITUACAO like 'N%%'
-                                            order by ct.CODIGO_GRUPO,ct.CODIGO_COTA`)
-    return result
+                                            order by ct.CODIGO_GRUPO,ct.CODIGO_COTA`);
+  return result;
 };
 
-ConsultasDAO.prototype.getRelatorioRenegociacoes = async function(req){
-    const { data_inicial, data_final } = req.headers;
-    var result = await this._connection(`select
+ConsultasDAO.prototype.getRelatorioRenegociacoes = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+
+  let result = await this._connection(`select
                                             ct.CODIGO_GRUPO as GRUPO
                                             ,ct.CODIGO_COTA AS COTA
                                             ,ct.VERSAO AS VERSAO
@@ -837,13 +905,17 @@ ConsultasDAO.prototype.getRelatorioRenegociacoes = async function(req){
                                         order by
                                             ct.CODIGO_GRUPO
                                             ,ct.CODIGO_COTA
-                                            ,ct.VERSAO`)
-    return result
+                                            ,ct.VERSAO`);
+  return result;
 };
 
-ConsultasDAO.prototype.getRelatorioAproveitamento = async function(req){
-    const { data_inicial, data_final, equipe_inicial, equipe_final } = req.headers;
-    var result1 = await this._connection(`select CODIGO_GRUPO as GRUPO,
+ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+  let equipe_inicial = req.query.equipe_inicial;
+  let equipe_final = req.query.equipe_final;
+
+  var result1 = await this._connection(`select CODIGO_GRUPO as GRUPO,
                                             CODIGO_COTA AS COTA,
                                             VERSAO AS 'VERSÃO',
                                             CT.CODIGO_SITUACAO as 'SITUAÇÃO',
@@ -854,9 +926,10 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function(req){
                                         inner join REPRESENTANTES rep 
                                         on ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
                                         where ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}' and rep.codigo_equipe between '${equipe_inicial}' AND '${equipe_final}'
-                                        order by rep.CODIGO_REPRESENTANTE `)
-                                           
-    var result2 = await this._connection(`SELECT rep.CODIGO_REPRESENTANTE AS 'REPRESENTANTE',
+                                        order by rep.CODIGO_REPRESENTANTE `);
+
+  var result2 = await this
+    ._connection(`SELECT rep.CODIGO_REPRESENTANTE AS 'REPRESENTANTE',
                                             CT.CODIGO_SITUACAO as 'SITUAÇÃO',
                                             COUNT(CODIGO_SITUACAO) AS QUANTIDADE,
                                             sum(pp.VALOR_BEM) as 'TOTAL VALOR'
@@ -867,11 +940,11 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function(req){
                                         on ct.CODIGO_GRUPO = pp.CODIGO_GRUPO and ct.CODIGO_COTA = pp.CODIGO_COTA and ct.VERSAO = pp.VERSAO
                                         where ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}' and rep.codigo_equipe between '${equipe_inicial}' AND '${equipe_final}'
                                         GROUP BY ct.CODIGO_SITUACAO, rep.CODIGO_REPRESENTANTE
-                                        order by rep.CODIGO_REPRESENTANTE`)
-    var result = result1.concat(result2);
-    return result
+                                        order by rep.CODIGO_REPRESENTANTE`);
+  var result = result1.concat(result2);
+  return result;
 };
 
-module.exports = function(){
-    return ConsultasDAO;
+module.exports = function () {
+  return ConsultasDAO;
 };
