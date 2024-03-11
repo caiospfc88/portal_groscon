@@ -344,7 +344,7 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function (req) {
            eq.CODIGO_EQUIPE = ${codigo}`);
   }
 
-  var result = result1.concat(result2);
+  var result = [result1, result2]; /*result1.concat(result2);*/
   return result;
 };
 
@@ -737,7 +737,7 @@ ConsultasDAO.prototype.getComissoesComReducao = async function (req) {
            eq.CODIGO_EQUIPE = ${codigo}`);
   }
 
-  var result = result1.concat(result2);
+  var result = [result1, result2];
   return result;
 };
 
@@ -941,7 +941,7 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
                                         where ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}' and rep.codigo_equipe between '${equipe_inicial}' AND '${equipe_final}'
                                         GROUP BY ct.CODIGO_SITUACAO, rep.CODIGO_REPRESENTANTE
                                         order by rep.CODIGO_REPRESENTANTE`);
-  var result = result1.concat(result2);
+  var result = [result1, result2];
   return result;
 };
 
