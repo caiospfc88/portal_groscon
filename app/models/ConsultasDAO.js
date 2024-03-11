@@ -9,13 +9,13 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function (req) {
   let opcao = req.query.opcao;
   let codigo = req.query.codigo;
 
-  var complemento = "";
+  let complemento = "";
   if (opcao == 2) {
     complemento = `and ((nivel1.CODIGO_EQUIPE = ${codigo}) or (nivel2.CODIGO_EQUIPE = ${codigo}) or (nivel3.CODIGO_EQUIPE = ${codigo}) or (nivel4.CODIGO_EQUIPE = ${codigo}))`;
   } else {
     complemento = `and ((nivel1.CODIGO_REPRESENTANTE = ${codigo}) or (nivel2.CODIGO_REPRESENTANTE = ${codigo}) or (nivel3.CODIGO_REPRESENTANTE = ${codigo}) or (nivel4.CODIGO_REPRESENTANTE = ${codigo}))`;
   }
-  var result1 = await this._connection(
+  let dados = await this._connection(
     `select distinct
     ct.CODIGO_GRUPO as GRUPO
     ,ct.CODIGO_COTA as COTA
@@ -295,10 +295,11 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function (req) {
     ,ct.VERSAO`
   );
 
-  var result2;
+  let dadosRepresentante;
+  let dadosEquipe;
 
   if (opcao == 1) {
-    result2 = await this._connection(`
+    dadosRepresentante = await this._connection(`
          select 
            rp.CODIGO_REPRESENTANTE, 
            rp.NOME, 
@@ -334,7 +335,7 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function (req) {
            where 
              rp.CODIGO_REPRESENTANTE = ${codigo}`);
   } else {
-    result2 = await this._connection(`
+    dadosEquipe = await this._connection(`
            select
            eq.CODIGO_EQUIPE
            ,eq.DESCRICAO
@@ -344,7 +345,7 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function (req) {
            eq.CODIGO_EQUIPE = ${codigo}`);
   }
 
-  var result = [result1, result2]; /*result1.concat(result2);*/
+  var result = [dados, dadosRepresentante ? dadosRepresentante : dadosEquipe];
   return result;
 };
 
@@ -361,7 +362,7 @@ ConsultasDAO.prototype.getComissoesComReducao = async function (req) {
   } else {
     complemento = `and ((nivel1.CODIGO_REPRESENTANTE = ${codigo}) or (nivel2.CODIGO_REPRESENTANTE = ${codigo}) or (nivel3.CODIGO_REPRESENTANTE = ${codigo}) or (nivel4.CODIGO_REPRESENTANTE = ${codigo}))`;
   }
-  var result1 = await this._connection(
+  var dados = await this._connection(
     `select distinct
                                             ct.CODIGO_GRUPO as GRUPO
                                             ,ct.CODIGO_COTA as COTA
@@ -688,10 +689,11 @@ ConsultasDAO.prototype.getComissoesComReducao = async function (req) {
                                             ,ct.VERSAO`
   );
 
-  var result2;
+  let dadosRepresentante;
+  let dadosEquipe;
 
   if (opcao == 1) {
-    result2 = await this._connection(`
+    dadosRepresentante = await this._connection(`
          select 
            rp.CODIGO_REPRESENTANTE, 
            rp.NOME, 
@@ -727,7 +729,7 @@ ConsultasDAO.prototype.getComissoesComReducao = async function (req) {
            where 
              rp.CODIGO_REPRESENTANTE = ${codigo}`);
   } else {
-    result2 = await this._connection(`
+    dadosEquipe = await this._connection(`
            select
            eq.CODIGO_EQUIPE
            ,eq.DESCRICAO
@@ -737,7 +739,7 @@ ConsultasDAO.prototype.getComissoesComReducao = async function (req) {
            eq.CODIGO_EQUIPE = ${codigo}`);
   }
 
-  var result = [result1, result2];
+  var result = [dados, dadosRepresentante ? dadosRepresentante : dadosEquipe];
   return result;
 };
 
@@ -745,7 +747,7 @@ ConsultasDAO.prototype.getQuitados = async function (req) {
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
 
-  var result = await this._connection(`select ct.CODIGO_GRUPO as 'Grupo',
+  let result = await this._connection(`select ct.CODIGO_GRUPO as 'Grupo',
                                                 ct.CODIGO_COTA as 'Cota',
                                                 ct.VERSAO as 'Versão',
                                                 format (ct.DATA_SITUACAO,'dd/MM/yyyy', 'en-US') as 'Data da quitação',
@@ -782,7 +784,7 @@ ConsultasDAO.prototype.getQuitados = async function (req) {
 ConsultasDAO.prototype.getAniversariantesMes = async function (req) {
   let mes_nascimento = req.query.mes_nascimento;
 
-  var result = await this._connection(`select 
+  let result = await this._connection(`select 
                                                 ct.CODIGO_GRUPO as 'GRUPO',
                                                 ct.CODIGO_COTA as 'COTA',
                                                 ct.VERSAO as 'VERSÃO',
@@ -915,7 +917,7 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
   let equipe_inicial = req.query.equipe_inicial;
   let equipe_final = req.query.equipe_final;
 
-  var result1 = await this._connection(`select CODIGO_GRUPO as GRUPO,
+  var dados = await this._connection(`select CODIGO_GRUPO as GRUPO,
                                             CODIGO_COTA AS COTA,
                                             VERSAO AS 'VERSÃO',
                                             CT.CODIGO_SITUACAO as 'SITUAÇÃO',
@@ -928,7 +930,7 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
                                         where ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}' and rep.codigo_equipe between '${equipe_inicial}' AND '${equipe_final}'
                                         order by rep.CODIGO_REPRESENTANTE `);
 
-  var result2 = await this
+  var dadosPorSituacao = await this
     ._connection(`SELECT rep.CODIGO_REPRESENTANTE AS 'REPRESENTANTE',
                                             CT.CODIGO_SITUACAO as 'SITUAÇÃO',
                                             COUNT(CODIGO_SITUACAO) AS QUANTIDADE,
@@ -941,7 +943,7 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
                                         where ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}' and rep.codigo_equipe between '${equipe_inicial}' AND '${equipe_final}'
                                         GROUP BY ct.CODIGO_SITUACAO, rep.CODIGO_REPRESENTANTE
                                         order by rep.CODIGO_REPRESENTANTE`);
-  var result = [result1, result2];
+  var result = [dados, dadosPorSituacao];
   return result;
 };
 

@@ -1,9 +1,7 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
-
-import Bcrypt from 'bcrypt';
+"use strict";
+const { Model } = require("sequelize");
+require("dotenv").config();
+const bcrypt = require("bcrypt");
 
 module.exports = (sequelize, DataTypes) => {
   class Usuarios extends Model {
@@ -16,26 +14,31 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  Usuarios.init({
-    nome: DataTypes.STRING,
-    sobrenome: DataTypes.STRING,
-    login: DataTypes.STRING,
-    senha: DataTypes.STRING,
-    email: DataTypes.STRING,
-    data_nascimento: DataTypes.DATE,
-    celular: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'usuarios',
-  });
+  Usuarios.init(
+    {
+      nome: DataTypes.STRING,
+      sobrenome: DataTypes.STRING,
+      login: DataTypes.STRING,
+      senha: DataTypes.STRING,
+      email: DataTypes.STRING,
+      data_nascimento: DataTypes.DATE,
+      celular: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      modelName: "usuarios",
+    }
+  );
 
-  Usuarios.associate = models => {
+  Usuarios.associate = (models) => {
     models.usuarios.hasMany(models.mural_descricao);
-    models.usuarios.belongsToMany(models.paginas_portal, {through : models.paginas_usuario});
-  }
+    models.usuarios.belongsToMany(models.paginas_portal, {
+      through: models.paginas_usuario,
+    });
+  };
 
-  Usuarios.addHook('beforeCreate', async (usuarios) => {
-    const hash = await Bcrypt.hash(usuarios.senha, 1035);
+  Usuarios.addHook("beforeCreate", async (usuarios) => {
+    const hash = await bcrypt.hash(usuarios.senha, process.env.JWT_SECRET);
     usuarios.senha = hash;
   });
 
