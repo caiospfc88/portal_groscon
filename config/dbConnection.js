@@ -18,10 +18,10 @@ const sqlConfig = {
 };
 
 var conexao = async function (sqlQuery) {
-  /*console.log(sqlQuery);*/
+  //console.log(sqlQuery);
   await sql.connect(sqlConfig);
   var result = await sql.query(sqlQuery);
-  console.log(result.recordset[0]);
+  //console.log(result.recordset);
   return result.recordset;
 };
 
