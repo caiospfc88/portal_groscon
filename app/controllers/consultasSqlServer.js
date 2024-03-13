@@ -13,8 +13,18 @@ module.exports.comissoesComReducao = async function (application, req, res) {
 module.exports.comissoesSemReducao = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
-  let comissao = [[{}], {}];
+  let comissao = new Array();
+  comissao = [[], {}];
+  function ItemComissao() {
+    this.GRUPO = GRUPO;
+    this.COTA = COTA;
+    this.VS = VS;
+    this.DT_CONT = DT_CONT;
+    this.COD_EQ = COD_EQ;
+    this.COD_REP = COD_REP;
+  }
   comissao.valTotalComissao = 0;
+
   var n = 0;
 
   var resConsulta = await consultaModel.getComissoesSemReducao(req);
@@ -27,24 +37,25 @@ module.exports.comissoesSemReducao = async function (application, req, res) {
       if ((i["N1_COD"] = !null && i["VAL_N1"] > 0)) {
         console.log(i["N2_COD"]);
         (comissao.valTotalComissao += i["VAL_N1"]),
-          comissao[n].push(i["GRUPO"]),
+          (comissao[0][n] = i["GRUPO"]),
           n++;
       }
     });
   } else {
     resConsulta[0].forEach((i) => {
-      console.log("fora do if", i["N2_COD"]);
+      console.log("fora do if", resConsulta[0][i]);
 
       if (i["N2_COD"] !== null && i["VAL_N2"] > 0) {
+        console.log(i["GRUPO"], n);
+        console.log(i["COTA"], n);
         console.log(i["VAL_N2"], n);
-        console.log(comissao[0]);
         comissao.valTotalComissao = comissao.valTotalComissao + i["VAL_N2"];
-        //comissao[0][n]["GRUPO"] = i["GRUPO"];
+        comissao[0]["GRUPO"] = i["GRUPO"];
         n++;
       }
     });
   }
-  console.log(comissao);
+  console.log("comissão", comissao);
   res.send(resConsulta);
 };
 
