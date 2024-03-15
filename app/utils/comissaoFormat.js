@@ -40,7 +40,7 @@ function formataComissao(req, resConsulta) {
 
   if (req.query.opcao == 2) {
     resConsulta[0].forEach((i) => {
-      if (i["N1_COD"] !== null && i["VAL_N1"] > 0) {
+      if (i["N1_COD"] !== null && i["VAL_N1"] !== 0) {
         valorTotal.valTotalComissao = valorTotal.valTotalComissao + i["VAL_N1"];
         valorTotal.qtdCotas = valorTotal.qtdCotas + 1;
         var item = new ItemComissao(
@@ -61,7 +61,8 @@ function formataComissao(req, resConsulta) {
           i["N1_MAXIMO"]
         );
         comissao[0].push(item);
-      } else if (i["N2_COD"] !== null && i["VAL_N2"] > 0) {
+      }
+      if (i["N2_COD"] !== null && i["VAL_N2"] > 0) {
         valorTotal.valTotalComissao = valorTotal.valTotalComissao + i["VAL_N2"];
         valorTotal.qtdCotas = valorTotal.qtdCotas + 1;
         var item = new ItemComissao(
@@ -82,7 +83,8 @@ function formataComissao(req, resConsulta) {
           i["N2_MAXIMO"]
         );
         comissao[0].push(item);
-      } else if (i["N3_COD"] !== null && i["VAL_N3"] > 0) {
+      }
+      if (i["N3_COD"] !== null && i["VAL_N3"] > 0) {
         valorTotal.valTotalComissao = valorTotal.valTotalComissao + i["VAL_N3"];
         valorTotal.qtdCotas = valorTotal.qtdCotas + 1;
         var item = new ItemComissao(
@@ -103,7 +105,8 @@ function formataComissao(req, resConsulta) {
           i["N3_MAXIMO"]
         );
         comissao[0].push(item);
-      } else if (i["N4_COD"] !== null && i["VAL_N4"] > 0) {
+      }
+      if (i["N4_COD"] !== null && i["VAL_N4"] > 0) {
         valorTotal.valTotalComissao = valorTotal.valTotalComissao + i["VAL_N4"];
         valorTotal.qtdCotas = valorTotal.qtdCotas + 1;
         var item = new ItemComissao(
@@ -151,7 +154,8 @@ function formataComissao(req, resConsulta) {
           i["N1_MAXIMO"]
         );
         comissao[0].push(item);
-      } else if (i["N2_COD"] == req.query.codigo && i["VAL_N2"] > 0) {
+      }
+      if (i["N2_COD"] == req.query.codigo && i["VAL_N2"] > 0) {
         valorTotal.valTotalComissao = valorTotal.valTotalComissao + i["VAL_N2"];
         valorTotal.qtdCotas = valorTotal.qtdCotas + 1;
         var item = new ItemComissao(
@@ -172,7 +176,8 @@ function formataComissao(req, resConsulta) {
           i["N2_MAXIMO"]
         );
         comissao[0].push(item);
-      } else if (i["N3_COD"] == req.query.codigo && i["VAL_N3"] > 0) {
+      }
+      if (i["N3_COD"] == req.query.codigo && i["VAL_N3"] > 0) {
         valorTotal.valTotalComissao = valorTotal.valTotalComissao + i["VAL_N3"];
         valorTotal.qtdCotas = valorTotal.qtdCotas + 1;
         var item = new ItemComissao(
@@ -193,7 +198,8 @@ function formataComissao(req, resConsulta) {
           i["N3_MAXIMO"]
         );
         comissao[0].push(item);
-      } else if (i["N4_COD"] == req.query.codigo && i["VAL_N4"] > 0) {
+      }
+      if (i["N4_COD"] == req.query.codigo && i["VAL_N4"] > 0) {
         valorTotal.valTotalComissao = valorTotal.valTotalComissao + i["VAL_N4"];
         valorTotal.qtdCotas = valorTotal.qtdCotas + 1;
         var item = new ItemComissao(

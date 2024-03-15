@@ -13,7 +13,6 @@ module.exports.comissoesSemReducao = async function (application, req, res) {
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.getComissoesSemReducao(req);
   var comissao = formataComissao(req, resConsulta);
-  console.log(comissao);
   res.send(comissao);
 };
 
