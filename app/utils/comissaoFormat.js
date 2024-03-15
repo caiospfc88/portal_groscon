@@ -1,4 +1,4 @@
-module.exports = function formataComissao(req, resConsulta) {
+function formataComissao(req, resConsulta) {
   let comissao = new Array();
   comissao = [[], [], []];
   function ItemComissao(
@@ -220,4 +220,5 @@ module.exports = function formataComissao(req, resConsulta) {
     comissao[2].push(valorTotal);
   }
   return comissao;
-};
+}
+module.exports = { formataComissao };
