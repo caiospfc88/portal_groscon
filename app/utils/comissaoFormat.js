@@ -47,17 +47,34 @@ function formataComissao(req, resConsulta) {
           i["GRUPO"],
           i["COTA"],
           i["VS"],
-          i["DT_CONT"],
+          i["DT_CONT"]
+            .toISOString()
+            .substr(0, 10)
+            .split("-")
+            .reverse()
+            .join("/"),
           i["COD_EQ"],
           i["N1_COD"],
           i["N1_DESCRICAO"],
           i["COD_TAB_COM"],
           i["NUM_PAR"],
-          i["VL_TX_ADM"],
-          i["VL_BEM"],
+          i["VL_TX_ADM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["VL_BEM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["PERC_COM_N1"],
-          i["VAL_N1"],
-          i["TOTAL_VENDAS_MES"],
+          i["VAL_N1"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["TOTAL_VENDAS_MES"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["N1_MAXIMO"]
         );
         comissao[0].push(item);
@@ -69,17 +86,34 @@ function formataComissao(req, resConsulta) {
           i["GRUPO"],
           i["COTA"],
           i["VS"],
-          i["DT_CONT"],
+          i["DT_CONT"]
+            .toISOString()
+            .substr(0, 10)
+            .split("-")
+            .reverse()
+            .join("/"),
           i["COD_EQ"],
           i["N2_COD"],
           i["N2_DESCRICAO"],
           i["COD_TAB_COM"],
           i["NUM_PAR"],
-          i["VL_TX_ADM"],
-          i["VL_BEM"],
+          i["VL_TX_ADM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["VL_BEM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["PERC_COM_N2"],
-          i["VAL_N2"],
-          i["TOTAL_VENDAS_MES"],
+          i["VAL_N2"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["TOTAL_VENDAS_MES"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["N2_MAXIMO"]
         );
         comissao[0].push(item);
@@ -91,17 +125,34 @@ function formataComissao(req, resConsulta) {
           i["GRUPO"],
           i["COTA"],
           i["VS"],
-          i["DT_CONT"],
+          i["DT_CONT"]
+            .toISOString()
+            .substr(0, 10)
+            .split("-")
+            .reverse()
+            .join("/"),
           i["COD_EQ"],
           i["N3_COD"],
           i["N3_DESCRICAO"],
           i["COD_TAB_COM"],
           i["NUM_PAR"],
-          i["VL_TX_ADM"],
-          i["VL_BEM"],
+          i["VL_TX_ADM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["VL_BEM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["PERC_COM_N3"],
-          i["VAL_N3"],
-          i["TOTAL_VENDAS_MES"],
+          i["VAL_N3"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["TOTAL_VENDAS_MES"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["N3_MAXIMO"]
         );
         comissao[0].push(item);
@@ -113,17 +164,34 @@ function formataComissao(req, resConsulta) {
           i["GRUPO"],
           i["COTA"],
           i["VS"],
-          i["DT_CONT"],
+          i["DT_CONT"]
+            .toISOString()
+            .substr(0, 10)
+            .split("-")
+            .reverse()
+            .join("/"),
           i["COD_EQ"],
           i["N4_COD"],
           i["N4_DESCRICAO"],
           i["COD_TAB_COM"],
           i["NUM_PAR"],
-          i["VL_TX_ADM"],
-          i["VL_BEM"],
+          i["VL_TX_ADM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["VL_BEM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["PERC_COM_N4"],
-          i["VAL_N4"],
-          i["TOTAL_VENDAS_MES"],
+          i["VAL_N4"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["TOTAL_VENDAS_MES"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["N4_MAXIMO"]
         );
         comissao[0].push(item);
@@ -140,17 +208,34 @@ function formataComissao(req, resConsulta) {
           i["GRUPO"],
           i["COTA"],
           i["VS"],
-          i["DT_CONT"],
+          i["DT_CONT"]
+            .toISOString()
+            .substr(0, 10)
+            .split("-")
+            .reverse()
+            .join("/"),
           i["COD_EQ"],
           i["N1_COD"],
           i["N1_DESCRICAO"],
           i["COD_TAB_COM"],
           i["NUM_PAR"],
-          i["VL_TX_ADM"],
-          i["VL_BEM"],
+          i["VL_TX_ADM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["VL_BEM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["PERC_COM_N1"],
-          i["VAL_N1"],
-          i["TOTAL_VENDAS_MES"],
+          i["VAL_N1"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["TOTAL_VENDAS_MES"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["N1_MAXIMO"]
         );
         comissao[0].push(item);
@@ -162,17 +247,34 @@ function formataComissao(req, resConsulta) {
           i["GRUPO"],
           i["COTA"],
           i["VS"],
-          i["DT_CONT"],
+          i["DT_CONT"]
+            .toISOString()
+            .substr(0, 10)
+            .split("-")
+            .reverse()
+            .join("/"),
           i["COD_EQ"],
           i["N2_COD"],
           i["N2_DESCRICAO"],
           i["COD_TAB_COM"],
           i["NUM_PAR"],
-          i["VL_TX_ADM"],
-          i["VL_BEM"],
+          i["VL_TX_ADM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["VL_BEM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["PERC_COM_N2"],
-          i["VAL_N2"],
-          i["TOTAL_VENDAS_MES"],
+          i["VAL_N2"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["TOTAL_VENDAS_MES"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["N2_MAXIMO"]
         );
         comissao[0].push(item);
@@ -184,17 +286,34 @@ function formataComissao(req, resConsulta) {
           i["GRUPO"],
           i["COTA"],
           i["VS"],
-          i["DT_CONT"],
+          i["DT_CONT"]
+            .toISOString()
+            .substr(0, 10)
+            .split("-")
+            .reverse()
+            .join("/"),
           i["COD_EQ"],
           i["N3_COD"],
           i["N3_DESCRICAO"],
           i["COD_TAB_COM"],
           i["NUM_PAR"],
-          i["VL_TX_ADM"],
-          i["VL_BEM"],
+          i["VL_TX_ADM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["VL_BEM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["PERC_COM_N3"],
-          i["VAL_N3"],
-          i["TOTAL_VENDAS_MES"],
+          i["VAL_N3"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["TOTAL_VENDAS_MES"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["N3_MAXIMO"]
         );
         comissao[0].push(item);
@@ -206,17 +325,34 @@ function formataComissao(req, resConsulta) {
           i["GRUPO"],
           i["COTA"],
           i["VS"],
-          i["DT_CONT"],
+          i["DT_CONT"]
+            .toISOString()
+            .substr(0, 10)
+            .split("-")
+            .reverse()
+            .join("/"),
           i["COD_EQ"],
           i["N4_COD"],
           i["N4_DESCRICAO"],
           i["COD_TAB_COM"],
           i["NUM_PAR"],
-          i["VL_TX_ADM"],
-          i["VL_BEM"],
+          i["VL_TX_ADM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["VL_BEM"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["PERC_COM_N4"],
-          i["VAL_N4"],
-          i["TOTAL_VENDAS_MES"],
+          i["VAL_N4"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
+          i["TOTAL_VENDAS_MES"].toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }),
           i["N4_MAXIMO"]
         );
         comissao[0].push(item);
@@ -225,6 +361,13 @@ function formataComissao(req, resConsulta) {
     comissao[1].push(resConsulta[1][0]);
     comissao[2].push(valorTotal);
   }
+  valorTotal.valTotalComissao = valorTotal.valTotalComissao.toLocaleString(
+    "pt-BR",
+    {
+      style: "currency",
+      currency: "BRL",
+    }
+  );
   return comissao;
 }
 module.exports = { formataComissao };
