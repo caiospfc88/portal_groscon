@@ -10,7 +10,7 @@ module.exports = function (application) {
 };
 
 module.exports = function (application) {
-  application.post("/autenticacao", function (req, res) {
-    application.app.controllers.portal.autenticacao(application, req, res);
+  application.post("/login", function (req, res) {
+    application.app.controllers.portal.login(application, req, res);
   });
 };

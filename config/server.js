@@ -8,12 +8,14 @@ var app = express();
 app.set("view engine", "ejs");
 app.set("views", "./app/views");
 
-/*app.use(session({
-	secret:'groscon@2023',
-	resave:true,
-	saveUninitialized:true
-}));
-*/
+app.use(
+  session({
+    secret: "groscon@1035",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
