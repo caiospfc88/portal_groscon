@@ -10,7 +10,13 @@ module.exports = function (application) {
 };
 
 module.exports = function (application) {
-  application.post("/login", function (req, res) {
-    application.app.controllers.portal.login(application, req, res);
+  application.post("/logar", function (req, res) {
+    application.app.controllers.portal.logar(req, res);
+  });
+};
+
+module.exports = function (application) {
+  application.get("/home", function (req, res) {
+    application.app.controllers.portal.home(application, req, res);
   });
 };

@@ -20,10 +20,17 @@ module.exports.inserirMuralDados = async function (application, req, res) {
       });
     });
 };
-module.exports.login = async function (application, req, res) {
+module.exports.logar = async function (req, res) {
+  var login = "Admin";
+  var senha = "tempDev2023";
+  console.log(req.body.login);
   if (req.body.login == login && req.body.senha == senha) {
-    console.log("logado");
+    res.send("Tá logado porra");
   } else {
     console.log("Falha na autenticação");
+    res.send("Login inválido");
   }
+};
+module.exports.home = async function (application, req, res) {
+  res.send("Faça o login!!!");
 };
