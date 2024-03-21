@@ -2,7 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const consign = require("consign");
 const session = require("express-session");
-
+const { criptografaSenha } = require("../app/utils/auth");
+const hash = criptografaSenha("tempDev2023");
+console.log("server", hash);
 var app = express();
 
 app.set("view engine", "ejs");

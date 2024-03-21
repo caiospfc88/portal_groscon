@@ -5,11 +5,6 @@ const bcrypt = require("bcrypt");
 
 module.exports = (sequelize, DataTypes) => {
   class Usuarios extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
       // define association here
     }
@@ -38,9 +33,13 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   Usuarios.addHook("beforeCreate", async (usuarios) => {
-    const hash = await bcrypt.hash(usuarios.senha, process.env.JWT_SECRET);
+    const hash = await bcrypt.hash(usuarios.senha, process.env.JWT_SECRET, 10);
     usuarios.senha = hash;
   });
+
+  Usuarios.prototype.validarSenha = async function (password) {
+    return await bcrypt.compare(password, this.password);
+  };
 
   return Usuarios;
 };
