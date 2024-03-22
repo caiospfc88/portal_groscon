@@ -11,4 +11,7 @@ module.exports = function (application) {
   application.get("/home", function (req, res) {
     application.app.controllers.portal.home(application, req, res);
   });
+  application.get("/criarRootUser", function (req, res) {
+    application.app.controllers.portal.criarRootUser(application, req, res);
+  });
 };
