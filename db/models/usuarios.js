@@ -33,12 +33,12 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   Usuarios.addHook("beforeCreate", async (usuarios) => {
-    const hash = await bcrypt.hash(usuarios.senha, process.env.JWT_SECRET, 10);
+    const hash = await bcrypt.hash(usuarios.senha, 10);
     usuarios.senha = hash;
   });
 
-  Usuarios.prototype.validarSenha = async function (password) {
-    return await bcrypt.compare(password, this.password);
+  Usuarios.prototype.validarSenha = async function (senha) {
+    return await bcrypt.compare(senha, this.senha);
   };
 
   return Usuarios;
