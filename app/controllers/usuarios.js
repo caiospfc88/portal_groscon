@@ -1,19 +1,22 @@
 const models = require("../../db/models");
-
-module.exports.inserirMuralDados = async function (application, req, res) {};
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
 
 module.exports.logar = async function (req, res) {
   var user = await models.usuarios.findOne({
     where: { login: req.body.login },
   });
-  console.log("usuario login: ", user);
+  //console.log("usuario login: ", user);
   if (
     req.body.login == user.login &&
     (await user.validarSenha(req.body.senha))
   ) {
-    res.send("Tá logado porra");
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: 14400,
+    });
+    return res.json({ auth: true, token: token });
   } else {
-    res.send("Login inválido");
+    res.status(500).json({ message: "Login inválido!" });
   }
 };
 
