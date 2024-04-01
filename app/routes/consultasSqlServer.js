@@ -8,35 +8,35 @@ module.exports = function (application) {
       res
     );
   });
-  application.get("/comissoesComReducao", function (req, res) {
+  application.get("/comissoesComReducao", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.comissoesComReducao(
       application,
       req,
       res
     );
   });
-  application.get("/quitados", function (req, res) {
+  application.get("/quitados", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.quitados(
       application,
       req,
       res
     );
   });
-  application.get("/aniversariantesMes", function (req, res) {
+  application.get("/aniversariantesMes", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.aniversariantesMes(
       application,
       req,
       res
     );
   });
-  application.get("/relatorioRenegociacoes", function (req, res) {
+  application.get("/relatorioRenegociacoes", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.relatorioRenegociacoes(
       application,
       req,
       res
     );
   });
-  application.get("/relatorioAproveitamento", function (req, res) {
+  application.get("/relatorioAproveitamento", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.relatorioAproveitamento(
       application,
       req,
