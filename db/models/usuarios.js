@@ -37,6 +37,11 @@ module.exports = (sequelize, DataTypes) => {
     usuarios.senha = hash;
   });
 
+  Usuarios.addHook("beforeUpdate", async (usuarios) => {
+    const hash = await bcrypt.hash(usuarios.senha, 10);
+    usuarios.senha = hash;
+  });
+
   Usuarios.prototype.validarSenha = async function (senha) {
     return await bcrypt.compare(senha, this.senha);
   };

@@ -19,7 +19,7 @@ module.exports.logar = async function (req, res) {
   }
 };
 
-module.exports.listaUsuarios = async function (application, req, res) {
+module.exports.listarUsuarios = async function (application, req, res) {
   var users = await models.usuarios.findAll();
   res.send(users);
 };
@@ -37,4 +37,9 @@ module.exports.cadastrarUsuario = async function (req, res) {
     updatedAt: new Date(),
   });
   res.json({ Usuario: user.login, Msg: "Cadastrado com sucesso!" });
+};
+module.exports.alterarUsuario = async function (req, res) {
+  var user = await models.usuarios.findOne({ where: req.body.id });
+  user.update(req.body);
+  res.json({ Usuario: user, Msg: "Atualizado com sucesso!" });
 };
