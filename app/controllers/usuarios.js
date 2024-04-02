@@ -43,3 +43,8 @@ module.exports.alterarUsuario = async function (req, res) {
   user.update(req.body);
   res.json({ Usuario: user, Msg: "Atualizado com sucesso!" });
 };
+module.exports.excluirUsuario = async function (req, res) {
+  var user = await models.usuarios.findOne({ where: req.body.id });
+  user.destroy();
+  res.json({ Usuario: user.login, Msg: "Excluido com sucesso!" });
+};

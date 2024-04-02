@@ -22,11 +22,25 @@ async function verifyJWT(req, res, next) {
 }
 async function criarRootUser() {
   const rootUser = await models.usuarios.findOne({ where: { login: "Admin" } });
+  const UserId1 = await models.usuarios.findOne({ where: { id: 1 } });
   if (rootUser !== null) {
     console.log("Usuario root já cadastrado");
-    //res.send("Usuario já cadastrado");
+  } else if (UserId1 !== null) {
+    const rootUser = await models.usuarios.create({
+      nome: "Administrador",
+      sobrenome: "Portal Groscon",
+      login: "Admin",
+      senha: process.env.ROOT_USER_PASS,
+      email: "ti@consorciogroscon.com.br",
+      data_nascimento: "1988-4-07",
+      celular: "16991827470",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    console.log(rootUser.dataValues);
   } else {
     const rootUser = await models.usuarios.create({
+      id: 1,
       nome: "Administrador",
       sobrenome: "Portal Groscon",
       login: "Admin",

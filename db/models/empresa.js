@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Empresa extends Model {
     /**
@@ -13,20 +11,24 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  Empresa.init({
-    nome: DataTypes.STRING,
-    cnpj: DataTypes.STRING,
-    cod_uni_negocio: DataTypes.STRING,
-    cod_comissionado: DataTypes.STRING,
-    cod_grupo_usuario: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'empresa',
-  });
+  Empresa.init(
+    {
+      nome: DataTypes.STRING,
+      cnpj: DataTypes.STRING,
+      cod_uni_negocio: DataTypes.STRING,
+      cod_comissionado: DataTypes.STRING,
+      cod_grupo_usuario: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      modelName: "empresa",
+      freezeTableName: true,
+    }
+  );
 
-  Empresa.associate = models =>{
+  Empresa.associate = (models) => {
     models.empresa.hasMany(models.representantes_caixa);
-  }
+  };
 
   return Empresa;
 };
