@@ -25,4 +25,10 @@ module.exports = function (application) {
       res
     );
   });
+  application.delete("/excluirArquivoBradesco", verifyJWT, function (req, res) {
+    application.app.controllers.arquivos_bradesco.excluirArquivoBradesco(
+      req,
+      res
+    );
+  });
 };

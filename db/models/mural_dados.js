@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Mural_dados extends Model {
     /**
@@ -13,19 +11,23 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  Mural_dados.init({
-    ano: DataTypes.INTEGER,
-    mes: DataTypes.INTEGER,
-    valor: DataTypes.FLOAT,
-    id_mural_descricao: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'mural_dados',
-  });
+  Mural_dados.init(
+    {
+      ano: DataTypes.INTEGER,
+      mes: DataTypes.INTEGER,
+      valor: DataTypes.FLOAT,
+      id_mural_descricao: DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      modelName: "mural_dados",
+      freezeTableName: true,
+    }
+  );
 
-  Mural_dados.associate = models =>{
-    models.mural_dados.belongsTo(models.mural_descricao)
-  }
+  Mural_dados.associate = (models) => {
+    models.mural_dados.belongsTo(models.mural_descricao);
+  };
 
   return Mural_dados;
 };
