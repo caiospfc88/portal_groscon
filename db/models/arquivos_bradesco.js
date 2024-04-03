@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Arquivos_bradesco extends Model {
     /**
@@ -13,16 +11,20 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  Arquivos_bradesco.init({
-    nome: DataTypes.STRING,
-    data: DataTypes.DATE,
-    contabil_ini: DataTypes.DATE,
-    contabil_fin: DataTypes.DATE,
-    envio_arquivo: DataTypes.DATE,
-    visualiza: DataTypes.BOOLEAN
-  }, {
-    sequelize,
-    modelName: 'arquivos_bradesco',
-  });
+  Arquivos_bradesco.init(
+    {
+      nome: DataTypes.STRING,
+      data: DataTypes.DATE,
+      contabil_ini: DataTypes.DATE,
+      contabil_fin: DataTypes.DATE,
+      envio_arquivo: DataTypes.DATE,
+      visualiza: DataTypes.BOOLEAN,
+    },
+    {
+      sequelize,
+      modelName: "arquivos_bradesco",
+      freezeTableName: true,
+    }
+  );
   return Arquivos_bradesco;
 };

@@ -7,6 +7,9 @@ module.exports = function (application) {
   application.get("/listarUsuarios", verifyJWT, function (req, res) {
     application.app.controllers.usuarios.listarUsuarios(req, res);
   });
+  application.get("/consultarUsuario", verifyJWT, function (req, res) {
+    application.app.controllers.usuarios.consultarUsuario(req, res);
+  });
   application.post("/cadastrarUsuario", verifyJWT, function (req, res) {
     application.app.controllers.usuarios.cadastrarUsuario(req, res);
   });

@@ -5,6 +5,13 @@ module.exports.listarEmpresa = async function (req, res) {
   res.send(empresa);
 };
 
+module.exports.consultarEmpresa = async function (req, res) {
+  var empresa = await models.empresa.findOne({
+    where: { id: req.query.id },
+  });
+  res.send(empresa);
+};
+
 module.exports.cadastrarEmpresa = async function (req, res) {
   var empresa = await models.empresa.create({
     nome: req.body.nome,
