@@ -1,41 +1,41 @@
-'use strict';
+"use strict";
 
-const { BelongsTo } = require('sequelize');
+const { BelongsTo } = require("sequelize");
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('mural_dados', {
+    await queryInterface.createTable("mural_dados", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       ano: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       mes: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       valor: {
-        type: Sequelize.FLOAT
+        type: Sequelize.FLOAT,
       },
       id_mural_descricao: {
         type: Sequelize.INTEGER,
-        allowNull : false
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('mural_dados');
-  }
+    await queryInterface.dropTable("mural_dados");
+  },
 };

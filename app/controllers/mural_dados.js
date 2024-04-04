@@ -21,10 +21,10 @@ module.exports.consultarDadosMural = async function (req, res) {
 
 module.exports.cadastrarDadosMural = async function (req, res) {
   var dados = await models.mural_dados.create({
-    ano: req.query.ano,
-    mes: req.query.mes,
-    valor: req.query.valor,
-    id_mural_descricao: req.query.id_mural_descricao,
+    ano: req.body.ano,
+    mes: req.body.mes,
+    valor: req.body.valor,
+    id_mural_descricao: req.body.id_mural_descricao,
     createdAt: new Date(),
     updatedAt: new Date(),
   });

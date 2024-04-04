@@ -8,7 +8,10 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      models.mural_dados.belongsTo(models.mural_descricao, {
+        foreignKey: "id_mural_descricao",
+        as: "id_mural_descricao_fk",
+      });
     }
   }
   Mural_dados.init(
@@ -25,9 +28,9 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  Mural_dados.associate = (models) => {
+  /*Mural_dados.associate = (models) => {
     models.mural_dados.belongsTo(models.mural_descricao);
-  };
+  };*/
 
   return Mural_dados;
 };
