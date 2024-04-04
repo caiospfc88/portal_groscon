@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Paginas_portal extends Model {
     /**
@@ -13,16 +11,22 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  Paginas_portal.init({
-    descricao: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'paginas_portal',
-  });
+  Paginas_portal.init(
+    {
+      descricao: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      modelName: "paginas_portal",
+      freezeTableName: true,
+    }
+  );
 
-  Paginas_portal.associate = models =>{
-    models.paginas_portal.belongsToMany(models.usuarios, {through : models.paginas_usuario})
-  }
+  Paginas_portal.associate = (models) => {
+    models.paginas_portal.belongsToMany(models.usuarios, {
+      through: models.paginas_usuario,
+    });
+  };
 
   return Paginas_portal;
 };
