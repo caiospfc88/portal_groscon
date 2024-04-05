@@ -48,3 +48,25 @@ module.exports.relatorioAproveitamento = async function (
   var resConsulta = await consultaModel.getRelatorioAproveitamento(req);
   res.send(resConsulta);
 };
+
+module.exports.relatorioSeguroBradescoPf = async function (
+  application,
+  req,
+  res
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.getRelatorioSeguroBradescoPf(req);
+  res.send(resConsulta);
+};
+
+module.exports.relatorioSeguroBradescoPj = async function (
+  application,
+  req,
+  res
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.getRelatorioSeguroBradescoPj(req);
+  res.send(resConsulta);
+};

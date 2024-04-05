@@ -1,3 +1,5 @@
+const { geraPlanilhaBradesco } = require("../utils/geraPlanilha");
+
 function ConsultasDAO(connection) {
   this._connection = connection;
 }
@@ -944,6 +946,283 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
                                         GROUP BY ct.CODIGO_SITUACAO, rep.CODIGO_REPRESENTANTE
                                         order by rep.CODIGO_REPRESENTANTE`);
   var result = [dados, dadosPorSituacao];
+
+  return result;
+};
+
+ConsultasDAO.prototype.getRelatorioSeguroBradescoPf = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+
+  let result = await this._connection(`select
+                                          ct.NUMERO_CONTRATO as CONTRATO
+                                          ,cl.NOME
+                                          ,cl.CGC_CPF_CLIENTE AS CPF
+                                          ,convert(CHAR,cl.DATA_NASCIMENTO,103) AS DATA_NASCIMENTO
+                                          ,cl.SEXO as SEXO
+                                          ,(cl.ENDERECO+cl.COMPLEMENTO) AS ENDERECO
+                                          ,substring(cl.BAIRRO,0,15) AS BAIRRO
+                                          ,substring(cd.NOME,0,15) AS CIDADE
+                                          ,cl.CEP 
+                                          ,cd.ESTADO AS UF
+                                          ,'' AS CELULAR
+                                          ,'' AS E_MAIL
+                                          ,'' AS CODIGO_BANCO
+                                          ,'' AS AGENCIA
+                                          ,'' AS CONTA
+                                          ,case
+                                            when DATA_ADESAO > '20190930' or DATA_TRANSFERENCIA > '20190930'
+                                            THEN '900609'
+                                            else '900502'
+                                          end as NUMERO_APOLICE
+                                          ,'001' AS NUMERO_SUB_GRUPO
+                                          ,(right(replicate('0',2) + convert(VARCHAR,MONTH(MES_ANO.DATA_CONTABILIZACAO)),2)+CAST(YEAR(MES_ANO.DATA_CONTABILIZACAO) AS CHAR(4))) AS COMPETENCIA_FATURA
+                                          ,case
+                                            when DATA_ADESAO < DATA_TRANSFERENCIA
+                                            THEN convert(CHAR,ct.DATA_TRANSFERENCIA,103)
+                                            else convert(CHAR,ct.DATA_ADESAO,103)
+                                          end as DATA_INCLUSAO
+                                          ,'VINCULADO' AS TIPO_CAPITAL
+                                          ,round((((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO)-(ct.PERCENTUAL_NORMAL+ct.TAXA_ADMINISTRACAO_PAGA+ct.PERCENTUAL_ANTECIPADO))*(valor_bem.PRECO_TABELA/100)),2) AS VALOR_CAPITAL
+                                          ,CT.PRAZO_ORIGINAL_VENDA AS PRAZO_FINANCIAMENTO
+                                          ,convert(CHAR,VIGENCIA.DATA_ASSEMBLEIA,103) as DATA_VIGENCIA
+                                          ,CAST(round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*(VALOR_BEM.PRECO_TABELA/100*sg.PERCENTUAL_SEG_VIDA/100),2,1) AS DECIMAL(18,2)) as PREMIO_SEGURO
+                                          ,MES_ANO.NUMERO_ASSEMBLEIA - CT.NUMERO_ASSEMBLEIA_EMISSAO +1 AS NUMERO_PARCELA
+                                          ,'PF' as TIPO_REGISTRO
+                                          ,'' AS TIPO_MOVIMENTO
+                                          ,'' AS GRUPO
+                                          ,'' AS COTA
+                                          ,'' AS CREDOR
+                                          ,'' AS CNPJ_CREDOR
+                                          ,'' AS ENDERECO_CREDOR
+                                          ,'' AS BAIRRO_CREDOR
+                                          ,'' AS CIDADE_CREDOR
+                                          ,'' AS CEP_CREDOR
+                                          ,'' AS UF_CREDOR
+                                          ,'PROPOSTA FISICA' AS CANAL_VENDAS
+                                          ,'' AS NOME_BENEFICIARIO
+                                          ,'' AS PARENTESCO
+                                          ,'' AS PERCENTUAL
+                                          
+                                        from
+                                          cotas ct inner join clientes cl on
+                                            ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE
+                                            and ct.TIPO = cl.TIPO
+                                          inner join CIDADES cd on
+                                            case when CL.CODIGO_CIDADE IS NULL THEN CL.CODIGO_CIDADE_COMERCIAL ELSE cl.CODIGO_CIDADE END = cd.CODIGO_CIDADE
+                                          inner join SEGURADORAS sg on
+                                            sg.CODIGO_SEGURADORA = ct.CODIGO_SEGURADORA
+                                          outer apply (
+                                            select 
+                                              top 1 rb.PRECO_TABELA  
+                                            from 
+                                              REAJUSTES_BENS rb 
+                                            where 
+                                              rb.CODIGO_BEM = ct.CODIGO_BEM 
+                                            order by rb.DATA_REAJUSTE desc
+                                          ) as VALOR_BEM
+                                          outer apply (
+                                            select 
+                                              COUNT(*) as Total 
+                                            from 
+                                            COBRANCAS_ESPECIAIS ce 
+                                            where 
+                                              ce.CODIGO_GRUPO = ct.CODIGO_GRUPO  
+                                              and ce.CODIGO_COTA = ct.CODIGO_COTA 
+                                              and ce.VERSAO = ct.VERSAO 
+                                              and STATUS_PARCELA = 'N'
+                                          ) as Parcelas_Quitacao
+                                          outer apply (
+                                            select
+                                            COUNT(*) as Parcelas_Pagas
+                                            from
+                                              MOVIMENTOS_GRUPOS mg
+                                            where
+                                              mg.CODIGO_GRUPO = ct.CODIGO_GRUPO
+                                              and mg.CODIGO_COTA = ct.CODIGO_COTA
+                                              and mg.VERSAO = ct.VERSAO
+                                              and mg.DATA_CONTABILIZACAO between '${data_inicial}' AND '${data_final}'
+                                              and mg.CODIGO_MOVIMENTO in ('010','030','040','200')
+                                          ) as PP
+                                          
+                                          outer apply (
+                                            select
+                                            MG.DATA_CONTABILIZACAO, MG.NUMERO_ASSEMBLEIA
+                                            from
+                                              MOVIMENTOS_GRUPOS mg
+                                            where
+                                              mg.CODIGO_GRUPO = ct.CODIGO_GRUPO
+                                              and mg.CODIGO_COTA = ct.CODIGO_COTA
+                                              and mg.VERSAO = ct.VERSAO
+                                              and mg.DATA_CONTABILIZACAO between '${data_inicial}' AND '${data_final}'
+                                              and mg.CODIGO_MOVIMENTO in ('010','030','040','200')
+                                          ) as MES_ANO
+                                          
+                                            outer apply (
+                                            select
+                                            top 1 (ass.DATA_ASSEMBLEIA) as DATA_ASSEMBLEIA
+                                            from
+                                              ASSEMBLEIAS ASS
+                                            where
+                                              ass.CODIGO_GRUPO = ct.CODIGO_GRUPO
+                                            order by 
+                                            NUMERO_ASSEMBLEIA 
+                                          desc
+                                          ) as VIGENCIA
+                                              
+                                        where
+                                          ct.VERSAO < '50'
+                                          and pp.Parcelas_Pagas > 0
+                                          and cl.PESSOA = 'F'
+                                          and ct.CODIGO_SEGURADORA = '039'
+                                          and round((((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO)-(ct.PERCENTUAL_NORMAL+ct.TAXA_ADMINISTRACAO_PAGA+ct.PERCENTUAL_ANTECIPADO))*(valor_bem.PRECO_TABELA/100)),2) > 5
+                                          and round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*VALOR_BEM.PRECO_TABELA/100,2)+round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*(VALOR_BEM.PRECO_TABELA/100*sg.PERCENTUAL_SEG_VIDA/100)*parcelas_quitacao.total,2) > 0
+                                        order by
+                                          ct.NUMERO_CONTRATO`);
+
+  const planilha = geraPlanilhaBradesco(result);
+  //console.log(planilha);
+  return result;
+};
+
+ConsultasDAO.prototype.getRelatorioSeguroBradescoPj = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+
+  let result = await this._connection(`select
+                                            ct.NUMERO_CONTRATO as CONTRATO
+                                            ,cls.NOME as NOME_SOCIO
+                                            ,'100' as PERCENTUAL_SOCIO
+                                            ,cls.CPF as CPF_SOCIO
+                                            ,convert(CHAR,clS.DATA_NASCIMENTO,103) AS DATA_NASCIMENTO_SOCIO
+                                            ,cls.SEXO as SEXO_SOCIO
+                                            ,(cl.ENDERECO+cl.COMPLEMENTO) AS ENDERECO
+                                            ,substring(cl.BAIRRO,0,15) as BAIRRO
+                                            ,substring(cd.NOME,0,15) AS CIDADE
+                                            ,cl.CEP 
+                                            ,cd.ESTADO AS UF
+                                            ,'' AS CELULAR
+                                            ,'' AS E_MAIL
+                                            ,'' AS CODIGO_BANCO
+                                            ,'' AS AGENCIA
+                                            ,'' AS CONTA
+                                            ,case
+                                              when DATA_ADESAO > '20190930' or DATA_TRANSFERENCIA > '20190930'
+                                              THEN '900609'
+                                              else '900502'
+                                            end as NUMERO_APOLICE
+                                            ,'001' AS NUMERO_SUB_GRUPO
+                                            ,(right(replicate('0',2) + convert(VARCHAR,MONTH(MES_ANO.DATA_CONTABILIZACAO)),2)+CAST(YEAR(MES_ANO.DATA_CONTABILIZACAO) AS CHAR(4))) AS COMPETENCIA_FATURA
+                                            ,case
+                                              when DATA_ADESAO < DATA_TRANSFERENCIA
+                                              THEN convert(CHAR,ct.DATA_TRANSFERENCIA,103)
+                                              else convert(CHAR,ct.DATA_ADESAO,103)
+                                            end as DATA_INCLUSAO
+                                            ,'VINCULADO' AS TIPO_CAPITAL
+                                            ,round((((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO)-(ct.PERCENTUAL_NORMAL+ct.TAXA_ADMINISTRACAO_PAGA+ct.PERCENTUAL_ANTECIPADO))*(valor_bem.PRECO_TABELA/100)),2) AS VALOR_CAPITAL
+                                            ,CT.PRAZO_ORIGINAL_VENDA AS PRAZO_FINANCIAMENTO
+                                            ,convert(CHAR,vigencia.DATA_ASSEMBLEIA,103) as DATA_VIGENCIA
+                                            ,CAST(round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*(VALOR_BEM.PRECO_TABELA/100*sg.PERCENTUAL_SEG_VIDA/100),2,1) AS DECIMAL(18,2)) as PREMIO_SEGURO
+                                            ,MES_ANO.NUMERO_ASSEMBLEIA - CT.NUMERO_ASSEMBLEIA_EMISSAO +1 AS NUMERO_PARCELA
+                                            ,'PF' as TIPO_REGISTRO
+                                            ,CT.CODIGO_GRUPO AS GRUPO
+                                            ,CT.CODIGO_COTA AS COTA
+                                            ,CL.NOME AS RAZAO_SOCIAL
+                                            ,CL.CGC_CPF_CLIENTE AS CNPJ
+                                            ,CL.ENDERECO AS ENDERECO_CNPJ
+                                            ,substring(CL.BAIRRO,0,15) AS BAIRRO_CNPJ
+                                            ,substring(cd.NOME,0,15) AS CIDADE_CNPJ
+                                            ,CL.CEP AS CEP_CNPJ
+                                            ,CD.ESTADO AS ESTADO_CNPJ
+                                            ,'' AS CREDOR
+                                            ,'' AS CNPJ_CREDOR
+                                            ,'' AS ENDERECO_CREDOR
+                                            ,'' AS BAIRRO_CREDOR
+                                            ,'' AS CIDADE_CREDOR
+                                            ,'' AS CEP_CREDOR
+                                            ,'' AS UF_CREDOR
+                                            ,'PROPOSTA FISICA' AS CANAL_VENDAS
+                                            ,'' AS NOME_BENEFICIARIO
+                                            ,'' AS PARENTESCO
+                                            ,'' AS PERCENTUAL
+                                            
+                                          from
+                                            cotas ct inner join clientes cl on
+                                              ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE
+                                              and ct.TIPO = cl.TIPO
+                                            inner join CIDADES cd on
+                                              case when CL.CODIGO_CIDADE IS NULL THEN CL.CODIGO_CIDADE_COMERCIAL ELSE cl.CODIGO_CIDADE END = cd.CODIGO_CIDADE
+                                            inner join SEGURADORAS sg on
+                                              sg.CODIGO_SEGURADORA = ct.CODIGO_SEGURADORA
+                                            left join CLIENTES_SOCIOS cls on
+                                              cls.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+                                            outer apply (
+                                              select 
+                                                top 1 rb.PRECO_TABELA  
+                                              from 
+                                                REAJUSTES_BENS rb 
+                                              where 
+                                                rb.CODIGO_BEM = ct.CODIGO_BEM 
+                                              order by rb.DATA_REAJUSTE desc
+                                            ) as VALOR_BEM
+                                            outer apply (
+                                              select 
+                                                COUNT(*) as Total 
+                                              from 
+                                              COBRANCAS_ESPECIAIS ce 
+                                              where 
+                                                ce.CODIGO_GRUPO = ct.CODIGO_GRUPO  
+                                                and ce.CODIGO_COTA = ct.CODIGO_COTA 
+                                                and ce.VERSAO = ct.VERSAO 
+                                                and STATUS_PARCELA = 'N'
+                                            ) as Parcelas_Quitacao
+                                            outer apply (
+                                              select
+                                              COUNT(*) as Parcelas_Pagas
+                                              from
+                                                MOVIMENTOS_GRUPOS mg
+                                              where
+                                                mg.CODIGO_GRUPO = ct.CODIGO_GRUPO
+                                                and mg.CODIGO_COTA = ct.CODIGO_COTA
+                                                and mg.VERSAO = ct.VERSAO
+                                                and mg.DATA_CONTABILIZACAO between '${data_inicial}' AND '${data_final}'
+                                                and mg.CODIGO_MOVIMENTO in ('010','030','040','200')
+                                            ) as PP
+                                            
+                                            outer apply (
+                                              select
+                                              MG.DATA_CONTABILIZACAO, MG.NUMERO_ASSEMBLEIA
+                                              from
+                                                MOVIMENTOS_GRUPOS mg
+                                              where
+                                                mg.CODIGO_GRUPO = ct.CODIGO_GRUPO
+                                                and mg.CODIGO_COTA = ct.CODIGO_COTA
+                                                and mg.VERSAO = ct.VERSAO
+                                                and mg.DATA_CONTABILIZACAO between '${data_inicial}' AND '${data_final}'
+                                                and mg.CODIGO_MOVIMENTO in ('010','030','040','200')
+                                            ) as MES_ANO
+                                            outer apply (
+                                              select
+                                              top 1 (ass.DATA_ASSEMBLEIA) as DATA_ASSEMBLEIA
+                                              from
+                                                ASSEMBLEIAS ASS
+                                              where
+                                                ass.CODIGO_GRUPO = ct.CODIGO_GRUPO
+                                              order by 
+                                              NUMERO_ASSEMBLEIA 
+                                            desc
+                                            ) as VIGENCIA
+                                                
+                                          where
+                                            ct.VERSAO < '50'
+                                            and pp.Parcelas_Pagas > 0
+                                            and cl.PESSOA = 'J'
+                                            and ct.CODIGO_SEGURADORA = '039'
+                                            and round((((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO)-(ct.PERCENTUAL_NORMAL+ct.TAXA_ADMINISTRACAO_PAGA+ct.PERCENTUAL_ANTECIPADO))*(valor_bem.PRECO_TABELA/100)),2) > 5
+                                            and round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*VALOR_BEM.PRECO_TABELA/100,2)+round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*(VALOR_BEM.PRECO_TABELA/100*sg.PERCENTUAL_SEG_VIDA/100)*parcelas_quitacao.total,2) > 0
+                                          order by
+                                            ct.NUMERO_CONTRATO`);
+  const planilha = geraPlanilhaBradesco(result);
   return result;
 };
 
