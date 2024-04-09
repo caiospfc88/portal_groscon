@@ -953,11 +953,24 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
 ConsultasDAO.prototype.getRelatorioSeguroBradescoPf = async function (req) {
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
+  let mes, ano;
+
+  if (data_inicial.substr(4, 1) == 0) {
+    mes = data_inicial.substr(5, 1);
+  } else {
+    mes = data_inicial.substr(4, 2);
+  }
+  ano = data_inicial.substr(0, 4);
+
+  let nomeArquivo = "pfbradesco" + mes + ano;
 
   let result = await this._connection(`select
                                           ct.NUMERO_CONTRATO as CONTRATO
                                           ,cl.NOME
-                                          ,cl.CGC_CPF_CLIENTE AS CPF
+                                          ,SUBSTRING(cl.CGC_CPF_CLIENTE,1,3) + '.'
+                                          + SUBSTRING(cl.CGC_CPF_CLIENTE,4,3) + '.'
+                                          + SUBSTRING(cl.CGC_CPF_CLIENTE,7,3) + '-'
+                                          + SUBSTRING(cl.CGC_CPF_CLIENTE,10,2) AS CPF
                                           ,convert(CHAR,cl.DATA_NASCIMENTO,103) AS DATA_NASCIMENTO
                                           ,cl.SEXO as SEXO
                                           ,(cl.ENDERECO+cl.COMPLEMENTO) AS ENDERECO
@@ -1080,7 +1093,7 @@ ConsultasDAO.prototype.getRelatorioSeguroBradescoPf = async function (req) {
                                         order by
                                           ct.NUMERO_CONTRATO`);
 
-  const planilha = geraPlanilhaBradesco(result);
+  const planilha = geraPlanilhaBradesco(result, nomeArquivo);
   //console.log(planilha);
   return result;
 };
@@ -1088,12 +1101,25 @@ ConsultasDAO.prototype.getRelatorioSeguroBradescoPf = async function (req) {
 ConsultasDAO.prototype.getRelatorioSeguroBradescoPj = async function (req) {
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
+  let mes, ano;
+
+  if (data_inicial.substr(4, 1) == 0) {
+    mes = data_inicial.substr(5, 1);
+  } else {
+    mes = data_inicial.substr(4, 2);
+  }
+  ano = data_inicial.substr(0, 4);
+
+  let nomeArquivo = "pjbradesco" + mes + ano;
 
   let result = await this._connection(`select
                                             ct.NUMERO_CONTRATO as CONTRATO
                                             ,cls.NOME as NOME_SOCIO
                                             ,'100' as PERCENTUAL_SOCIO
-                                            ,cls.CPF as CPF_SOCIO
+                                            ,SUBSTRING(cls.CGC_CPF_CLIENTE,1,3) + '.'
+                                            + SUBSTRING(cls.CGC_CPF_CLIENTE,4,3) + '.'
+                                            + SUBSTRING(cls.CGC_CPF_CLIENTE,7,3) + '-'
+                                            + SUBSTRING(cls.CGC_CPF_CLIENTE,10,2) AS CPF_SOCIO
                                             ,convert(CHAR,clS.DATA_NASCIMENTO,103) AS DATA_NASCIMENTO_SOCIO
                                             ,cls.SEXO as SEXO_SOCIO
                                             ,(cl.ENDERECO+cl.COMPLEMENTO) AS ENDERECO
@@ -1128,7 +1154,11 @@ ConsultasDAO.prototype.getRelatorioSeguroBradescoPj = async function (req) {
                                             ,CT.CODIGO_GRUPO AS GRUPO
                                             ,CT.CODIGO_COTA AS COTA
                                             ,CL.NOME AS RAZAO_SOCIAL
-                                            ,CL.CGC_CPF_CLIENTE AS CNPJ
+                                            ,SUBSTRING(CL.CGC_CPF_CLIENTE,1,2) + '.'
+                                            + SUBSTRING(CL.CGC_CPF_CLIENTE,3,3) + '.'
+                                            + SUBSTRING(CL.CGC_CPF_CLIENTE,6,3) + '/'
+                                            + SUBSTRING(CL.CGC_CPF_CLIENTE,9,4) + '-'
+                                            + SUBSTRING(CL.CGC_CPF_CLIENTE,13,2) AS CNPJ
                                             ,CL.ENDERECO AS ENDERECO_CNPJ
                                             ,substring(CL.BAIRRO,0,15) AS BAIRRO_CNPJ
                                             ,substring(cd.NOME,0,15) AS CIDADE_CNPJ
@@ -1222,7 +1252,7 @@ ConsultasDAO.prototype.getRelatorioSeguroBradescoPj = async function (req) {
                                             and round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*VALOR_BEM.PRECO_TABELA/100,2)+round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*(VALOR_BEM.PRECO_TABELA/100*sg.PERCENTUAL_SEG_VIDA/100)*parcelas_quitacao.total,2) > 0
                                           order by
                                             ct.NUMERO_CONTRATO`);
-  const planilha = geraPlanilhaBradesco(result);
+  const planilha = geraPlanilhaBradesco(result, nomeArquivo);
   return result;
 };
 
