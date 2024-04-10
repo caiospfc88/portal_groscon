@@ -1,4 +1,4 @@
-const { geraPlanilhaBradesco } = require("../utils/geraPlanilha");
+const { geraPlanilhaBradesco, geraPlanilha } = require("../utils/geraPlanilha");
 
 function ConsultasDAO(connection) {
   this._connection = connection;
@@ -950,9 +950,12 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
   return result;
 };
 
-ConsultasDAO.prototype.getRelatorioSeguroBradescoPf = async function (req) {
-  let data_inicial = req.query.data_inicial;
-  let data_final = req.query.data_final;
+ConsultasDAO.prototype.getRelatorioSeguroBradescoPf = async function (
+  req,
+  res
+) {
+  let data_inicial = req.query.contabil_ini;
+  let data_final = req.query.contabil_fin;
   let mes, ano;
 
   if (data_inicial.substr(4, 1) == 0) {
@@ -962,7 +965,7 @@ ConsultasDAO.prototype.getRelatorioSeguroBradescoPf = async function (req) {
   }
   ano = data_inicial.substr(0, 4);
 
-  let nomeArquivo = "pfbradesco" + mes + ano;
+  req.body.nomeArquivo = "pfbradesco" + mes + ano;
 
   let result = await this._connection(`select
                                           ct.NUMERO_CONTRATO as CONTRATO
@@ -1093,14 +1096,17 @@ ConsultasDAO.prototype.getRelatorioSeguroBradescoPf = async function (req) {
                                         order by
                                           ct.NUMERO_CONTRATO`);
 
-  const planilha = geraPlanilhaBradesco(result, nomeArquivo);
+  geraPlanilha(req, res, result);
   //console.log(planilha);
   return result;
 };
 
-ConsultasDAO.prototype.getRelatorioSeguroBradescoPj = async function (req) {
-  let data_inicial = req.query.data_inicial;
-  let data_final = req.query.data_final;
+ConsultasDAO.prototype.getRelatorioSeguroBradescoPj = async function (
+  req,
+  res
+) {
+  let data_inicial = req.query.contabil_ini;
+  let data_final = req.query.contabil_fin;
   let mes, ano;
 
   if (data_inicial.substr(4, 1) == 0) {
@@ -1110,7 +1116,7 @@ ConsultasDAO.prototype.getRelatorioSeguroBradescoPj = async function (req) {
   }
   ano = data_inicial.substr(0, 4);
 
-  let nomeArquivo = "pjbradesco" + mes + ano;
+  req.body.nomeArquivo = "pjbradesco" + mes + ano;
 
   let result = await this._connection(`select
                                             ct.NUMERO_CONTRATO as CONTRATO
@@ -1252,7 +1258,7 @@ ConsultasDAO.prototype.getRelatorioSeguroBradescoPj = async function (req) {
                                             and round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*VALOR_BEM.PRECO_TABELA/100,2)+round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*(VALOR_BEM.PRECO_TABELA/100*sg.PERCENTUAL_SEG_VIDA/100)*parcelas_quitacao.total,2) > 0
                                           order by
                                             ct.NUMERO_CONTRATO`);
-  const planilha = geraPlanilhaBradesco(result, nomeArquivo);
+  geraPlanilha(req, res, result);
   return result;
 };
 

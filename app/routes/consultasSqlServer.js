@@ -43,18 +43,24 @@ module.exports = function (application) {
       res
     );
   });
-  application.get("/relatorioSeguroBradescoPf", verifyJWT, function (req, res) {
-    application.app.controllers.consultasSqlServer.relatorioSeguroBradescoPf(
-      application,
-      req,
-      res
-    );
-  });
-  application.get("/relatorioSeguroBradescoPj", verifyJWT, function (req, res) {
-    application.app.controllers.consultasSqlServer.relatorioSeguroBradescoPj(
-      application,
-      req,
-      res
-    );
-  });
+  application.get(
+    "/relatorioSeguroBradescoPf",
+    /*verifyJWT,*/ function (req, res) {
+      application.app.controllers.consultasSqlServer.relatorioSeguroBradescoPf(
+        application,
+        req,
+        res
+      );
+    }
+  );
+  application.get(
+    "/relatorioSeguroBradescoPj",
+    /*verifyJWT,*/ function (req, res) {
+      application.app.controllers.consultasSqlServer.relatorioSeguroBradescoPj(
+        application,
+        req,
+        res
+      );
+    }
+  );
 };

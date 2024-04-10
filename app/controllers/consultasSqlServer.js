@@ -56,7 +56,7 @@ module.exports.relatorioSeguroBradescoPf = async function (
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
-  var resConsulta = await consultaModel.getRelatorioSeguroBradescoPf(req);
+  var resConsulta = await consultaModel.getRelatorioSeguroBradescoPf(req, res);
   res.send(resConsulta);
 };
 
@@ -67,6 +67,6 @@ module.exports.relatorioSeguroBradescoPj = async function (
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
-  var resConsulta = await consultaModel.getRelatorioSeguroBradescoPj(req);
+  var resConsulta = await consultaModel.getRelatorioSeguroBradescoPj(req, res);
   res.send(resConsulta);
 };

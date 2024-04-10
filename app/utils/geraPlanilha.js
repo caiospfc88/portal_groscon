@@ -1,13 +1,17 @@
 const xl = require("excel4node");
 
-function geraPlanilhaBradesco(obj, nomeArquivo) {
+function geraPlanilha(req, res, obj) {
   const options = {
     sheetView: {
       showGridLines: false,
     },
+    headerFooter: {
+      alignWithMargins: true,
+      scaleWithDoc: true,
+    },
   };
-  const wb = new xl.Workbook();
-  const ws = wb.addWorksheet(nomeArquivo, options);
+  const wb = new xl.Workbook({ workbookView: { visibility: "visible" } });
+  const ws = wb.addWorksheet(req.body.nomeArquivo, options);
   var colunas = new Array();
   var myStyle = wb.createStyle({
     font: {
@@ -43,6 +47,7 @@ function geraPlanilhaBradesco(obj, nomeArquivo) {
   let colunaIndex = 1;
   colunas.forEach((heading) => {
     ws.cell(1, colunaIndex++).string(heading).style(myStyle);
+    ws.column(colunaIndex).setWidth(heading.length);
   });
   let linhaIndex = 2;
   obj.forEach((record) => {
@@ -54,8 +59,12 @@ function geraPlanilhaBradesco(obj, nomeArquivo) {
     });
     linhaIndex++;
   });
-
-  wb.write("P:/TI/seguroBradesco/" + nomeArquivo + ".xls");
+  let path = "planilhas/";
+  let nomeArq = req.body.nomeArquivo + ".xls";
+  wb.write(
+    "planilhas/" + req.body.nomeArquivo + ".xls",
+    res.download(path, nomeArq)
+  );
 }
 
-module.exports = { geraPlanilhaBradesco };
+module.exports = { geraPlanilha };

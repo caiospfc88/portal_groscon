@@ -1,4 +1,6 @@
+const { application } = require("express");
 const models = require("../../db/models");
+const { geraPlanilha } = require("../utils/geraPlanilha");
 
 module.exports.listarArquivosBradesco = async function (req, res) {
   var arquivo = await models.arquivos_bradesco.findAll();
@@ -35,3 +37,13 @@ module.exports.excluirArquivoBradesco = async function (req, res) {
   arquivo.destroy();
   res.json({ Arquivo: arquivo.nome, Msg: "Excluido com sucesso!" });
 };
+/*module.exports.geraPlanilhasBradesco = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resultPf = await consultaModel.getRelatorioSeguroBradescoPf(req, res);
+  var resultPj = await consultaModel.getRelatorioSeguroBradescoPj(req, res);
+  geraPlanilha(req, res, resultPf);
+  geraPlanilha(req, res, resultPj);
+  req.body.data = Date.now();
+  //this.cadastrarArquivoBradesco(req, res);
+};*/
