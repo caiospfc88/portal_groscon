@@ -61,10 +61,8 @@ function geraPlanilha(req, res, obj) {
   });
   let path = "planilhas/";
   let nomeArq = req.body.nomeArquivo + ".xls";
-  wb.write(
-    "planilhas/" + req.body.nomeArquivo + ".xls",
-    res.download(path, nomeArq)
-  );
+  wb.write("planilhas/" + req.body.nomeArquivo + ".xls");
+  return { path, nomeArq };
 }
 
 module.exports = { geraPlanilha };

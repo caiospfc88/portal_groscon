@@ -1096,8 +1096,6 @@ ConsultasDAO.prototype.getRelatorioSeguroBradescoPf = async function (
                                         order by
                                           ct.NUMERO_CONTRATO`);
 
-  geraPlanilha(req, res, result);
-  //console.log(planilha);
   return result;
 };
 
@@ -1258,7 +1256,6 @@ ConsultasDAO.prototype.getRelatorioSeguroBradescoPj = async function (
                                             and round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*VALOR_BEM.PRECO_TABELA/100,2)+round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*(VALOR_BEM.PRECO_TABELA/100*sg.PERCENTUAL_SEG_VIDA/100)*parcelas_quitacao.total,2) > 0
                                           order by
                                             ct.NUMERO_CONTRATO`);
-  geraPlanilha(req, res, result);
   return result;
 };
 
