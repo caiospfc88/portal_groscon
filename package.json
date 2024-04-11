@@ -22,6 +22,7 @@
     "mssql": "^9.1.1",
     "mysql": "^2.18.1",
     "mysql2": "^3.6.0",
+    "pdfmake": "^0.2.10",
     "punycode": "^2.3.1",
     "python": "^0.0.4",
     "sequelize": "^6.37.1",
@@ -29,6 +30,7 @@
     "yarn": "^1.22.21"
   },
   "devDependencies": {
+    "@types/pdfmake": "^0.2.9",
     "excel4node": "^1.8.2",
     "sequelize-cli": "^6.6.1"
   }

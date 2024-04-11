@@ -950,22 +950,9 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
   return result;
 };
 
-ConsultasDAO.prototype.getRelatorioSeguroBradescoPf = async function (
-  req,
-  res
-) {
+ConsultasDAO.prototype.getRelatorioSeguroBradescoPf = async function (req) {
   let data_inicial = req.query.contabil_ini;
   let data_final = req.query.contabil_fin;
-  let mes, ano;
-
-  if (data_inicial.substr(4, 1) == 0) {
-    mes = data_inicial.substr(5, 1);
-  } else {
-    mes = data_inicial.substr(4, 2);
-  }
-  ano = data_inicial.substr(0, 4);
-
-  req.body.nomeArquivo = "pfbradesco" + mes + ano;
 
   let result = await this._connection(`select
                                           ct.NUMERO_CONTRATO as CONTRATO
@@ -1099,22 +1086,9 @@ ConsultasDAO.prototype.getRelatorioSeguroBradescoPf = async function (
   return result;
 };
 
-ConsultasDAO.prototype.getRelatorioSeguroBradescoPj = async function (
-  req,
-  res
-) {
+ConsultasDAO.prototype.getRelatorioSeguroBradescoPj = async function (req) {
   let data_inicial = req.query.contabil_ini;
   let data_final = req.query.contabil_fin;
-  let mes, ano;
-
-  if (data_inicial.substr(4, 1) == 0) {
-    mes = data_inicial.substr(5, 1);
-  } else {
-    mes = data_inicial.substr(4, 2);
-  }
-  ano = data_inicial.substr(0, 4);
-
-  req.body.nomeArquivo = "pjbradesco" + mes + ano;
 
   let result = await this._connection(`select
                                             ct.NUMERO_CONTRATO as CONTRATO
