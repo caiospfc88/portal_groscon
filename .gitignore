@@ -43,6 +43,7 @@ node_modules/
 jspm_packages/
 planilhas/
 relatoriosPDF/
+img/
 
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/

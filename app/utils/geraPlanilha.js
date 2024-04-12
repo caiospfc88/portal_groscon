@@ -59,7 +59,7 @@ function geraPlanilha(req, res, obj) {
   let colunaIndex = 1;
   colunas.forEach((heading) => {
     ws.cell(1, colunaIndex++).string(heading).style(myStyle);
-    ws.column(colunaIndex).setWidth(heading.length);
+    //ws.column(colunaIndex).setWidth(heading.length);
   });
   let linhaIndex = 2;
   obj.forEach((record) => {
