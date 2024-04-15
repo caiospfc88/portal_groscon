@@ -4,7 +4,6 @@ function formataComissao(req, resConsulta) {
   var valorTotal = new Object();
   valorTotal.valTotalComissao = 0;
   valorTotal.qtdCotas = 0;
-
   if (req.query.opcao == 2) {
     resConsulta[0].forEach((i) => {
       if (i["N1_COD"] !== null && i["VAL_N1"] !== 0) {
@@ -339,6 +338,7 @@ function formataComissao(req, resConsulta) {
       currency: "BRL",
     }
   );
+
   return comissao;
 }
 module.exports = { formataComissao };

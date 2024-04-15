@@ -3,8 +3,12 @@ const fs = require("fs");
 const { table } = require("console");
 const { text } = require("body-parser");
 const { alignment } = require("excel4node/distribution/lib/types");
+const { columns } = require("mssql");
 
-function geraPdf(dados, req, res) {
+function geraPdfComissao(dados, req, res) {
+  let valores = [];
+  let colunaInf = [];
+  let colunaVal = [];
   const fonts = {
     Courier: {
       normal: "Courier",
@@ -31,39 +35,134 @@ function geraPdf(dados, req, res) {
       normal: "ZapfDingbats",
     },
   };
-  let cabecalho = [];
-  let valores = [];
-  let cabecalhoRep = [];
-  let infoRep = [];
+  let cabecalho = [
+    { text: "GRUPO", style: "columnsTitle" },
+    { text: "COTA", style: "columnsTitle" },
+    { text: "VS", style: "columnsTitle" },
+    { text: "DT CONT.", style: "columnsTitle" },
+    { text: "COD EQ.", style: "columnsTitle" },
+    { text: "COD REP.", style: "columnsTitle" },
+    { text: "TIPO", style: "columnsTitle" },
+    { text: "TAB COM.", style: "columnsTitle" },
+    { text: "Nº PAR.", style: "columnsTitle" },
+    { text: "VAL TAXA", style: "columnsTitle" },
+    { text: "VAL BEM", style: "columnsTitle" },
+    { text: "% COMISS.", style: "columnsTitle" },
+    { text: "VAL COMISS.", style: "columnsTitle" },
+    { text: "TOTAL VENDAS", style: "columnsTitle" },
+    { text: "MAX COMISS.", style: "columnsTitle" },
+  ];
+  if (dados[1][0]["CODIGO_EQUIPE"]) {
+    colunaInf = ["Código Equipe: ", "Descrição: "];
+  } else {
+    colunaInf = [
+      "Cód. Representante: ",
+      "Nome: ",
+      "Cód. Categoria: ",
+      "Categoria: ",
+      "Cód. Supervisão: ",
+      "Supervisão: ",
+      "Cód. Encarregado: ",
+      "Encarregado: ",
+    ];
+  }
+
   let data = new Date().toLocaleDateString("pt-Br", { dateStyle: "long" });
 
-  Object.entries(dados[0][0]).map(([chave, valor]) => cabecalho.push(chave));
   for (i = 0; i < dados[0].length; i++) {
     let linha = [];
     Object.entries(dados[0][i]).map(([chave, valor]) => linha.push(valor));
     valores.push(linha);
   }
-
+  for (i = 0; i < dados[1].length; i++) {
+    Object.entries(dados[1][i]).map(([chave, valor]) => {
+      colunaVal.push(valor);
+    });
+  }
+  //console.log("teste", colunaInf, colunaVal);
   const printer = new PDFPrinter(fonts);
 
   let docDefinitions = {
+    footer: function (currentPage, pageCount) {
+      return [
+        {
+          columns: [
+            {
+              image: "img/logoMenor.jpg",
+              width: 50,
+              margin: [25, 15, 300, 30],
+              alignment: "left",
+            },
+            {
+              stack: [
+                {
+                  text: "Franca, " + data,
+                  alignment: "right",
+                  fontSize: 10,
+                  margin: [5, 2, 30, 10],
+                },
+                {
+                  text: "Total: " + dados[2][0].valTotalComissao,
+                  alignment: "right",
+                  fontSize: 9,
+                  bold: true,
+                  margin: [5, 2, 30, 10],
+                },
+                {
+                  text: "Página " + currentPage.toString() + " / " + pageCount,
+                  alignment: "right",
+                  fontSize: 8,
+                  margin: [5, 2, 30, 30],
+                },
+              ],
+            },
+          ],
+        },
+      ];
+    },
+
     defaultStyle: { font: "Helvetica", fontSize: 7 },
     content: [
       {
-        image: "img/logo.jpg",
-        width: 200,
-        // margin: [left, top, right, bottom]
-        margin: [5, 2, 10, 20],
+        columns: [
+          {
+            image: "img/logo.jpg",
+            width: 200,
+            margin: [5, 2, 10, 20],
+          },
+          {
+            text: "Relatório de Comissão",
+            style: "header",
+            margin: [5, 15, 10, 20],
+          },
+        ],
+        columnGap: 15,
       },
       {
-        text: "Relatório de Comissão",
-        style: "header",
-        alignment: "left",
-        margin: [5, 2, 10, 20],
+        columns: [
+          {
+            stack: [colunaInf],
+            fontSize: 8,
+            alignment: "left",
+            bold: true,
+            margin: [5, 4, 1, 4],
+            width: 110,
+          },
+          {
+            stack: colunaVal,
+            fontSize: 8,
+            alignment: "left",
+            bold: true,
+            width: 250,
+            margin: [1, 4, 10, 4],
+          },
+        ],
+        columnGap: 1,
       },
       {
         table: {
           body: [cabecalho, ...valores],
+          headerRows: 1,
         },
         margin: [5, 2, 10, 20],
       },
@@ -71,7 +170,7 @@ function geraPdf(dados, req, res) {
         text: "Franca, " + data,
         alignment: "right",
         fontSize: 10,
-        margin: [5, 2, 10, 20],
+        margin: [5, 2, 30, 20],
       },
       {
         text: "Total: " + dados[2][0].valTotalComissao,
@@ -79,21 +178,33 @@ function geraPdf(dados, req, res) {
         fontSize: 11,
         bold: true,
         lineHeight: 10,
-        margin: [5, 2, 10, 20],
+        margin: [5, 2, 30, 20],
       },
     ],
     styles: {
       header: {
-        fontSize: 22,
+        fontSize: 30,
         bold: true,
       },
       anotherStyle: {
         italics: true,
         alignment: "right",
       },
+      columnsTitle: {
+        fontSize: 8,
+        fillColor: "#0017D5",
+        color: "#FFFFFF",
+        bold: true,
+      },
+      repInfo: {
+        fontSize: 12,
+        alignment: "left",
+        bold: true,
+        margin: [5, 4, 10, 4],
+      },
     },
     pageOrientation: "landscape",
-    pageMargins: [40, 60, 40, 60],
+    pageMargins: [30, 40, 30, 80],
   };
 
   const pdfDoc = printer.createPdfKitDocument(docDefinitions);
@@ -114,4 +225,4 @@ function geraPdf(dados, req, res) {
   });
 }
 
-module.exports = { geraPdf };
+module.exports = { geraPdfComissao };

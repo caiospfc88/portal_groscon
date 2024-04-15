@@ -18,7 +18,7 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function (req) {
     complemento = `and ((nivel1.CODIGO_REPRESENTANTE = ${codigo}) or (nivel2.CODIGO_REPRESENTANTE = ${codigo}) or (nivel3.CODIGO_REPRESENTANTE = ${codigo}) or (nivel4.CODIGO_REPRESENTANTE = ${codigo}))`;
   }
   let dados = await this._connection(
-    `select distinct
+    `select distinct 
     ct.CODIGO_GRUPO as GRUPO
     ,ct.CODIGO_COTA as COTA
     ,ct.VERSAO AS VS
@@ -305,12 +305,12 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function (req) {
          select 
            rp.CODIGO_REPRESENTANTE, 
            rp.NOME, 
-           rp.CODIGO_CATEGORIA,
-           cr.DESCRICAO AS DESCRICAO_CATEGORIA,
-           rp.CODIGO_CATEGORIA_SUPERVISAO, 
-           cs.DESCRICAO AS DESCRICAO_SUPERVISAO,
-           rp.CODIGO_ENCARREGADO,
-           RC.NOME AS NOME_ENCARREGADO
+           isnull(rp.CODIGO_CATEGORIA,0) as CODIGO_CATEGORIA,
+           isnull(cr.DESCRICAO,'------') AS DESCRICAO_CATEGORIA,
+           isnull(rp.CODIGO_CATEGORIA_SUPERVISAO,0) as CODIGO_CATEGORIA_SUPERVISAO,
+           ISNULL(cs.DESCRICAO,'------') AS DESCRICAO_SUPERVISAO,
+           ISNULL(rp.CODIGO_ENCARREGADO,0) AS CODIGO_ENCARREGADO,
+           ISNULL(RC.NOME,'------') AS NOME_ENCARREGADO
          from 
            REPRESENTANTES rp
            outer apply(
@@ -346,6 +346,8 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function (req) {
            where
            eq.CODIGO_EQUIPE = ${codigo}`);
   }
+
+  console.log(data_inicial, data_final);
 
   var result = [dados, dadosRepresentante ? dadosRepresentante : dadosEquipe];
   return result;
@@ -699,12 +701,12 @@ ConsultasDAO.prototype.getComissoesComReducao = async function (req) {
          select 
            rp.CODIGO_REPRESENTANTE, 
            rp.NOME, 
-           rp.CODIGO_CATEGORIA,
-           cr.DESCRICAO AS DESCRICAO_CATEGORIA,
-           rp.CODIGO_CATEGORIA_SUPERVISAO, 
-           cs.DESCRICAO AS DESCRICAO_SUPERVISAO,
-           rp.CODIGO_ENCARREGADO,
-           RC.NOME AS NOME_ENCARREGADO
+           isnull(rp.CODIGO_CATEGORIA,0) as CODIGO_CATEGORIA,
+           isnull(cr.DESCRICAO,'------') AS DESCRICAO_CATEGORIA,
+           isnull(rp.CODIGO_CATEGORIA_SUPERVISAO,0) as CODIGO_CATEGORIA_SUPERVISAO,
+           ISNULL(cs.DESCRICAO,'------') AS DESCRICAO_SUPERVISAO,
+           ISNULL(rp.CODIGO_ENCARREGADO,0) AS CODIGO_ENCARREGADO,
+           ISNULL(RC.NOME,'------') AS NOME_ENCARREGADO
          from 
            REPRESENTANTES rp
            outer apply(
@@ -740,6 +742,8 @@ ConsultasDAO.prototype.getComissoesComReducao = async function (req) {
            where
            eq.CODIGO_EQUIPE = ${codigo}`);
   }
+
+  console.log(data_inicial, data_final);
 
   var result = [dados, dadosRepresentante ? dadosRepresentante : dadosEquipe];
   return result;
