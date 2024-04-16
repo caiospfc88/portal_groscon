@@ -1,9 +1,4 @@
 const PDFPrinter = require("pdfmake");
-const fs = require("fs");
-const { table } = require("console");
-const { text } = require("body-parser");
-const { alignment } = require("excel4node/distribution/lib/types");
-const { columns } = require("mssql");
 
 function geraPdfComissao(dados, req, res) {
   let valores = [];
