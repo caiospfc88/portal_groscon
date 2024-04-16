@@ -40,11 +40,11 @@ function geraPdfComissao(dados, req, res) {
     { text: "TIPO", style: "columnsTitle" },
     { text: "TAB COM.", style: "columnsTitle" },
     { text: "Nº PAR.", style: "columnsTitle" },
-    { text: "VAL TAXA", style: "columnsTitle" },
+    //{ text: "VAL TAXA", style: "columnsTitle" },
     { text: "VAL BEM", style: "columnsTitle" },
     { text: "% COMISS.", style: "columnsTitle" },
     { text: "VAL COMISS.", style: "columnsTitle" },
-    { text: "TOTAL VENDAS", style: "columnsTitle" },
+    //{ text: "TOTAL VENDAS", style: "columnsTitle" },
     { text: "MAX COMISS.", style: "columnsTitle" },
   ];
   if (dados[1][0]["CODIGO_EQUIPE"]) {
@@ -69,12 +69,12 @@ function geraPdfComissao(dados, req, res) {
       return [
         {
           columns: [
-            {
+            /*{
               image: "img/logoMenor.jpg",
               width: 50,
               margin: [25, 15, 300, 30],
               alignment: "left",
-            },
+            },*/
             {
               stack: [
                 /*{
@@ -103,19 +103,20 @@ function geraPdfComissao(dados, req, res) {
       ];
     },
 
-    defaultStyle: { font: "Helvetica", fontSize: 8 },
+    defaultStyle: { font: "Helvetica", fontSize: 9, alignment: "center" },
     content: [
       {
         columns: [
           {
             image: "img/logo.jpg",
             width: 200,
-            margin: [5, 2, 10, 20],
+            margin: [15, 2, 10, 20],
+            alignment: "left",
           },
           {
             text: "Relatório de Comissão",
             style: "header",
-            margin: [5, 15, 10, 20],
+            margin: [10, 22, 10, 20],
           },
         ],
         columnGap: 15,
@@ -160,6 +161,7 @@ function geraPdfComissao(dados, req, res) {
       {
         table: {
           body: [cabecalho, ...valores],
+          style: "tabela",
           headerRows: 1,
         },
         margin: [5, 2, 10, 20],
@@ -181,22 +183,23 @@ function geraPdfComissao(dados, req, res) {
     ],
     styles: {
       header: {
-        fontSize: 30,
+        fontSize: 25,
         bold: true,
+        alignment: "left",
       },
       anotherStyle: {
         italics: true,
         alignment: "right",
       },
       columnsTitle: {
-        fontSize: 8,
+        fontSize: 10,
         fillColor: "#0017D5",
         color: "#FFFFFF",
         bold: true,
       },
-      repInfo: {
-        fontSize: 12,
-        alignment: "left",
+      tabela: {
+        fontSize: 8,
+        alignment: "center",
         bold: true,
         margin: [5, 4, 10, 4],
       },

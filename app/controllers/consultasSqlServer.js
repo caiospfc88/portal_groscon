@@ -1,6 +1,7 @@
 const { formataComissao } = require("../utils/comissaoFormat");
 const { geraPlanilha } = require("../utils/geraPlanilha");
 const { geraPdfComissao } = require("../utils/geradorPDF");
+const { formataComissaoPdf } = require("../utils/comissaoFormatPdf");
 
 module.exports.comissoesComReducao = async function (application, req, res) {
   var connection = application.config.dbConnection;
@@ -87,7 +88,7 @@ module.exports.gerarPdfComissao = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.getComissoesSemReducao(req);
-  var comissao = formataComissao(req, resConsulta);
+  var comissao = formataComissaoPdf(req, resConsulta);
   geraPdfComissao(comissao, req, res);
   //res.send("Relatório gerado");
 };
