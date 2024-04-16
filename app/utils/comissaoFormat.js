@@ -339,6 +339,8 @@ function formataComissao(req, resConsulta) {
     }
   );
 
+  valorTotal.periodo = resConsulta[2];
+  //console.log(valorTotal);
   return comissao;
 }
 module.exports = { formataComissao };

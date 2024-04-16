@@ -53,18 +53,11 @@ function geraPdfComissao(dados, req, res) {
     { text: "MAX COMISS.", style: "columnsTitle" },
   ];
   if (dados[1][0]["CODIGO_EQUIPE"]) {
-    colunaInf = ["Código Equipe: ", "Descrição: "];
+    colunaInf = ["Equipe: "];
+    colunaVal = [dados[1][0]["DESCRICAO"]];
   } else {
-    colunaInf = [
-      "Cód. Representante: ",
-      "Nome: ",
-      "Cód. Categoria: ",
-      "Categoria: ",
-      "Cód. Supervisão: ",
-      "Supervisão: ",
-      "Cód. Encarregado: ",
-      "Encarregado: ",
-    ];
+    colunaInf = ["Representante: "];
+    colunaVal = [dados[1][0]["NOME"]];
   }
 
   let data = new Date().toLocaleDateString("pt-Br", { dateStyle: "long" });
@@ -74,12 +67,6 @@ function geraPdfComissao(dados, req, res) {
     Object.entries(dados[0][i]).map(([chave, valor]) => linha.push(valor));
     valores.push(linha);
   }
-  for (i = 0; i < dados[1].length; i++) {
-    Object.entries(dados[1][i]).map(([chave, valor]) => {
-      colunaVal.push(valor);
-    });
-  }
-  //console.log("teste", colunaInf, colunaVal);
   const printer = new PDFPrinter(fonts);
 
   let docDefinitions = {
@@ -95,7 +82,7 @@ function geraPdfComissao(dados, req, res) {
             },
             {
               stack: [
-                {
+                /*{
                   text: "Franca, " + data,
                   alignment: "right",
                   fontSize: 10,
@@ -107,12 +94,12 @@ function geraPdfComissao(dados, req, res) {
                   fontSize: 9,
                   bold: true,
                   margin: [5, 2, 30, 10],
-                },
+                },*/
                 {
                   text: "Página " + currentPage.toString() + " / " + pageCount,
                   alignment: "right",
                   fontSize: 8,
-                  margin: [5, 2, 30, 30],
+                  margin: [5, 40, 30, 15],
                 },
               ],
             },
@@ -121,7 +108,7 @@ function geraPdfComissao(dados, req, res) {
       ];
     },
 
-    defaultStyle: { font: "Helvetica", fontSize: 7 },
+    defaultStyle: { font: "Helvetica", fontSize: 8 },
     content: [
       {
         columns: [
@@ -142,7 +129,7 @@ function geraPdfComissao(dados, req, res) {
         columns: [
           {
             stack: [colunaInf],
-            fontSize: 8,
+            fontSize: 12,
             alignment: "left",
             bold: true,
             margin: [5, 4, 1, 4],
@@ -150,7 +137,23 @@ function geraPdfComissao(dados, req, res) {
           },
           {
             stack: colunaVal,
-            fontSize: 8,
+            fontSize: 12,
+            alignment: "left",
+            bold: true,
+            width: 250,
+            margin: [1, 4, 10, 4],
+          },
+          {
+            text: "Período selecionado: ",
+            fontSize: 12,
+            alignment: "left",
+            bold: true,
+            width: 140,
+            margin: [1, 4, 10, 4],
+          },
+          {
+            text: dados[2][0].periodo,
+            fontSize: 12,
             alignment: "left",
             bold: true,
             width: 250,
@@ -204,7 +207,7 @@ function geraPdfComissao(dados, req, res) {
       },
     },
     pageOrientation: "landscape",
-    pageMargins: [30, 40, 30, 80],
+    pageMargins: [20, 40, 20, 80],
   };
 
   const pdfDoc = printer.createPdfKitDocument(docDefinitions);

@@ -347,9 +347,24 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function (req) {
            eq.CODIGO_EQUIPE = ${codigo}`);
   }
 
-  console.log(data_inicial, data_final);
+  let dataPeriodo =
+    data_inicial.substring(6, 8) +
+    "/" +
+    data_inicial.substring(4, 6) +
+    "/" +
+    data_inicial.substring(0, 4) +
+    " a " +
+    data_final.substring(6, 8) +
+    "/" +
+    data_final.substring(4, 6) +
+    "/" +
+    data_final.substring(0, 4);
 
-  var result = [dados, dadosRepresentante ? dadosRepresentante : dadosEquipe];
+  var result = [
+    dados,
+    dadosRepresentante ? dadosRepresentante : dadosEquipe,
+    dataPeriodo,
+  ];
   return result;
 };
 
@@ -743,9 +758,24 @@ ConsultasDAO.prototype.getComissoesComReducao = async function (req) {
            eq.CODIGO_EQUIPE = ${codigo}`);
   }
 
-  console.log(data_inicial, data_final);
+  let dataPeriodo =
+    data_inicial.substring(6, 8) +
+    "/" +
+    data_inicial.substring(4, 6) +
+    "/" +
+    data_inicial.substring(0, 4) +
+    " a " +
+    data_final.substring(6, 8) +
+    "/" +
+    data_final.substring(4, 6) +
+    "/" +
+    data_final.substring(0, 4);
 
-  var result = [dados, dadosRepresentante ? dadosRepresentante : dadosEquipe];
+  var result = [
+    dados,
+    dadosRepresentante ? dadosRepresentante : dadosEquipe,
+    dataPeriodo,
+  ];
   return result;
 };
 
