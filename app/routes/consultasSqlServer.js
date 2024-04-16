@@ -85,4 +85,11 @@ module.exports = function (application) {
       );
     }
   );
+  application.get("/selecionaPeriodoComissao", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.selecionaPeriodoComissao(
+      application,
+      req,
+      res
+    );
+  });
 };

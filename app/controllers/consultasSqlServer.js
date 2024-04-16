@@ -91,3 +91,13 @@ module.exports.gerarPdfComissao = async function (application, req, res) {
   geraPdfComissao(comissao, req, res);
   //res.send("Relatório gerado");
 };
+module.exports.selecionaPeriodoComissao = async function (
+  application,
+  req,
+  res
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.selecionaPeriodoComissao(req);
+  res.send(resConsulta);
+};

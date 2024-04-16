@@ -1267,6 +1267,18 @@ ConsultasDAO.prototype.getRelatorioSeguroBradescoPj = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.selecionaPeriodoComissao = async function (req) {
+  let periodo = req.query.periodo;
+
+  let result = await this._connection(`select top 24
+                                          format (DATA_CONTABILIZACAO_INICIAL,'dd/MM/yyyy', 'en-US') as 'DATA INICIAL',
+                                          format (DATA_CONTABILIZACAO_FINAL,'dd/MM/yyyy', 'en-US') as 'DATA FINAL'
+                                       from PERIODOS_COMISSOES
+                                       where CODIGO_PERIODO = ${periodo}
+                                       order by DATA_CONTABILIZACAO_FINAL desc`);
+  return result;
+};
+
 module.exports = function () {
   return ConsultasDAO;
 };
