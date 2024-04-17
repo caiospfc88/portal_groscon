@@ -87,7 +87,11 @@ module.exports.gerarPlanilhasBradescoPj = async function (req, res) {
 module.exports.gerarPdfComissao = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
-  var resConsulta = await consultaModel.getComissoesSemReducao(req);
+  if (req.query.reducao == 0) {
+    var resConsulta = await consultaModel.getComissoesSemReducao(req);
+  } else {
+    var resConsulta = await consultaModel.getComissoesComReducao(req);
+  }
   var comissao = formataComissaoPdf(req, resConsulta);
   geraPdfComissao(comissao, req, res);
   //res.send("Relatório gerado");
