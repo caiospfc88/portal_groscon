@@ -103,7 +103,7 @@ function geraPdfComissao(dados, req, res) {
       ];
     },
 
-    defaultStyle: { font: "Helvetica", fontSize: 9, alignment: "center" },
+    defaultStyle: { font: "Helvetica", fontSize: 10.5, alignment: "center" },
     content: [
       {
         columns: [
@@ -129,23 +129,23 @@ function geraPdfComissao(dados, req, res) {
             alignment: "left",
             bold: true,
             margin: [5, 4, 1, 4],
-            width: 110,
+            width: 95,
           },
           {
             stack: colunaVal,
             fontSize: 12,
             alignment: "left",
             bold: true,
-            width: 250,
+            width: 430,
             margin: [1, 4, 10, 4],
           },
           {
             text: "Período selecionado: ",
             fontSize: 12,
-            alignment: "left",
+            alignment: "right",
             bold: true,
-            width: 140,
-            margin: [1, 4, 10, 4],
+            width: 125,
+            margin: [1, 4, 2, 4],
           },
           {
             text: dados[2][0].periodo,
@@ -153,7 +153,7 @@ function geraPdfComissao(dados, req, res) {
             alignment: "left",
             bold: true,
             width: 250,
-            margin: [1, 4, 10, 4],
+            margin: [1, 4, 20, 4],
           },
         ],
         columnGap: 1,
@@ -170,7 +170,7 @@ function geraPdfComissao(dados, req, res) {
         text: "Franca, " + data,
         alignment: "right",
         fontSize: 10,
-        margin: [5, 2, 30, 20],
+        margin: [5, 2, 13, 20],
       },
       {
         text: "Total: " + dados[2][0].valTotalComissao,
@@ -178,7 +178,7 @@ function geraPdfComissao(dados, req, res) {
         fontSize: 11,
         bold: true,
         lineHeight: 10,
-        margin: [5, 2, 30, 20],
+        margin: [5, 2, 13, 20],
       },
     ],
     styles: {
