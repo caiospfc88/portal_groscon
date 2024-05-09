@@ -4,7 +4,7 @@ const consign = require("consign");
 const session = require("express-session");
 var app = express();
 
-app.set("view engine", "ejs");
+//app.set("view engine", "ejs");
 app.set("views", "./app/views");
 
 app.use(
@@ -16,7 +16,7 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173/");
+  res.setHeader("Access-Control-Allow-Origin", "http://192.168.201.22:5173/");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
