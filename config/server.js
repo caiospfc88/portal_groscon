@@ -16,7 +16,7 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://192.168.201.116:5173/");
+  res.setHeader("Access-Control-Allow-Origin", "http://192.168.201.116:3000/");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
