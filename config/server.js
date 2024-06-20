@@ -12,7 +12,7 @@ const corsOptions = {
 //app.set("view engine", "ejs");
 app.set("views", "./app/views");
 
-app.use(cors({ origin: "https://192.168.201.116:3030/*" }));
+app.use(cors({ origin: "*" }));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
