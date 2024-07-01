@@ -1270,7 +1270,7 @@ ConsultasDAO.prototype.getRelatorioSeguroBradescoPj = async function (req) {
 ConsultasDAO.prototype.selecionaPeriodoComissao = async function (req) {
   let periodo = req.query.periodo;
 
-  let result = await this._connection(`select top 24
+  let result = await this._connection(`select top 12
                                           format (DATA_CONTABILIZACAO_INICIAL,'dd/MM/yyyy', 'en-US') as 'DATA INICIAL',
                                           format (DATA_CONTABILIZACAO_FINAL,'dd/MM/yyyy', 'en-US') as 'DATA FINAL'
                                        from PERIODOS_COMISSOES
