@@ -353,7 +353,7 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function (req) {
     data_inicial.substring(4, 6) +
     "/" +
     data_inicial.substring(0, 4) +
-    " a " +
+    " até " +
     data_final.substring(6, 8) +
     "/" +
     data_final.substring(4, 6) +
@@ -764,7 +764,7 @@ ConsultasDAO.prototype.getComissoesComReducao = async function (req) {
     data_inicial.substring(4, 6) +
     "/" +
     data_inicial.substring(0, 4) +
-    " a " +
+    " até " +
     data_final.substring(6, 8) +
     "/" +
     data_final.substring(4, 6) +
