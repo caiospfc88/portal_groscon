@@ -96,6 +96,14 @@ module.exports.gerarPdfComissao = async function (application, req, res) {
   geraPdfComissao(comissao, req, res);
   //res.send("Relatório gerado");
 };
+
+module.exports.gerarPdfComissaoDados = async function (application, req, res) {
+  var resConsulta = req.body;
+  var comissao = formataComissaoPdf(req, resConsulta);
+  geraPdfComissao(comissao, req, res);
+  //res.send("Relatório gerado");
+};
+
 module.exports.selecionaPeriodoComissao = async function (
   application,
   req,

@@ -86,6 +86,16 @@ module.exports = function (application) {
     }
   );
   application.get(
+    "/gerarPdfComissaoDados",
+    /*verifyJWT,*/ function (req, res) {
+      application.app.controllers.consultasSqlServer.gerarPdfComissaoDados(
+        application,
+        req,
+        res
+      );
+    }
+  );
+  application.get(
     "/selecionaPeriodoComissao",
     /*verifyJWT,*/ function (req, res) {
       application.app.controllers.consultasSqlServer.selecionaPeriodoComissao(
