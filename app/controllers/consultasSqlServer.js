@@ -92,6 +92,7 @@ module.exports.gerarPdfComissao = async function (application, req, res) {
   } else {
     var resConsulta = await consultaModel.getComissoesComReducao(req);
   }
+  console.log(resConsulta);
   var comissao = formataComissaoPdf(req, resConsulta);
   geraPdfComissao(comissao, req, res);
   //res.send("Relatório gerado");
@@ -112,5 +113,16 @@ module.exports.selecionaPeriodoComissao = async function (
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.selecionaPeriodoComissao(req);
+  res.send(resConsulta);
+};
+
+module.exports.selecionaRepresentantes = async function (
+  application,
+  req,
+  res
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.selecionaRepresentantes(req);
   res.send(resConsulta);
 };

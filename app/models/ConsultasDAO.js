@@ -1279,6 +1279,16 @@ ConsultasDAO.prototype.selecionaPeriodoComissao = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.selecionaRepresentantes = async function (req) {
+  let result = await this._connection(`select 
+                                          CODIGO_REPRESENTANTE as 'CODIGO',
+                                          NOME
+                                        from REPRESENTANTES 
+                                        where SITUACAO = 'N' 
+                                        order by NOME`);
+  return result;
+};
+
 module.exports = function () {
   return ConsultasDAO;
 };

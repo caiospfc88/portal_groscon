@@ -105,4 +105,14 @@ module.exports = function (application) {
       );
     }
   );
+  application.get(
+    "/selecionaRepresentantes",
+    /*verifyJWT,*/ function (req, res) {
+      application.app.controllers.consultasSqlServer.selecionaRepresentantes(
+        application,
+        req,
+        res
+      );
+    }
+  );
 };
