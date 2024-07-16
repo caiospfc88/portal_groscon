@@ -115,4 +115,11 @@ module.exports = function (application) {
       );
     }
   );
+  application.get("/relatorioPerfilVendas", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.relatorioPerfilVendas(
+      application,
+      req,
+      res
+    );
+  });
 };

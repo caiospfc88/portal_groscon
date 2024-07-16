@@ -1289,6 +1289,36 @@ ConsultasDAO.prototype.selecionaRepresentantes = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.relatorioPerfilVendas = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+
+  let result = await this._connection(`select 
+                                          format (cT.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
+                                          ct.CGC_CPF_CLIENTE as 'CPF/CNPJ',
+                                          CODIGO_GRUPO as 'GRUPO',
+                                          CODIGO_COTA AS 'COTA',
+                                          ct.VERSAO,
+                                          format (cL.DATA_NASCIMENTO,'dd/MM/yyyy', 'en-US') as 'DATA DE NASC.',
+                                          (CASE WHEN CL.ESTADO_CIVIL = 'C' THEN 'CASADO' ELSE 
+                                          (CASE WHEN CL.ESTADO_CIVIL = 'S' THEN 'SOLTEIRO' ELSE
+                                          (CASE WHEN CL.ESTADO_CIVIL = 'V' THEN 'VIUVO' ELSE
+                                          (CASE WHEN CL.ESTADO_CIVIL = 'D' THEN 'DIVORCIADO' ELSE
+                                          (CASE WHEN CL.ESTADO_CIVIL = 'U' THEN 'UNIÃO ESTAVEL' ELSE
+                                          (CASE WHEN CL.ESTADO_CIVIL = 'A' THEN '--------------' END)END) END) END) END) END) AS 'ESTADO CIVIL',
+                                          (CASE WHEN CL.SEXO = 'F' THEN 'FEMININO' ELSE 
+                                          (CASE WHEN CL.SEXO = 'M' THEN 'MASCULINO' ELSE 
+                                          (CASE WHEN CL.SEXO = 'A' THEN '--------------' END)END) END) AS 'SEXO',
+                                          IIF(CL.PESSOA = 'F', 'FISICA', 'JURIDICA') AS 'TIPO DE PESSOA',
+                                          cid.ESTADO,
+                                          cid.NOME as 'CIDADE'
+                                          from COTAS CT inner JOIN CLIENTES CL ON CT.CGC_CPF_CLIENTE = CL.CGC_CPF_CLIENTE and ct.TIPO = cl.TIPO
+                                          left join CIDADES cid on cl.CODIGO_CIDADE = cid.CODIGO_CIDADE
+                                          where DATA_VENDA between ${data_inicial} and ${data_final} and ct.VERSAO in (0,40,41)
+                                          ORDER BY CT.DATA_VENDA`);
+  return result;
+};
+
 module.exports = function () {
   return ConsultasDAO;
 };
