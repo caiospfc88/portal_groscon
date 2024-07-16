@@ -24,7 +24,7 @@ var conexao = async function (sqlQuery) {
     return result.recordset;
   } catch (error) {
     let mensage = error;
-    return JSON(mensage);
+    return JSON.stringify(mensage);
   }
 };
 
