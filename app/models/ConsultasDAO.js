@@ -1293,9 +1293,6 @@ ConsultasDAO.prototype.relatorioPerfilVendas = async function (req) {
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
 
-  console.log("dtIni:", req.query.data_inicial);
-  console.log("dtFin:", req.query.data_final);
-
   let result = await this._connection(`select 
                                           format (cT.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
                                           ct.CGC_CPF_CLIENTE as 'CPF/CNPJ',
@@ -1319,7 +1316,6 @@ ConsultasDAO.prototype.relatorioPerfilVendas = async function (req) {
                                           left join CIDADES cid on cl.CODIGO_CIDADE = cid.CODIGO_CIDADE
                                           where DATA_VENDA between '${data_inicial}' and '${data_final}' and ct.VERSAO in (0,40,41)
                                           ORDER BY CT.DATA_VENDA`);
-  console.log("result: ", result);
   return result;
 };
 
