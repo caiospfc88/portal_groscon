@@ -833,7 +833,7 @@ ConsultasDAO.prototype.getAniversariantesMes = async function (req) {
                                             inner join SITUACOES_COBRANCAS sc on sc.codigo_situacao = ct.CODIGO_SITUACAO
                                             inner join GRUPOS g on ct.CODIGO_GRUPO = g.CODIGO_GRUPO
                                             where month(data_nascimento) = ${mes_nascimento} and g.CODIGO_SITUACAO = 'A' and ct.VERSAO = 00 and PESSOA = 'F' and sc.CODIGO_SITUACAO like 'N%%'
-                                            order by ct.CODIGO_GRUPO,ct.CODIGO_COTA`);
+                                            order by cl.DATA_NASCIMENTO`);
   return result;
 };
 
@@ -950,8 +950,7 @@ ConsultasDAO.prototype.getRelatorioRenegociacoes = async function (req) {
 ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
-  let equipe_inicial = req.query.equipe_inicial;
-  let equipe_final = req.query.equipe_final;
+  let equipe = req.query.equipe;
 
   var dados = await this._connection(`select CODIGO_GRUPO as GRUPO,
                                             CODIGO_COTA AS COTA,
@@ -963,11 +962,12 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
                                         from COTAS ct 
                                         inner join REPRESENTANTES rep 
                                         on ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
-                                        where ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}' and rep.codigo_equipe between '${equipe_inicial}' AND '${equipe_final}'
+                                        where ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}' and rep.codigo_equipe = '${equipe}'
                                         order by rep.CODIGO_REPRESENTANTE `);
 
   var dadosPorSituacao = await this
     ._connection(`SELECT rep.CODIGO_REPRESENTANTE AS 'REPRESENTANTE',
+                                            rep.NOME
                                             CT.CODIGO_SITUACAO as 'SITUAÇÃO',
                                             COUNT(CODIGO_SITUACAO) AS QUANTIDADE,
                                             sum(pp.VALOR_BEM) as 'TOTAL VALOR'
@@ -976,8 +976,8 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
                                         on ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
                                         inner join PROPOSTAS pp
                                         on ct.CODIGO_GRUPO = pp.CODIGO_GRUPO and ct.CODIGO_COTA = pp.CODIGO_COTA and ct.VERSAO = pp.VERSAO
-                                        where ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}' and rep.codigo_equipe between '${equipe_inicial}' AND '${equipe_final}'
-                                        GROUP BY ct.CODIGO_SITUACAO, rep.CODIGO_REPRESENTANTE
+                                        where ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}' and rep.codigo_equipe = '${equipe}'
+                                        GROUP BY ct.CODIGO_SITUACAO, rep.CODIGO_REPRESENTANTE, rep.NOME
                                         order by rep.CODIGO_REPRESENTANTE`);
   var result = [dados, dadosPorSituacao];
 
@@ -1286,6 +1286,15 @@ ConsultasDAO.prototype.selecionaRepresentantes = async function (req) {
                                         from REPRESENTANTES 
                                         where SITUACAO = 'N' 
                                         order by NOME`);
+  return result;
+};
+
+ConsultasDAO.prototype.selecionaEquipes = async function (req) {
+  let result = await this._connection(`select 
+                                          CODIGO_EQUIPE as 'CODIGO',
+                                          DESCRICAO
+                                        from EQUIPES_VENDAS
+                                        WHERE ATIVO = 'S'`);
   return result;
 };
 

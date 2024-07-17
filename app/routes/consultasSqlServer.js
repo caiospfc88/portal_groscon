@@ -115,6 +115,18 @@ module.exports = function (application) {
       );
     }
   );
+
+  application.get(
+    "/selecionaEquipes",
+    /*verifyJWT,*/ function (req, res) {
+      application.app.controllers.consultasSqlServer.selecionaEquipes(
+        application,
+        req,
+        res
+      );
+    }
+  );
+
   application.get("/relatorioPerfilVendas", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.relatorioPerfilVendas(
       application,

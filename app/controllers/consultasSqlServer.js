@@ -127,6 +127,13 @@ module.exports.selecionaRepresentantes = async function (
   res.send(resConsulta);
 };
 
+module.exports.selecionaEquipes = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.selecionaRepresentantes(req);
+  res.send(resConsulta);
+};
+
 module.exports.relatorioPerfilVendas = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
