@@ -967,7 +967,7 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
 
   var dadosPorSituacao = await this
     ._connection(`SELECT rep.CODIGO_REPRESENTANTE AS 'REPRESENTANTE',
-                                            rep.NOME
+                                            rep.NOME,
                                             CT.CODIGO_SITUACAO as 'SITUAÇÃO',
                                             COUNT(CODIGO_SITUACAO) AS QUANTIDADE,
                                             sum(pp.VALOR_BEM) as 'TOTAL VALOR'

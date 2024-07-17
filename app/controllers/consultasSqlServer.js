@@ -130,7 +130,7 @@ module.exports.selecionaRepresentantes = async function (
 module.exports.selecionaEquipes = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
-  var resConsulta = await consultaModel.selecionaRepresentantes(req);
+  var resConsulta = await consultaModel.selecionaEquipes(req);
   res.send(resConsulta);
 };
 
