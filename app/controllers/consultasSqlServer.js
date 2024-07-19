@@ -76,12 +76,14 @@ module.exports.relatorioSeguroBradescoPj = async function (
 
 module.exports.gerarPlanilhasBradescoPf = async function (req, res) {
   let arq = geraPlanilha(req, res, req.body);
-  res.download(arq);
+  
+  res.send(arq);
 };
 
 module.exports.gerarPlanilhasBradescoPj = async function (req, res) {
   let arq = geraPlanilha(req, res, req.body);
-  res.download(arq);
+ 
+  res.send(arq);
 };
 
 module.exports.gerarPdfComissao = async function (application, req, res) {

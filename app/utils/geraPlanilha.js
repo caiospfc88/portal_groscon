@@ -72,7 +72,17 @@ function geraPlanilha(req, res, obj) {
     linhaIndex++;
   });
   let pathArquivo = "planilhas/" + nomeArquivo + ".xls";
-  wb.write(pathArquivo);
+
+  res.setHeader(
+    "Content-Type",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
+  res.setHeader(
+    "Content-Disposition",
+    "attachment;filename=" + `${nomeArquivo}.xls`
+  );
+
+  wb.write(res);
   return pathArquivo;
 }
 
