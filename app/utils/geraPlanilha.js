@@ -1,6 +1,6 @@
 const xl = require("excel4node");
 
-var FileSaver = require('file-saver');
+var FileSaver = require("file-saver");
 
 function geraPlanilha(req, res, obj) {
   let data_inicial = req.query.contabil_ini;
@@ -77,19 +77,12 @@ function geraPlanilha(req, res, obj) {
 
   wb.write(nomeArquivo + ".xls");
 
-  var file = new File([wb.write(nomeArquivo + ".xls")], nomeArquivo + ".xls", {type: "text/plain;charset=utf-8"});
-  FileSaver.saveAs(file)
+  var file = new File([wb.write(pathArquivo)], nomeArquivo + ".xls", {
+    type: "text/plain;charset=utf-8",
+  });
+  FileSaver.saveAs(file);
 
-  res.setHeader(
-    "Content-Type",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  );
-  res.setHeader(
-    "Content-Disposition",
-    "attachment;filename=" + `${nomeArquivo}.xls`
-  );
-
-   return pathArquivo;
+  return file;
 }
 
 module.exports = { geraPlanilha };
