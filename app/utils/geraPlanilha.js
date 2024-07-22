@@ -1,6 +1,15 @@
 const xl = require("excel4node");
 
+const EXCEL_TYPE =
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+const EXCEL_EXTENSION = ".xls";
+
 var FileSaver = require("file-saver");
+
+function saveAsExcel(buffer, filename) {
+  const data = new Blob([buffer], { type: EXCEL_TYPE });
+  FileSaver.saveAs(data, filename + EXCEL_EXTENSION);
+}
 
 function geraPlanilha(req, res, obj) {
   let data_inicial = req.query.contabil_ini;
@@ -73,16 +82,10 @@ function geraPlanilha(req, res, obj) {
     });
     linhaIndex++;
   });
-  let pathArquivo = "planilhas/" + nomeArquivo + ".xls";
+  let pathArquivo = "P:/TI/seguroBradesco/" + nomeArquivo + ".xls";
 
-  wb.write(nomeArquivo + ".xls");
-
-  var file = new File([wb.write(pathArquivo)], nomeArquivo + ".xls", {
-    type: "text/plain;charset=utf-8",
-  });
-  FileSaver.saveAs(file);
-
-  return file;
+  wb.write(pathArquivo);
+  return pathArquivo;
 }
 
-module.exports = { geraPlanilha };
+module.exports = { geraPlanilha, saveAsExcel };

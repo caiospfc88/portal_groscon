@@ -1,5 +1,5 @@
 const { formataComissao } = require("../utils/comissaoFormat");
-const { geraPlanilha } = require("../utils/geraPlanilha");
+const { geraPlanilha, saveAsExcel } = require("../utils/geraPlanilha");
 const { geraPdfComissao } = require("../utils/geradorPDF");
 const { formataComissaoPdf } = require("../utils/comissaoFormatPdf");
 
@@ -74,16 +74,30 @@ module.exports.relatorioSeguroBradescoPj = async function (
   res.send(resConsulta);
 };
 
-module.exports.gerarPlanilhasBradescoPf = async function (req, res) {
-  let arq = geraPlanilha(req, res, req.body);
-  
-  res.send(arq);
+module.exports.gerarPlanilhasBradescoPf = async function (
+  application,
+  req,
+  res
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.getRelatorioSeguroBradescoPf(req, res);
+  let arq = geraPlanilha(req, res, resConsulta);
+  saveAsExcel(arq);
+  res.download(arq);
 };
 
-module.exports.gerarPlanilhasBradescoPj = async function (req, res) {
-  let arq = geraPlanilha(req, res, req.body);
- 
-  res.send(arq);
+module.exports.gerarPlanilhasBradescoPj = async function (
+  application,
+  req,
+  res
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.getRelatorioSeguroBradescoPj(req, res);
+  let arq = geraPlanilha(req, res, resConsulta);
+  saveAsExcel(arq);
+  res.download(arq);
 };
 
 module.exports.gerarPdfComissao = async function (application, req, res) {

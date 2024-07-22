@@ -61,6 +61,7 @@ module.exports = function (application) {
     "/gerarPlanilhasBradescoPf",
     /*verifyJWT,*/ function (req, res) {
       application.app.controllers.consultasSqlServer.gerarPlanilhasBradescoPf(
+        application,
         req,
         res
       );
@@ -70,6 +71,7 @@ module.exports = function (application) {
     "/gerarPlanilhasBradescoPj",
     /*verifyJWT,*/ function (req, res) {
       application.app.controllers.consultasSqlServer.gerarPlanilhasBradescoPj(
+        application,
         req,
         res
       );
