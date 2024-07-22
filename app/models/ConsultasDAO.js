@@ -820,20 +820,28 @@ ConsultasDAO.prototype.getQuitados = async function (req) {
 ConsultasDAO.prototype.getAniversariantesMes = async function (req) {
   let mes_nascimento = req.query.mes_nascimento;
 
-  let result = await this._connection(`select 
-                                                ct.CODIGO_GRUPO as 'GRUPO',
-                                                ct.CODIGO_COTA as 'COTA',
-                                                ct.VERSAO as 'VERSÃO',
-                                                sc.DESCRICAO as 'SITUAÇÃO', 
-                                                NOME,
-                                                ct.NUMERO_CONTRATO as 'CONTRATO',
-                                                E_MAIL as 'E-MAIL',
-                                                format (cl.DATA_NASCIMENTO,'dd/MM/yyyy', 'en-US') as 'DATA DE NASCIMENTO'
-                                            from clientes cl inner join COTAS ct on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
-                                            inner join SITUACOES_COBRANCAS sc on sc.codigo_situacao = ct.CODIGO_SITUACAO
-                                            inner join GRUPOS g on ct.CODIGO_GRUPO = g.CODIGO_GRUPO
-                                            where month(data_nascimento) = ${mes_nascimento} and g.CODIGO_SITUACAO = 'A' and ct.VERSAO = 00 and PESSOA = 'F' and sc.CODIGO_SITUACAO like 'N%%'
-                                            order by cl.DATA_NASCIMENTO`);
+  let dados = await this._connection(`select
+                                          SUBSTRING(cl.CGC_CPF_CLIENTE,1,3) + '.'
+                                          + SUBSTRING(cl.CGC_CPF_CLIENTE,4,3) + '.'
+                                          + SUBSTRING(cl.CGC_CPF_CLIENTE,7,3) + '-'
+                                          + SUBSTRING(cl.CGC_CPF_CLIENTE,10,2) AS 'DOCUMENTO',
+                                          NOME,
+                                          E_MAIL as 'E-MAIL',
+                                          format (cl.DATA_NASCIMENTO,'dd/MM/yyyy', 'en-US') as 'DATA DE NASCIMENTO'
+                                        from clientes cl inner join COTAS ct on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+                                        inner join SITUACOES_COBRANCAS sc on sc.codigo_situacao = ct.CODIGO_SITUACAO
+                                        inner join GRUPOS g on ct.CODIGO_GRUPO = g.CODIGO_GRUPO
+                                        where month(data_nascimento) = ${mes_nascimento} and g.CODIGO_SITUACAO = 'A' and ct.VERSAO = 00 and PESSOA = 'F' and sc.CODIGO_SITUACAO like 'N%%'
+                                        order by [DATA DE NASCIMENTO]`);
+
+  let total = await this._connection(`select
+                                        count(cl.CGC_CPF_CLIENTE) AS 'TOTAL'
+                                      from clientes cl inner join COTAS ct on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+                                      inner join SITUACOES_COBRANCAS sc on sc.codigo_situacao = ct.CODIGO_SITUACAO
+                                      inner join GRUPOS g on ct.CODIGO_GRUPO = g.CODIGO_GRUPO
+                                      where month(data_nascimento) = ${mes_nascimento} and g.CODIGO_SITUACAO = 'A' and ct.VERSAO = 00 and PESSOA = 'F' and sc.CODIGO_SITUACAO like 'N%%'`);
+
+  let result = [dados, total];
   return result;
 };
 
