@@ -13,7 +13,7 @@ module.exports.logar = async function (req, res) {
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: 14400,
     });
-    return res.json({ auth: true, token: token });
+    return res.json({ ...user.dataValues, auth: true, token: token });
   } else {
     res.status(500).json({ message: "Login inválido!" });
   }

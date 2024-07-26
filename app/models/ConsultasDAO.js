@@ -820,7 +820,7 @@ ConsultasDAO.prototype.getQuitados = async function (req) {
 ConsultasDAO.prototype.getAniversariantesMes = async function (req) {
   let mes_nascimento = req.query.mes_nascimento;
 
-  let dados = await this._connection(`select
+  let dados = await this._connection(`select distinct
                                           SUBSTRING(cl.CGC_CPF_CLIENTE,1,3) + '.'
                                           + SUBSTRING(cl.CGC_CPF_CLIENTE,4,3) + '.'
                                           + SUBSTRING(cl.CGC_CPF_CLIENTE,7,3) + '-'
