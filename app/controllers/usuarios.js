@@ -11,7 +11,7 @@ module.exports.logar = async function (req, res) {
     (await user.validarSenha(req.body.senha))
   ) {
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: 14400,
+      expiresIn: "10h",
     });
     return res.json({ ...user.dataValues, auth: true, token: token });
   } else {

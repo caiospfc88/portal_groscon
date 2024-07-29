@@ -1,13 +1,21 @@
 const models = require("../../db/models");
+const { Op } = require("sequelize");
 
 module.exports.listarDadosMural = async function (req, res) {
   var dados = await models.mural_dados.findAll();
   res.send(dados);
 };
 
-module.exports.listarDadosMuralAnual = async function (req, res) {
+module.exports.listarDadosMuralAnualSemestre1 = async function (req, res) {
   var dados = await models.mural_dados.findAll({
-    where: { ano: req.query.ano },
+    where: { ano: req.query.ano, mes: { [Op.lte]: 6 } },
+  });
+  res.send(dados);
+};
+
+module.exports.listarDadosMuralAnualSemestre2 = async function (req, res) {
+  var dados = await models.mural_dados.findAll({
+    where: { ano: req.query.ano, mes: { [Op.gt]: 6 } },
   });
   res.send(dados);
 };
