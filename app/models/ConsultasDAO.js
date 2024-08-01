@@ -857,9 +857,9 @@ ConsultasDAO.prototype.getRelatorioRenegociacoes = async function (req) {
                                             ,RP.NOME AS NOME_REPRESENTANTE
                                             ,cd.nome as CIDADE
                                             ,CD.ESTADO AS ESTADO
-                                            ,(isnull(PAG.VALOR_FC,0)+isnull(PAG2.VALOR_FC,0)+isnull(PAG3.VALOR_FC,0)) AS VALOR_FC
-                                            ,(isnull(PAG.VALOR_TX,0)+isnull(pag2.VALOR_TX,0)+isnull(pag3.VALOR_TX,0)) AS VALOR_TX
-                                            ,(isnull(PAG.VALOR_TOTAL,0)+isnull(pag2.VALOR_TOTAL,0)+ISNULL(PAG3.VALOR_TOTAL,0)) AS VALOR_TOTAL
+                                            ,format ((isnull(PAG.VALOR_FC,0)+isnull(PAG2.VALOR_FC,0)+isnull(PAG3.VALOR_FC,0)), 'C', 'pt-br') AS VALOR_FC
+                                            ,format ((isnull(PAG.VALOR_TX,0)+isnull(pag2.VALOR_TX,0)+isnull(pag3.VALOR_TX,0)), 'C', 'pt-br') AS VALOR_TX
+                                            ,format ((isnull(PAG.VALOR_TOTAL,0)+isnull(pag2.VALOR_TOTAL,0)+ISNULL(PAG3.VALOR_TOTAL,0)), 'C', 'pt-br') AS VALOR_TOTAL
                                             ,QTD_PAG.QTD_PAG AS QUANTIDADE_PAG
                                             ,format (ct.DATA_REATIVACAO,'dd/MM/yyyy', 'en-US') as 'DATA REATIVAÇÃO'
                                             ,NEG.STATUS
@@ -978,7 +978,7 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
                                             rep.NOME,
                                             CT.CODIGO_SITUACAO as 'SITUAÇÃO',
                                             COUNT(CODIGO_SITUACAO) AS QUANTIDADE,
-                                            sum(pp.VALOR_BEM) as 'TOTAL VALOR'
+                                            format(sum(pp.VALOR_BEM), 'C', 'pt-br') as 'TOTAL VALOR'
                                         from COTAS ct 
                                         inner join REPRESENTANTES rep 
                                         on ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
