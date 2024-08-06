@@ -35,17 +35,17 @@ function geraPdfComissao(dados, req, res) {
     { text: "COTA", style: "columnsTitle" },
     { text: "VS", style: "columnsTitle" },
     { text: "DT CONT.", style: "columnsTitle" },
-    { text: "COD EQ.", style: "columnsTitle" },
-    { text: "COD REP.", style: "columnsTitle" },
+    { text: "EQ.", style: "columnsTitle" },
+    { text: "REP.", style: "columnsTitle" },
     { text: "TIPO", style: "columnsTitle" },
-    { text: "TAB COM.", style: "columnsTitle" },
+    { text: "TAB.", style: "columnsTitle" },
     { text: "Nº PAR.", style: "columnsTitle" },
     //{ text: "VAL TAXA", style: "columnsTitle" },
-    { text: "VAL BEM", style: "columnsTitle" },
-    { text: "% COMISS.", style: "columnsTitle" },
-    { text: "VAL COMISS.", style: "columnsTitle" },
+    { text: "BEM", style: "columnsTitle" },
+    { text: "%", style: "columnsTitle" },
+    { text: "VALOR", style: "columnsTitle" },
     //{ text: "TOTAL VENDAS", style: "columnsTitle" },
-    { text: "MAX COMISS.", style: "columnsTitle" },
+    { text: "MAX.", style: "columnsTitle" },
   ];
   if (dados[1][0]["CODIGO_EQUIPE"]) {
     colunaInf = ["Equipe: "];
@@ -103,7 +103,12 @@ function geraPdfComissao(dados, req, res) {
       ];
     },
 
-    defaultStyle: { font: "Helvetica", fontSize: 10.5, alignment: "center" },
+    defaultStyle: {
+      font: "Helvetica",
+      fontSize: 10,
+      alignment: "center",
+      characterSpacing: 0.3,
+    },
     content: [
       {
         columns: [
@@ -119,13 +124,13 @@ function geraPdfComissao(dados, req, res) {
             margin: [10, 22, 10, 20],
           },
         ],
-        columnGap: 15,
+        columnGap: 16,
       },
       {
         columns: [
           {
             stack: [colunaInf],
-            fontSize: 12,
+            fontSize: 11,
             alignment: "left",
             bold: true,
             margin: [5, 4, 1, 4],
@@ -133,7 +138,7 @@ function geraPdfComissao(dados, req, res) {
           },
           {
             stack: colunaVal,
-            fontSize: 12,
+            fontSize: 11,
             alignment: "left",
             bold: true,
             width: 430,
@@ -141,7 +146,7 @@ function geraPdfComissao(dados, req, res) {
           },
           {
             text: "Período selecionado: ",
-            fontSize: 12,
+            fontSize: 11,
             alignment: "right",
             bold: true,
             width: 125,
@@ -149,7 +154,7 @@ function geraPdfComissao(dados, req, res) {
           },
           {
             text: dados[2][0].periodo,
-            fontSize: 12,
+            fontSize: 11,
             alignment: "left",
             bold: true,
             width: 250,
@@ -159,10 +164,27 @@ function geraPdfComissao(dados, req, res) {
         columnGap: 1,
       },
       {
+        layout: "lightHorizontalLines",
         table: {
+          headerRows: 1,
+          widths: [
+            44,
+            34,
+            20,
+            "auto",
+            "auto",
+            "auto",
+            131,
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+          ],
           body: [cabecalho, ...valores],
           style: "tabela",
-          headerRows: 1,
+          marginTop: 1.2,
         },
         margin: [5, 2, 10, 20],
       },
@@ -177,13 +199,13 @@ function geraPdfComissao(dados, req, res) {
         alignment: "right",
         fontSize: 11,
         bold: true,
-        lineHeight: 10,
+        lineHeight: 6,
         margin: [5, 2, 13, 20],
       },
     ],
     styles: {
       header: {
-        fontSize: 25,
+        fontSize: 24,
         bold: true,
         alignment: "left",
       },
@@ -193,19 +215,20 @@ function geraPdfComissao(dados, req, res) {
       },
       columnsTitle: {
         fontSize: 10,
-        fillColor: "#0017D5",
+        fillColor: "#035191",
         color: "#FFFFFF",
         bold: true,
+        margin: 3,
       },
       tabela: {
-        fontSize: 8,
+        fontSize: 9,
         alignment: "center",
         bold: true,
-        margin: [5, 4, 10, 4],
+        margin: [5, 5, 10, 5],
       },
     },
     pageOrientation: "landscape",
-    pageMargins: [20, 40, 20, 80],
+    pageMargins: [20, 40, 20, 60],
   };
 
   const pdfDoc = printer.createPdfKitDocument(docDefinitions);
