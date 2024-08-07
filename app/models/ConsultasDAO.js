@@ -1336,6 +1336,28 @@ ConsultasDAO.prototype.relatorioPerfilVendas = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.selecionaEstados = async function (req) {
+  let result = await this._connection(
+    `select distinct Estado from CIDADES order by estado`
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
+  let estado = req.query.estado;
+  let result = await this._connection(
+    `select ct.CODIGO_SITUACAO as 'CÓDIGO DA SITUAÇÂO', count(ct.numero_contrato) as TOTAL from cotas ct inner join CLIENTES cl
+        on ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE and ct.tipo = cl.tipo
+        inner join GRUPOS gp
+        on ct.codigo_grupo = gp.codigo_grupo
+        inner join cidades cid
+        on cl.CODIGO_CIDADE = cid.CODIGO_CIDADE
+        where cid.ESTADO = '${estado}' and gp.CODIGO_SITUACAO = 'A'
+        group by ct.CODIGO_SITUACAO`
+  );
+  return result;
+};
+
 module.exports = function () {
   return ConsultasDAO;
 };

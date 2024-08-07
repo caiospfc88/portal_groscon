@@ -150,6 +150,20 @@ module.exports.selecionaEquipes = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.selecionaEstados = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.selecionaEstados(req);
+  res.send(resConsulta);
+};
+
+module.exports.situacaoCotasEstado = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.situacaoCotasEstado(req);
+  res.send(resConsulta);
+};
+
 module.exports.relatorioPerfilVendas = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
