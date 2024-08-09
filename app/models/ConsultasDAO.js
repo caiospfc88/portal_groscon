@@ -1346,14 +1346,16 @@ ConsultasDAO.prototype.selecionaEstados = async function (req) {
 ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
   let estado = req.query.estado;
   let result = await this._connection(
-    `select ct.CODIGO_SITUACAO as 'CÓDIGO DA SITUAÇÂO', count(ct.numero_contrato) as TOTAL from cotas ct inner join CLIENTES cl
+    `select ct.CODIGO_SITUACAO as 'CÓDIGO',SC.DESCRICAO AS 'DESCRIÇÃO', count(ct.numero_contrato) as TOTAL from cotas ct inner join CLIENTES cl
         on ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE and ct.tipo = cl.tipo
         inner join GRUPOS gp
         on ct.codigo_grupo = gp.codigo_grupo
+        inner join SITUACOES_COBRANCAS sc
+        on ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
         inner join cidades cid
         on cl.CODIGO_CIDADE = cid.CODIGO_CIDADE
         where cid.ESTADO = '${estado}' and gp.CODIGO_SITUACAO = 'A'
-        group by ct.CODIGO_SITUACAO`
+        group by ct.CODIGO_SITUACAO,SC.DESCRICAO`
   );
   return result;
 };
