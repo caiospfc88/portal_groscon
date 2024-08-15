@@ -40,6 +40,7 @@ module.exports.cadastrarUsuario = async function (req, res) {
     email: req.body.email,
     data_nascimento: req.body.data_nascimento,
     celular: req.body.celular,
+    acesso: req.body.acesso,
     createdAt: new Date(),
     updatedAt: new Date(),
   });

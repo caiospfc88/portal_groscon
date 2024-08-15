@@ -34,6 +34,7 @@ async function criarRootUser() {
       email: "ti@consorciogroscon.com.br",
       data_nascimento: "1988-4-07",
       celular: "16991827470",
+      acesso: "administrador",
       createdAt: new Date(),
       updatedAt: new Date(),
     });

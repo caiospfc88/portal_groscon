@@ -13,9 +13,12 @@ module.exports = function (application) {
   application.post("/cadastrarUsuario", verifyJWT, function (req, res) {
     application.app.controllers.usuarios.cadastrarUsuario(req, res);
   });
-  application.put("/alterarUsuario", verifyJWT, function (req, res) {
-    application.app.controllers.usuarios.alterarUsuario(req, res);
-  });
+  application.put(
+    "/alterarUsuario",
+    /*verifyJWT,*/ function (req, res) {
+      application.app.controllers.usuarios.alterarUsuario(req, res);
+    }
+  );
   application.delete("/excluirUsuario", verifyJWT, function (req, res) {
     application.app.controllers.usuarios.excluirUsuario(req, res);
   });
