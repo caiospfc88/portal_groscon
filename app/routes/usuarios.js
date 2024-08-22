@@ -19,6 +19,12 @@ module.exports = function (application) {
       application.app.controllers.usuarios.alterarUsuario(req, res);
     }
   );
+  application.put(
+    "/alterarSenha",
+    verifyJWT, function (req, res) {
+      application.app.controllers.usuarios.alterarUsuario(req, res);
+    }
+  );
   application.delete("/excluirUsuario", verifyJWT, function (req, res) {
     application.app.controllers.usuarios.excluirUsuario(req, res);
   });

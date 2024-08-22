@@ -1,6 +1,7 @@
 const models = require("../../db/models");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 module.exports.logar = async function (req, res) {
   var user = await models.usuarios.findOne({
@@ -48,8 +49,16 @@ module.exports.cadastrarUsuario = async function (req, res) {
 };
 module.exports.alterarUsuario = async function (req, res) {
   var user = await models.usuarios.findOne({ where: req.body.id });
-  user.update(req.body);
-  res.json({ Usuario: user, Msg: "Atualizado com sucesso!" });
+  if (req.body.senha !== undefined){
+    const hash = await bcrypt.hash(req.body.senha, 10);
+    req.body.senha = hash
+    user.update(req.body);
+    res.json({ Usuario: user, Msg: "Atualizado com sucesso!" });
+  } else {
+    user.update(req.body);
+    res.json({ Usuario: user, Msg: "Atualizado com sucesso!" });
+  }
+  
 };
 module.exports.excluirUsuario = async function (req, res) {
   var user = await models.usuarios.findOne({ where: req.body.id });
