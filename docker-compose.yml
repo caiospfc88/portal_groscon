@@ -8,23 +8,28 @@
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
 services:
-  server:
+  portal-back:
     env_file: .env
     restart: always
     build:
       context: .
     ports:
       - 3030:3030
+      - 1433:1433
     expose:
       - 3030
-    # network_mode: "host"
+      - 1433
     environment:
       - MYSQL_DATABASE=portal_groscon
       - MYSQL_ROOT_PASSWORD=1035
       - MYSQL_HOST=host.docker.internal
       - MYSQL_USER=root
       - MYSQL_PORT=3306
-
+#extra_hosts:
+#  - "DB_SSQL_USER=sa"
+#  - "DB_SSQL_PASS=senha@123"
+#  - "DB_SSQL_BASE=NewconPlus"
+#  - "DB_SSQL_HOST=10.200.200.118"
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to
 # start the database before your application. The `db-data` volume persists the

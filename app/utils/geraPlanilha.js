@@ -82,7 +82,7 @@ function geraPlanilha(req, res, obj) {
     });
     linhaIndex++;
   });
-  let pathArquivo = "P:/TI/seguroBradesco/" + nomeArquivo + ".xls";
+  let pathArquivo = "/planilhas/" + nomeArquivo + ".xls";
 
   wb.write(pathArquivo);
   return pathArquivo;
