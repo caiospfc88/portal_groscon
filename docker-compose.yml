@@ -25,11 +25,6 @@ services:
       - MYSQL_HOST=host.docker.internal
       - MYSQL_USER=root
       - MYSQL_PORT=3306
-#extra_hosts:
-#  - "DB_SSQL_USER=sa"
-#  - "DB_SSQL_PASS=senha@123"
-#  - "DB_SSQL_BASE=NewconPlus"
-#  - "DB_SSQL_HOST=10.200.200.118"
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to
 # start the database before your application. The `db-data` volume persists the
