@@ -82,9 +82,7 @@ module.exports.gerarPlanilhasBradescoPf = async function (
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.getRelatorioSeguroBradescoPf(req, res);
-  let arq = geraPlanilha(req, res, resConsulta);
-  saveAsExcel(arq);
-  res.download(arq);
+  geraPlanilha(req, res, resConsulta);
 };
 
 module.exports.gerarPlanilhasBradescoPj = async function (
@@ -95,9 +93,7 @@ module.exports.gerarPlanilhasBradescoPj = async function (
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.getRelatorioSeguroBradescoPj(req, res);
-  let arq = geraPlanilha(req, res, resConsulta);
-  saveAsExcel(arq);
-  res.download(arq);
+  geraPlanilha(req, res, resConsulta);
 };
 
 module.exports.gerarPdfComissao = async function (application, req, res) {

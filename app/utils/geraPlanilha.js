@@ -82,10 +82,9 @@ function geraPlanilha(req, res, obj) {
     });
     linhaIndex++;
   });
-  let pathArquivo = "/planilhas/" + nomeArquivo + ".xls";
+  let pathArquivo = nomeArquivo + ".xls";
 
-  wb.write(pathArquivo);
-  return pathArquivo;
+  wb.write(pathArquivo, res);
 }
 
 module.exports = { geraPlanilha, saveAsExcel };
