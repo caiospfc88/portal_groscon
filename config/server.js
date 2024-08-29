@@ -6,7 +6,7 @@ const cors = require("cors");
 var app = express();
 
 const corsOptions = {
-  origin: "https://192.168.201.116:3030/*",
+  origin: "https://192.168.201.115:3030/*",
   optionsSuccessStatus: 200,
 };
 //app.set("view engine", "ejs");
