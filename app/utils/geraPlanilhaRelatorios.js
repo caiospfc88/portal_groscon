@@ -1,4 +1,5 @@
 const xl = require("excel4node");
+const { fillPattern } = require("excel4node/distribution/lib/types");
 
 const EXCEL_TYPE =
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
@@ -10,11 +11,14 @@ function geraPlanilhaRelatorios(req, res, obj) {
   let nomeArquivo = req.query.nomeArquivo;
   const options = {
     sheetView: {
-      showGridLines: false,
+      showGridLines: true,
     },
     headerFooter: {
       alignWithMargins: true,
       scaleWithDoc: true,
+    },
+    printOptions: {
+        printGridLines: true,
     },
     defaultColWidth: 30, 
   };
@@ -52,29 +56,58 @@ function geraPlanilhaRelatorios(req, res, obj) {
     },
   });
 
-  ws.addImage({
-    path: "img/logo.jpg",
-    type: 'picture',
-    position: {
-      type: 'twoCellAnchor',
-      from: {
-        col: 3,
-        colOff: 0,
-        row: 2,
-        rowOff: 0,
+  var myHeadStyle = wb.createStyle({
+    font: {
+      size: 11,
+      bold: true,
+      name: "Calibri",
+      color: "ffffff",
+    },
+    fill: {
+      type: "pattern",
+      patternType: "solid",
+      bgColor: "035191",
+      fgColor: "035191",
+    },
+    alignment: {
+      shrinkToFit: false,
+      horizontal: "center",
+      wrapText: false,
+    },
+    border: {
+      left: {
+        style: "thin", //§18.18.3 ST_BorderStyle (Border Line Styles) ['none', 'thin', 'medium', 'dashed', 'dotted', 'thick', 'double', 'hair', 'mediumDashed', 'dashDot', 'mediumDashDot', 'dashDotDot', 'mediumDashDotDot', 'slantDashDot']
+        color: "#000000", // HTML style hex value
       },
-      to: {
-        col: 6,
-        colOff: 0,
-        row: 5,
-        rowOff: 0,
+      right: {
+        style: "thin",
+        color: "#000000",
+      },
+      top: {
+        style: "thin",
+        color: "#000000",
+      },
+      bottom: {
+        style: "thin",
+        color: "#000000",
       },
     },
+  });
+
+  ws.addImage({
+    path: "img/logoPlanilha.jpg",
+    type: 'picture',
+    position: {
+    type: 'absoluteAnchor',
+    x: '4.7cm',
+    y: '0.8cm',
+  },
   });
   Object.entries(obj[0]).map(([chave, valor]) => colunas.push(chave));
   let colunaIndex = 3;
   colunas.forEach((heading) => {
-    ws.cell(7, colunaIndex++).string(heading).style(myStyle);
+    ws.column(colunaIndex).setWidth(25)
+    ws.cell(7, colunaIndex++).string(heading).style(myHeadStyle)
     //ws.column(colunaIndex).setWidth(heading.length);
   });
   let linhaIndex = 8;
