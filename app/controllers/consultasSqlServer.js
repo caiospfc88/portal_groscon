@@ -2,6 +2,7 @@ const { formataComissao } = require("../utils/comissaoFormat");
 const { geraPlanilha, saveAsExcel } = require("../utils/geraPlanilha");
 const { geraPdfComissao } = require("../utils/geradorPDF");
 const { formataComissaoPdf } = require("../utils/comissaoFormatPdf");
+const { geraPlanilhaRelatorios } = require("../utils/geraPlanilhaRelatorios");
 
 module.exports.comissoesComReducao = async function (application, req, res) {
   var connection = application.config.dbConnection;
@@ -94,6 +95,12 @@ module.exports.gerarPlanilhasBradescoPj = async function (
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.getRelatorioSeguroBradescoPj(req, res);
   geraPlanilha(req, res, resConsulta);
+};
+
+module.exports.gerarPlanilhasRelatorios = async function (req,res) {
+  console.log("reqBody: ", req.body)
+  let Obj = req.body
+  await geraPlanilhaRelatorios(req, res, Obj);
 };
 
 module.exports.gerarPdfComissao = async function (application, req, res) {

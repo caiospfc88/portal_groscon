@@ -77,6 +77,12 @@ module.exports = function (application) {
       );
     }
   );
+  application.patch(
+    "/gerarPlanilhasRelatorios",
+    /*verifyJWT,*/ function (req, res) {
+      application.app.controllers.consultasSqlServer.gerarPlanilhasRelatorios(req,res);
+    }
+  );
   application.get(
     "/gerarPdfComissao",
     /*verifyJWT,*/ function (req, res) {
