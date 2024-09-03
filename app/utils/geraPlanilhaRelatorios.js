@@ -90,7 +90,6 @@ function geraPlanilhaRelatorios(req, res, obj) {
   ws.row(7).filter();
   ws.row(7).freeze();
   let pathArquivo = nomeArquivo + ".xlsx";
-  console.log("nomeArquivo: ",pathArquivo)
   
   wb.write(pathArquivo, res);
 

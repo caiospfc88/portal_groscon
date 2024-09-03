@@ -98,7 +98,6 @@ module.exports.gerarPlanilhasBradescoPj = async function (
 };
 
 module.exports.gerarPlanilhasRelatorios = async function (req,res) {
-  console.log("reqBody: ", req.body)
   let Obj = req.body
   await geraPlanilhaRelatorios(req, res, Obj);
 };
