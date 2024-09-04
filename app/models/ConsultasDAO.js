@@ -980,8 +980,8 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
     ._connection(`SELECT rep.CODIGO_REPRESENTANTE AS 'REPRESENTANTE',
                                             rep.NOME,
                                             CT.CODIGO_SITUACAO as 'SITUAÇÃO',
-                                            sc.nomenclatura as 'DESCRIÇÃO',
-                                            COUNT(CODIGO_SITUACAO) AS QUANTIDADE,
+                                            sc.NOMENCLATURA as 'DESCRIÇÃO',
+                                            COUNT(ct.CODIGO_SITUACAO) AS QUANTIDADE,
                                             format(sum(pp.VALOR_BEM), 'C', 'pt-br') as 'TOTAL VALOR'
                                         from COTAS ct 
                                         inner join REPRESENTANTES rep 
@@ -991,7 +991,7 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
                                         inner join SITUACOES_COBRANCAS sc
                                         on ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
                                         where ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}' and rep.codigo_equipe = '${equipe}'
-                                        GROUP BY ct.CODIGO_SITUACAO, rep.CODIGO_REPRESENTANTE, rep.NOME, sc.nomenclatura
+                                        GROUP BY ct.CODIGO_SITUACAO, rep.CODIGO_REPRESENTANTE, rep.NOME, sc.NOMENCLATURA
                                         order by rep.CODIGO_REPRESENTANTE`);
   var result = [dados, dadosPorSituacao];
 
