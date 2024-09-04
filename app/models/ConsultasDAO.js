@@ -964,12 +964,15 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
                                             CODIGO_COTA AS COTA,
                                             VERSAO AS 'VERSÃO',
                                             CT.CODIGO_SITUACAO as 'SITUAÇÃO',
+                                            sc.nomenclatura as 'DESCRIÇÃO',
                                             FORMAT(CT.DATA_VENDA, 'dd/MM/yyyy', 'en-US') as 'DATA DA VENDA',
                                             CT.CODIGO_REPRESENTANTE AS 'COD. REP',
                                             rep.NOME 
                                         from COTAS ct 
                                         inner join REPRESENTANTES rep 
                                         on ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
+                                        inner join SITUACOES_COBRANCAS sc
+                                        on ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
                                         where ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}' and rep.codigo_equipe = '${equipe}'
                                         order by rep.CODIGO_REPRESENTANTE `);
 
@@ -977,6 +980,7 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
     ._connection(`SELECT rep.CODIGO_REPRESENTANTE AS 'REPRESENTANTE',
                                             rep.NOME,
                                             CT.CODIGO_SITUACAO as 'SITUAÇÃO',
+                                            sc.nomenclatura as 'DESCRIÇÃO',
                                             COUNT(CODIGO_SITUACAO) AS QUANTIDADE,
                                             format(sum(pp.VALOR_BEM), 'C', 'pt-br') as 'TOTAL VALOR'
                                         from COTAS ct 
@@ -984,8 +988,10 @@ ConsultasDAO.prototype.getRelatorioAproveitamento = async function (req) {
                                         on ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
                                         inner join PROPOSTAS pp
                                         on ct.CODIGO_GRUPO = pp.CODIGO_GRUPO and ct.CODIGO_COTA = pp.CODIGO_COTA and ct.VERSAO = pp.VERSAO
+                                        inner join SITUACOES_COBRANCAS sc
+                                        on ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
                                         where ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}' and rep.codigo_equipe = '${equipe}'
-                                        GROUP BY ct.CODIGO_SITUACAO, rep.CODIGO_REPRESENTANTE, rep.NOME
+                                        GROUP BY ct.CODIGO_SITUACAO, rep.CODIGO_REPRESENTANTE, rep.NOME, sc.nomenclatura
                                         order by rep.CODIGO_REPRESENTANTE`);
   var result = [dados, dadosPorSituacao];
 
