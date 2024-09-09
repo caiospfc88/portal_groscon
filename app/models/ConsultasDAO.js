@@ -828,15 +828,15 @@ ConsultasDAO.prototype.getAniversariantesMes = async function (req) {
                                           NOME,
                                           E_MAIL as 'E-MAIL',
                                           format (cl.DATA_NASCIMENTO,'dd/MM/yyyy', 'en-US') as 'DATA DE NASCIMENTO'
-                                        from clientes cl inner join COTAS ct on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+                                        from clientes cl inner join COTAS ct on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE and ct.TIPO = cl.tipo
                                         inner join SITUACOES_COBRANCAS sc on sc.codigo_situacao = ct.CODIGO_SITUACAO
                                         inner join GRUPOS g on ct.CODIGO_GRUPO = g.CODIGO_GRUPO
                                         where month(data_nascimento) = ${mes_nascimento} and g.CODIGO_SITUACAO = 'A' and ct.VERSAO = 00 and PESSOA = 'F' and sc.CODIGO_SITUACAO like 'N%%'
                                         order by [DATA DE NASCIMENTO]`);
 
   let total = await this._connection(`select
-                                        count(cl.CGC_CPF_CLIENTE) AS 'TOTAL'
-                                      from clientes cl inner join COTAS ct on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+                                        count(distinct cl.CGC_CPF_CLIENTE) AS 'TOTAL'
+                                      from clientes cl inner join COTAS ct on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE and ct.TIPO = cl.tipo
                                       inner join SITUACOES_COBRANCAS sc on sc.codigo_situacao = ct.CODIGO_SITUACAO
                                       inner join GRUPOS g on ct.CODIGO_GRUPO = g.CODIGO_GRUPO
                                       where month(data_nascimento) = ${mes_nascimento} and g.CODIGO_SITUACAO = 'A' and ct.VERSAO = 00 and PESSOA = 'F' and sc.CODIGO_SITUACAO like 'N%%'`);
