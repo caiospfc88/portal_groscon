@@ -1351,7 +1351,6 @@ ConsultasDAO.prototype.selecionaEstados = async function (req) {
 
 ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
   let estado = req.query.estado;
-  console.log("detalhado: ",req.query.detalhado)
   if (req.query.detalhado == 0) {
     result = await this._connection(
       `select ct.CODIGO_SITUACAO as 'CÓDIGO',SC.DESCRICAO AS 'DESCRIÇÃO', count(ct.numero_contrato) as TOTAL from cotas ct inner join CLIENTES cl
