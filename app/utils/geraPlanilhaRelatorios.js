@@ -99,20 +99,20 @@ function geraPlanilhaRelatorios(req, res, obj) {
     type: 'picture',
     position: {
     type: 'absoluteAnchor',
-    x: '4.7cm',
-    y: '0.8cm',
+    x: '2.35cm',
+    y: '0.5cm',
   },
   });
   Object.entries(obj[0]).map(([chave, valor]) => colunas.push(chave));
-  let colunaIndex = 3;
+  let colunaIndex = 2;
   colunas.forEach((heading) => {
     ws.column(colunaIndex).setWidth(25)
-    ws.cell(7, colunaIndex++).string(heading).style(myHeadStyle)
+    ws.cell(6, colunaIndex++).string(heading).style(myHeadStyle)
     //ws.column(colunaIndex).setWidth(heading.length);
   });
-  let linhaIndex = 8;
+  let linhaIndex = 7;
   obj.forEach((record) => {
-    let colunaIndex = 3;
+    let colunaIndex = 2;
     Object.keys(record).forEach((colunaNome) => {
       ws.cell(linhaIndex, colunaIndex++)
         .string(record[colunaNome] == null ? "" : record[colunaNome].toString())
@@ -120,8 +120,8 @@ function geraPlanilhaRelatorios(req, res, obj) {
     });
     linhaIndex++;
   });
-  ws.row(7).filter();
-  ws.row(7).freeze();
+  ws.row(6).filter();
+  ws.row(6).freeze();
   let pathArquivo = nomeArquivo + ".xlsx";
   
   wb.write(pathArquivo, res);

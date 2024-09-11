@@ -1353,23 +1353,40 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
   let estado = req.query.estado;
   if (req.query.detalhado == 0) {
     result = await this._connection(
-      `select ct.CODIGO_SITUACAO as 'CÓDIGO',SC.DESCRICAO AS 'DESCRIÇÃO', count(ct.numero_contrato) as TOTAL from cotas ct inner join CLIENTES cl
+      `select ct.CODIGO_SITUACAO as 'CÓDIGO',
+              SC.DESCRICAO AS 'DESCRIÇÃO',
+              case
+                when ct.DATA_CONTEMPLACAO is null AND ccc.DATA_CONTEMPLACAO is NULL
+                  then 'NÃO CONTEMPLADO'
+                WHEN ct.DATA_CONTEMPLACAO is not null or ccc.DATA_CONTEMPLACAO is not NULL
+                  THEN 'CONTEMPLADO'
+                END AS 'CONTEMPLAÇÃO',
+              count(ct.numero_contrato) as TOTAL 
+          from cotas ct inner join CLIENTES cl
           on ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE and ct.tipo = cl.tipo
+          left join COTAS_CONTEMPLADAS_CANCELADAS ccc
+          on ccc.ID_COTA = ct.ID_COTA
           inner join GRUPOS gp
           on ct.codigo_grupo = gp.codigo_grupo
           inner join SITUACOES_COBRANCAS sc
           on ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
           inner join cidades cid
           on cl.CODIGO_CIDADE = cid.CODIGO_CIDADE
-          where cid.ESTADO = '${estado}' and gp.CODIGO_SITUACAO = 'A' and ct.VERSAO < 40
-          group by ct.CODIGO_SITUACAO,SC.DESCRICAO`
+          where cid.ESTADO in ('${estado}') and gp.CODIGO_SITUACAO = 'A'
+          group by ct.CODIGO_SITUACAO,SC.DESCRICAO,case
+                when ct.DATA_CONTEMPLACAO is null AND ccc.DATA_CONTEMPLACAO is NULL
+                  then 'NÃO CONTEMPLADO'
+                WHEN ct.DATA_CONTEMPLACAO is not null or ccc.DATA_CONTEMPLACAO is not NULL
+                  THEN 'CONTEMPLADO'
+                END
+          order by ct.CODIGO_SITUACAO`
     );
   } else if (req.query.detalhado == 1){
     result = await this._connection(
       `select ct.CODIGO_GRUPO as 'GRUPO',
             ct.CODIGO_COTA as 'COTA',
-            ct.VERSAO as 'VERSÃO',
-            format(ct.DATA_ADESAO, 'dd/MM/yyyy', 'en-US') AS 'DATA ADESÃO',
+            ct.VERSAO as 'VER.',
+            format(ct.DATA_ADESAO, 'dd/MM/yyyy', 'en-US') AS 'ADESÃO',
             format(ct.VALOR_FUNDO_COMUM, 'C', 'pt-br') as 'VALOR FC PAGO',
             sc.NOMENCLATURA as 'SITUAÇÃO',
             case
@@ -1380,7 +1397,7 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
               END AS 'CONTEMPLAÇÃO',
             cl.NOME as 'NOME',
             cid.NOME as 'CIDADE',
-            cid.ESTADO as 'ESTADO'		
+            cid.ESTADO as 'UF'		
         from cotas ct inner join clientes cl 
         on ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE 
         inner join CIDADES cid
@@ -1391,7 +1408,7 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
         on ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
         left join COTAS_CONTEMPLADAS_CANCELADAS ccc
         on ccc.ID_COTA = ct.ID_COTA
-        where cid.ESTADO in ('${estado}') and ct.VERSAO < 40 and gp.CODIGO_SITUACAO = 'A'
+        where cid.ESTADO in ('${estado}') and gp.CODIGO_SITUACAO = 'A'
         order by ct.DATA_ADESAO`
     );
   }
