@@ -166,6 +166,20 @@ module.exports.situacaoCotasEstado = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.selecionaCotasAtivasComEmail = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.selecionaCotasAtivasComEmail(req);
+  res.send(resConsulta);
+};
+
+module.exports.selecionaCotasAtivasComEmailEx = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.selecionaCotasAtivasComEmail(req);
+  await geraPlanilhaRelatorios(req, res, resConsulta);
+};
+
 module.exports.relatorioPerfilVendas = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);

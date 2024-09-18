@@ -148,6 +148,22 @@ module.exports = function (application) {
     );
   });
 
+  application.get("/selecionaCotasAtivasComEmail", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.selecionaCotasAtivasComEmail(
+      application,
+      req,
+      res
+    );
+  });
+
+  application.get("/selecionaCotasAtivasComEmailEx", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.selecionaCotasAtivasComEmailEx(
+      application,
+      req,
+      res
+    );
+  });
+
   application.get("/relatorioPerfilVendas", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.relatorioPerfilVendas(
       application,

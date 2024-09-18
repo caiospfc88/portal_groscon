@@ -1349,6 +1349,34 @@ ConsultasDAO.prototype.selecionaEstados = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.selecionaCotasAtivasComEmail = async function (req) {
+  let result = await this._connection(
+    `select
+        format(ct.DATA_ADESAO,'dd/MM/yyyy', 'en-US') as 'ADESÃO',
+        ct.CODIGO_GRUPO as 'GRUPO',
+        ct.CODIGO_COTA as 'COTA',
+        ct.VERSAO as 'VS.',
+        cl.NOME as 'NOME',
+        Cl.DDD_RESIDENCIAL as 'DDD',
+        Cl.fone_fax as 'TELEFONE',
+        cl.CELULAR as 'CELULAR',
+        tc.DDD as 'DDD TAB.',
+        tc.FONE_FAX as 'TELEFONE TAB.',	
+        cl.E_MAIL as 'E-MAIL'
+      from clientes cl inner join cotas ct
+        on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE and cl.TIPO = ct.tipo
+        inner join GRUPOS gp
+        on ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+        LEFT JOIN TELEFONES_COTAS TC 
+        ON CL.CGC_CPF_CLIENTE = TC.CGC_CPF_CLIENTE
+      where gp.CODIGO_SITUACAO = 'A' 
+        and ct.VERSAO = 00 and ct.CODIGO_SITUACAO not like 'Q%'
+        and cl.E_MAIL is not null and cl.E_MAIL like '%@%'
+      order by ct.CODIGO_GRUPO, ct.CODIGO_COTA, ct.VERSAO`
+  );
+  return result;
+};
+
 ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
   let estado = req.query.estado;
   if (req.query.detalhado == 0) {
