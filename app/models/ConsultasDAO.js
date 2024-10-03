@@ -291,6 +291,7 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function (req) {
     and mg.DATA_CONTABILIZACAO between '${data_inicial}' and '${data_final}'
     and ct.DATA_VENDA between pc.DATA_CONTABILIZACAO_INICIAL and pc.DATA_CONTABILIZACAO_FINAL
     and (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) <= QUANTIDADE_PARCELAS.NUMERO_PARCELAS_MAXIMO
+    and mg.AVISO_ESTORNO = 0
   order by
     ct.CODIGO_GRUPO
     ,ct.CODIGO_COTA
@@ -702,6 +703,7 @@ ConsultasDAO.prototype.getComissoesComReducao = async function (req) {
                                             and mg.DATA_CONTABILIZACAO between '${data_inicial}' and '${data_final}'
                                             and ct.DATA_VENDA between pc.DATA_CONTABILIZACAO_INICIAL and pc.DATA_CONTABILIZACAO_FINAL
                                             and (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) <= QUANTIDADE_PARCELAS.NUMERO_PARCELAS_MAXIMO
+                                            and mg.AVISO_ESTORNO = 0
                                         order by
                                             ct.CODIGO_GRUPO
                                             ,ct.CODIGO_COTA
