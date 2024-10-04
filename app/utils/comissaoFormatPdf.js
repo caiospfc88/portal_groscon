@@ -32,7 +32,7 @@ function formataComissaoPdf(req, resConsulta) {
             style: "currency",
             currency: "BRL",
           }),
-          PERC_COMISSAO: i["PERC_COM_N1"],
+          PERC_COMISSAO: i["PERC_COM_N1"].toFixed(2),
           VAL_COMISSAO: i["VAL_N1"].toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
@@ -71,7 +71,7 @@ function formataComissaoPdf(req, resConsulta) {
             style: "currency",
             currency: "BRL",
           }),
-          PERC_COMISSAO: i["PERC_COM_N2"],
+          PERC_COMISSAO: i["PERC_COM_N2"].toFixed(2),
           VAL_COMISSAO: i["VAL_N2"].toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
@@ -110,7 +110,7 @@ function formataComissaoPdf(req, resConsulta) {
             style: "currency",
             currency: "BRL",
           }),
-          PERC_COMISSAO: i["PERC_COM_N3"],
+          PERC_COMISSAO: i["PERC_COM_N3"].toFixed(2),
           VAL_COMISSAO: i["VAL_N3"].toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
@@ -149,7 +149,7 @@ function formataComissaoPdf(req, resConsulta) {
             style: "currency",
             currency: "BRL",
           }),
-          PERC_COMISSAO: i["PERC_COM_N4"],
+          PERC_COMISSAO: i["PERC_COM_N4"].toFixed(2),
           VAL_COMISSAO: i["VAL_N4"].toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
@@ -193,7 +193,7 @@ function formataComissaoPdf(req, resConsulta) {
             style: "currency",
             currency: "BRL",
           }),
-          PERC_COMISSAO: i["PERC_COM_N1"],
+          PERC_COMISSAO: i["PERC_COM_N1"].toFixed(2),
           VAL_COMISSAO: i["VAL_N1"].toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
@@ -233,7 +233,7 @@ function formataComissaoPdf(req, resConsulta) {
             style: "currency",
             currency: "BRL",
           }),
-          PERC_COMISSAO: i["PERC_COM_N2"],
+          PERC_COMISSAO: i["PERC_COM_N2"].toFixed(2),
           VAL_COMISSAO: i["VAL_N2"].toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
@@ -273,7 +273,7 @@ function formataComissaoPdf(req, resConsulta) {
             style: "currency",
             currency: "BRL",
           }),
-          PERC_COMISSAO: i["PERC_COM_N3"],
+          PERC_COMISSAO: i["PERC_COM_N3"].toFixed(2),
           VAL_COMISSAO: i["VAL_N3"].toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
@@ -313,7 +313,7 @@ function formataComissaoPdf(req, resConsulta) {
             style: "currency",
             currency: "BRL",
           }),
-          PERC_COMISSAO: i["PERC_COM_N4"],
+          PERC_COMISSAO: i["PERC_COM_N4"].toFixed(2),
           VAL_COMISSAO: i["VAL_N1"].toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",

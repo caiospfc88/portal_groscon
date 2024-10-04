@@ -110,7 +110,6 @@ module.exports.gerarPdfComissao = async function (application, req, res) {
   } else {
     var resConsulta = await consultaModel.getComissoesComReducao(req);
   }
-  console.log(resConsulta);
   var comissao = formataComissaoPdf(req, resConsulta);
   geraPdfComissao(comissao, req, res);
   //res.send("Relatório gerado");
