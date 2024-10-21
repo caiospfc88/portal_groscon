@@ -30,8 +30,14 @@ module.exports.quitados = async function (application, req, res) {
 module.exports.aniversariantesMes = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
-  console.log(req.headers);
   var resConsulta = await consultaModel.getAniversariantesMes(req);
+  res.send(resConsulta);
+};
+
+module.exports.getAniversariantesPeriodo = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.getAniversariantesPeriodo(req);
   res.send(resConsulta);
 };
 

@@ -786,36 +786,44 @@ ConsultasDAO.prototype.getQuitados = async function (req) {
   let data_final = req.query.data_final;
 
   let result = await this._connection(`select ct.CODIGO_GRUPO as 'Grupo',
-                                                ct.CODIGO_COTA as 'Cota',
-                                                ct.VERSAO as 'Versão',
-                                                format (ct.DATA_SITUACAO,'dd/MM/yyyy', 'en-US') as 'Data da quitação',
-                                                Cl.DDD_RESIDENCIAL as 'DDD',
-                                                Cl.fone_fax as 'Telefone',
-                                                cl.CELULAR as 'Celular',
-                                                tc.DDD as 'DDD Tab.',
-                                                tc.FONE_FAX as 'Telefone tab.',
-                                                cl.NOME as 'Nome',
-                                                cl.E_MAIL as 'E-mail'
-                                            from cotas ct
-                                            inner join clientes cl 
-                                            on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
-                                            and cl.tipo = ct.tipo     
-                                            left join (select CODIGO_GRUPO, 
-                                                            CODIGO_COTA, 
-                                                            VERSAO,
-                                                            count(*) as QTD_SIT
-                                                        from COTAS_SITUACOES cs 
-                                                        where cs.CODIGO_SITUACAO = 'Q01'
-                                                        group by cs.CODIGO_GRUPO
-                                                            ,cs.CODIGO_COTA
-                                                            ,cs.VERSAO) a 
-                                            on a.CODIGO_GRUPO = ct.CODIGO_GRUPO
-                                            and a.CODIGO_COTA = ct.CODIGO_COTA
-                                            and a.VERSAO = ct.VERSAO
-                                            LEFT JOIN TELEFONES_COTAS TC ON CL.CGC_CPF_CLIENTE = TC.CGC_CPF_CLIENTE
-                                            where ct.CODIGO_SITUACAO = 'Q00'
-                                            and ct.DATA_SITUACAO between '${data_inicial}' and '${data_final}'
-                                            and a.QTD_SIT is null`);
+       ct.CODIGO_COTA as 'Cota',
+	   ct.VERSAO as 'Versão',
+	   format (ct.DATA_SITUACAO,'dd/MM/yyyy', 'en-US') as 'Data da quitação',
+	   cid.nome as Cidade,
+	   cid.ESTADO as Estado,
+	   Cl.DDD_RESIDENCIAL as 'DDD',
+	   Cl.fone_fax as 'Telefone',
+	   cl.CELULAR as 'Celular',
+	   tc.DDD as 'DDD Tab.',
+	   tc.FONE_FAX as 'Telefone tab.',
+	   cl.NOME as 'Nome',
+	   format(rb.PRECO_TABELA, 'C', 'pt-br') as 'Valor Crédito',
+	   cl.E_MAIL as 'E-mail'
+	   --rep.NOME as Representante, 
+  from cotas ct
+ inner join clientes cl 
+   on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+  and cl.tipo = ct.tipo
+ left join (select CODIGO_GRUPO, 
+                     CODIGO_COTA, 
+	                 VERSAO,
+	                 count(*) as QTD_SIT
+                from COTAS_SITUACOES cs 
+               where cs.CODIGO_SITUACAO = 'Q01'
+               group by cs.CODIGO_GRUPO
+                     ,cs.CODIGO_COTA
+	                 ,cs.VERSAO) a 
+    on a.CODIGO_GRUPO = ct.CODIGO_GRUPO
+   and a.CODIGO_COTA = ct.CODIGO_COTA
+   and a.VERSAO = ct.VERSAO
+ LEFT JOIN TELEFONES_COTAS TC ON CL.CGC_CPF_CLIENTE = TC.CGC_CPF_CLIENTE
+ left join REPRESENTANTES rep on ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
+ left join CIDADES cid on cl.CODIGO_CIDADE = cid.CODIGO_CIDADE
+ outer apply (select top 1 rb.PRECO_TABELA from REAJUSTES_BENS rb where rb.CODIGO_BEM = ct.CODIGO_BEM order by DATA_REAJUSTE desc) rb  
+ where ct.CODIGO_SITUACAO = 'Q00'
+   and ct.DATA_SITUACAO between '${data_inicial}' and '${data_final}'
+   and a.QTD_SIT is null
+   order by [Data da quitação] desc`);
   return result;
 };
 
@@ -844,6 +852,70 @@ ConsultasDAO.prototype.getAniversariantesMes = async function (req) {
                                       where month(data_nascimento) = ${mes_nascimento} and g.CODIGO_SITUACAO = 'A' and ct.VERSAO = 00 and PESSOA = 'F' and sc.CODIGO_SITUACAO like 'N%%'`);
 
   let result = [dados, total];
+  return result;
+};
+
+ConsultasDAO.prototype.getAniversariantesPeriodo = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+  let result = await this._connection(`select distinct
+	SUBSTRING(cl.CGC_CPF_CLIENTE,1,3) + '.'
+	+ SUBSTRING(cl.CGC_CPF_CLIENTE,4,3) + '.'
+	+ SUBSTRING(cl.CGC_CPF_CLIENTE,7,3) + '-'
+	+ SUBSTRING(cl.CGC_CPF_CLIENTE,10,2) AS 'DOCUMENTO',
+	NOME,
+	E_MAIL as 'E-MAIL',
+	format (cl.DATA_NASCIMENTO,'dd/MM/yyyy', 'en-US') as 'DATA DE NASCIMENTO'
+from clientes cl inner join COTAS ct on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE and ct.TIPO = cl.tipo
+inner join SITUACOES_COBRANCAS sc on sc.codigo_situacao = ct.CODIGO_SITUACAO
+inner join GRUPOS g on ct.CODIGO_GRUPO = g.CODIGO_GRUPO
+WHERE 
+    (
+        -- Caso o período esteja dentro do mesmo mês e não envolva transição de meses
+        MONTH('${data_inicial}') = MONTH('${data_final}') 
+        AND MONTH(cl.data_nascimento) = MONTH('${data_inicial}') 
+        AND DAY(cl.data_nascimento) BETWEEN DAY('${data_inicial}') AND DAY('${data_final}')
+        -- Aplicando as restrições dentro do escopo
+        AND g.CODIGO_SITUACAO = 'A'
+        AND ct.VERSAO = 00
+        AND cl.PESSOA = 'F'
+        AND sc.CODIGO_SITUACAO LIKE 'N%'
+    )
+    OR 
+    (
+        -- Caso o período abranja dois meses diferentes
+        MONTH('${data_inicial}') <> MONTH('${data_final}') 
+        AND 
+        (
+            (MONTH(cl.data_nascimento) = MONTH('${data_inicial}') AND DAY(cl.data_nascimento) >= DAY('${data_inicial}'))
+            OR
+            (MONTH(cl.data_nascimento) = MONTH('${data_final}') AND DAY(cl.data_nascimento) <= DAY('${data_final}'))
+        )
+        -- Aplicando as restrições dentro do escopo
+        AND g.CODIGO_SITUACAO = 'A'
+        AND ct.VERSAO = 00
+        AND cl.PESSOA = 'F'
+        AND sc.CODIGO_SITUACAO LIKE 'N%'
+    )
+    OR 
+    (
+        -- Caso o período abranja a transição de ano (de dezembro para janeiro)
+        MONTH('${data_inicial}') = 12 AND MONTH('${data_final}') = 1 
+        AND 
+        (
+            (MONTH(cl.data_nascimento) = 12 AND DAY(cl.data_nascimento) >= DAY('${data_inicial}'))
+            OR
+            (MONTH(cl.data_nascimento) = 1 AND DAY(cl.data_nascimento) <= DAY('${data_final}'))
+        )
+        -- Aplicando as restrições dentro do escopo
+        AND g.CODIGO_SITUACAO = 'A'
+        AND ct.VERSAO = 00
+        AND cl.PESSOA = 'F'
+        AND sc.CODIGO_SITUACAO LIKE 'N%'
+    )
+	order by [DATA DE NASCIMENTO]`);
+
+  
   return result;
 };
 

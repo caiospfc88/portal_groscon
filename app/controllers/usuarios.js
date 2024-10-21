@@ -2,6 +2,8 @@ const models = require("../../db/models");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const sequelize = require('../../db/models/index');
+const { Sequelize, Op } = require('sequelize');
 
 module.exports.logar = async function (req, res) {
   var user = await models.usuarios.findOne({
@@ -23,6 +25,56 @@ module.exports.logar = async function (req, res) {
 module.exports.listarUsuarios = async function (req, res) {
   var users = await models.usuarios.findAll();
   res.send(users);
+};
+
+module.exports.listarUsuariosAniverPeriodo = async function (req, res) {
+  console.log(req.query.data_inicial,req.query.data_final)
+  const [mesInicial, diaInicial] = req.query.data_inicial.split('-').map(Number);
+  const [mesFinal, diaFinal] = req.query.data_final.split('-').map(Number);
+  const aniversariantes = await models.usuarios.findAll({
+    attributes: [   
+      ['nome', 'NOME'],     
+      [Sequelize.fn('DATE_FORMAT', Sequelize.col('data_nascimento'), '%d/%m/%Y'), 'DATA NASCIMENTO'],
+      ['email','E-MAIL'],
+    ],
+    where: {
+      [Op.or]: [
+        // Aniversariantes no mesmo ano
+        {
+          [Op.and]: [
+            Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('data_nascimento')), {
+              [Op.eq]: mesInicial,
+            }),
+            Sequelize.where(Sequelize.fn('DAY', Sequelize.col('data_nascimento')), {
+              [Op.gte]: diaInicial,
+            }),
+          ],
+        },
+        {
+          [Op.and]: [
+            Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('data_nascimento')), {
+              [Op.eq]: mesFinal,
+            }),
+            Sequelize.where(Sequelize.fn('DAY', Sequelize.col('data_nascimento')), {
+              [Op.lte]: diaFinal,
+            }),
+          ],
+        },
+        // Aniversariantes entre os meses
+        {
+          [Op.and]: [
+            Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('data_nascimento')), {
+              [Op.gt]: mesInicial,
+            }),
+            Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('data_nascimento')), {
+              [Op.lt]: mesFinal,
+            }),
+          ],
+        },
+      ],
+    },
+  });
+  res.send(aniversariantes);
 };
 
 module.exports.consultarUsuario = async function (req, res) {

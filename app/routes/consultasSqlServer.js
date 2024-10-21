@@ -29,6 +29,13 @@ module.exports = function (application) {
       res
     );
   });
+  application.get("/aniversariantesPeriodo", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.getAniversariantesPeriodo(
+      application,
+      req,
+      res
+    );
+  });
   application.get("/relatorioRenegociacoes", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.relatorioRenegociacoes(
       application,
