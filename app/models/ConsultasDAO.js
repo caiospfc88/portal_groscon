@@ -864,8 +864,8 @@ ConsultasDAO.prototype.getAniversariantesPeriodo = async function (req) {
 	+ SUBSTRING(cl.CGC_CPF_CLIENTE,7,3) + '-'
 	+ SUBSTRING(cl.CGC_CPF_CLIENTE,10,2) AS 'DOCUMENTO',
 	NOME,
-	E_MAIL as 'E-MAIL',
-	format (cl.DATA_NASCIMENTO,'dd/MM/yyyy', 'en-US') as 'DATA DE NASCIMENTO'
+	E_MAIL as 'E_MAIL',
+	format (cl.DATA_NASCIMENTO,'dd/MM/yyyy', 'en-US') as 'DATA_NASCIMENTO'
 from clientes cl inner join COTAS ct on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE and ct.TIPO = cl.tipo
 inner join SITUACOES_COBRANCAS sc on sc.codigo_situacao = ct.CODIGO_SITUACAO
 inner join GRUPOS g on ct.CODIGO_GRUPO = g.CODIGO_GRUPO
@@ -913,7 +913,7 @@ WHERE
         AND cl.PESSOA = 'F'
         AND sc.CODIGO_SITUACAO LIKE 'N%'
     )
-	order by [DATA DE NASCIMENTO]`);
+	order by [DATA_NASCIMENTO]`);
 
   
   return result;

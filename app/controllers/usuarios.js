@@ -34,8 +34,8 @@ module.exports.listarUsuariosAniverPeriodo = async function (req, res) {
   const aniversariantes = await models.usuarios.findAll({
     attributes: [   
       ['nome', 'NOME'],     
-      [Sequelize.fn('DATE_FORMAT', Sequelize.col('data_nascimento'), '%d/%m/%Y'), 'DATA NASCIMENTO'],
-      ['email','E-MAIL'],
+      [Sequelize.fn('DATE_FORMAT', Sequelize.col('data_nascimento'), '%d/%m/%Y'), 'DATA_NASCIMENTO'],
+      ['email','E_MAIL'],
     ],
     where: {
       [Op.or]: [
