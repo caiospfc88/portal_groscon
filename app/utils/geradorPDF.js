@@ -1,5 +1,12 @@
 const PDFPrinter = require("pdfmake");
 
+const formatarDataPtBr = (data) => {
+  var ano = data.substring(0,4),
+  dia  = data.substring(6,8),
+  mes  = data.substring(4,6);
+ return  [dia, mes, ano].join("-");
+}
+
 function geraPdfComissao(dados, req, res) {
   let valores = [];
   let colunaInf = [];
@@ -231,7 +238,18 @@ function geraPdfComissao(dados, req, res) {
 
   pdfDoc.on("end", () => {
     const result = Buffer.concat(chunks);
-    res.end(result);
+    // Define o nome do arquivo PDF
+  const nomeArquivo = `Relatório de Comissão - ${req.query.nome} - ${formatarDataPtBr(req.query.data_inicial)} até ${formatarDataPtBr(req.query.data_final)}.pdf`;
+
+  // Define os cabeçalhos da resposta para o nome do arquivo
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader(
+    "Content-Disposition",
+    `inline; filename="${encodeURIComponent(nomeArquivo)}"; filename*=UTF-8''${encodeURIComponent(nomeArquivo)}`
+  );
+
+  // Envia o PDF para o cliente
+  res.end(result);
   });
 }
 
