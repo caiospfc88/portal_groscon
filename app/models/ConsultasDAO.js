@@ -1517,6 +1517,25 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.verificacaoNacionalidade = async function (req) {
+  let result = await this._connection(
+    `select 
+      ct.CODIGO_GRUPO, ct.CODIGO_COTA, ct.VERSAO, ct.DATA_VENDA, cl.NACIONALIDADE 
+    from 
+      CLIENTES cl inner join COTAS ct on
+        cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+        and cl.TIPO = ct.TIPO
+      inner join GRUPOS gp on
+        ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+    where
+      gp.CODIGO_SITUACAO = 'A' /*Filtro Somente grupos ativos*/
+      and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
+      and (cl.NACIONALIDADE is null or LEN(cl.NACIONALIDADE) < 2 )/*Filtro campo sem nacionalidade*/
+    `
+  );
+  return result;
+};
+
 module.exports = function () {
   return ConsultasDAO;
 };

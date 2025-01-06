@@ -178,4 +178,11 @@ module.exports = function (application) {
       res
     );
   });
+  application.get("/verificacaoNacionalidade", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.verificacaoNacionalidade(
+      application,
+      req,
+      res
+    );
+  });
 };
