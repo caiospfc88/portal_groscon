@@ -1520,7 +1520,11 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
 ConsultasDAO.prototype.verificacaoNacionalidade = async function (req) {
   let result = await this._connection(
     `select 
-      ct.CODIGO_GRUPO, ct.CODIGO_COTA, ct.VERSAO, ct.DATA_VENDA, cl.NACIONALIDADE 
+      ct.CODIGO_GRUPO as 'GRUPO', 
+      ct.CODIGO_COTA as 'COTA', 
+      ct.VERSAO as 'VERSÃO', 
+      format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
+      cl.NACIONALIDADE 
     from 
       CLIENTES cl inner join COTAS ct on
         cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
@@ -1531,6 +1535,281 @@ ConsultasDAO.prototype.verificacaoNacionalidade = async function (req) {
       gp.CODIGO_SITUACAO = 'A' /*Filtro Somente grupos ativos*/
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and (cl.NACIONALIDADE is null or LEN(cl.NACIONALIDADE) < 2 )/*Filtro campo sem nacionalidade*/
+    `
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.verificacaoNome = async function (req) {
+  let result = await this._connection(
+    `select 
+      ct.CODIGO_GRUPO as 'GRUPO', 
+      ct.CODIGO_COTA as 'COTA', 
+      ct.VERSAO as 'VERSÃO', 
+      format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
+      cl.NOME
+    from 
+      CLIENTES cl inner join COTAS ct on
+        cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+        and cl.TIPO = ct.TIPO
+      inner join GRUPOS gp on
+        ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+    where
+      gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
+      and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
+      and len(cl.nome) < 10 /*Nomes com menos de 10 caracteres*/
+    `
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.verificacaoFiliacao = async function (req) {
+  let result = await this._connection(
+    `select 
+      ct.CODIGO_GRUPO as 'GRUPO', 
+      ct.CODIGO_COTA as 'COTA', 
+      ct.VERSAO as 'VERSÃO', 
+      format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
+      cl.NOME_MAE as 'NOME DA MÃE', cl.NOME_PAI as 'NOME DO PAI'
+    from 
+      CLIENTES cl inner join COTAS ct on
+        cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+        and cl.TIPO = ct.TIPO
+      inner join GRUPOS gp on
+        ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+    where
+      gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
+      and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
+      and len(cl.NOME_MAE) < 10 /*Sem Filiação*/
+    `
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.verificacaoDtNascimento = async function (req) {
+  let result = await this._connection(
+    `select 
+      ct.CODIGO_GRUPO as 'GRUPO', 
+      ct.CODIGO_COTA as 'COTA', 
+      ct.VERSAO as 'VERSÃO', 
+      format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
+      cl.DATA_NASCIMENTO as 'DATA NASCIMENTO'
+    from 
+      CLIENTES cl inner join COTAS ct on
+        cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+        and cl.TIPO = ct.TIPO
+      inner join GRUPOS gp on
+        ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+    where
+      gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
+      and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
+      and cl.DATA_NASCIMENTO is null
+    `
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.verificacaoLocalNascimento = async function (req) {
+  let result = await this._connection(
+    `select 
+      ct.CODIGO_GRUPO as 'GRUPO', 
+      ct.CODIGO_COTA as 'COTA', 
+      ct.VERSAO as 'VERSÃO', 
+      format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
+      cl.NATURALIDADE
+    from 
+      CLIENTES cl inner join COTAS ct on
+        cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+        and cl.TIPO = ct.TIPO
+      inner join GRUPOS gp on
+        ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+    where
+      gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
+      and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
+      and cl.NATURALIDADE is null
+    `
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.verificacaoNumeroRg = async function (req) {
+  let result = await this._connection(
+    `select 
+      ct.CODIGO_GRUPO as 'GRUPO', 
+      ct.CODIGO_COTA as 'COTA', 
+      ct.VERSAO as 'VERSÃO', 
+      format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
+      cl.DOCUMENTO
+    from 
+      CLIENTES cl inner join COTAS ct on
+        cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+        and cl.TIPO = ct.TIPO
+      inner join GRUPOS gp on
+        ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+    where
+      gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
+      and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
+      and cl.DOCUMENTO is null
+    `
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.verificacaoDtEmissaoRg = async function (req) {
+  let result = await this._connection(
+    `select 
+      ct.CODIGO_GRUPO as 'GRUPO', 
+      ct.CODIGO_COTA as 'COTA', 
+      ct.VERSAO as 'VERSÃO', 
+      format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
+      cl.DATA_EXP_DOC as 'DATA DE EXPEDIÇÃO'
+    from 
+      CLIENTES cl inner join COTAS ct on
+        cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+        and cl.TIPO = ct.TIPO
+      inner join GRUPOS gp on
+        ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+    where
+      gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
+      and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
+      and cl.DATA_EXP_DOC is null
+    `
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.verificacaoOrgaoExpedicaoRg = async function (req) {
+  let result = await this._connection(
+    `select 
+      ct.CODIGO_GRUPO as 'GRUPO', 
+      ct.CODIGO_COTA as 'COTA', 
+      ct.VERSAO as 'VERSÃO', 
+      format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
+      cl.ORGAO_EMISSOR AS 'ORGÃO EMISSOR'
+    from 
+      CLIENTES cl inner join COTAS ct on
+        cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+        and cl.TIPO = ct.TIPO
+      inner join GRUPOS gp on
+        ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+    where
+      gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
+      and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
+      and cl.ORGAO_EMISSOR is null
+    `
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.verificacaoSemRendaPf = async function (req) {
+  let result = await this._connection(
+    `select
+      ct.CODIGO_GRUPO as 'GRUPO', 
+      ct.CODIGO_COTA as 'COTA', 
+      ct.VERSAO as 'VERSÃO', 
+      format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
+        cl.NOME,
+        cl.RENDA 
+    from clientes cl inner join cotas ct
+      on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE and cl.TIPO = ct.tipo inner join GRUPOS gp
+      on ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+    where 
+      RENDA < 0.1 
+      and gp.CODIGO_SITUACAO = 'A'
+      and cl.PESSOA = 'F'
+    order by ct.CODIGO_GRUPO,CODIGO_COTA,VERSAO
+    `
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.verificacaoFirmaDenominacaoSocial = async function (req) {
+  let result = await this._connection(
+    `select 
+      ct.CODIGO_GRUPO as 'GRUPO', 
+      ct.CODIGO_COTA as 'COTA', 
+      ct.VERSAO as 'VERSÃO', 
+      format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
+      cl.NOME AS 'DENOMINAÇÃO SOCIAL'
+    from 
+      CLIENTES cl inner join COTAS ct on
+        cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+        and cl.TIPO = ct.TIPO
+      inner join GRUPOS gp on
+        ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+    where
+      gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
+      and cl.PESSOA = 'J' /*Filtro Somente Pessoa Juridica*/
+      and LEN(cl.NOME) < 10
+    `
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.verificacaoAtivoPrincipal = async function (req) {
+  let result = await this._connection(
+    `select 
+      ct.CODIGO_GRUPO as 'GRUPO', 
+      ct.CODIGO_COTA as 'COTA', 
+      ct.VERSAO as 'VERSÃO', 
+      format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
+      cl.RENDA
+    from 
+      CLIENTES cl inner join COTAS ct on
+        cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+        and cl.TIPO = ct.TIPO
+      inner join GRUPOS gp on
+        ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+    where
+      gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
+      and cl.PESSOA = 'J' /*Filtro Somente Pessoa Juridica*/
+      and cl.RENDA < 100
+    `
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.verificacaoDataConstituicao = async function (req) {
+  let result = await this._connection(
+    `select 
+      ct.CODIGO_GRUPO as 'GRUPO', 
+      ct.CODIGO_COTA as 'COTA', 
+      ct.VERSAO as 'VERSÃO', 
+      format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
+      cl.DATA_NASCIMENTO AS 'DATA DA CONSTITUIÇÃO'
+    from 
+      CLIENTES cl inner join COTAS ct on
+        cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+        and cl.TIPO = ct.TIPO
+      inner join GRUPOS gp on
+        ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+    where
+      gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
+      and cl.PESSOA = 'J' /*Filtro Somente Pessoa Juridica*/
+      and cl.DATA_NASCIMENTO is null
+    `
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.verificacaoSemRendaPj = async function (req) {
+  let result = await this._connection(
+    `select 
+      ct.CODIGO_GRUPO as 'GRUPO', 
+      ct.CODIGO_COTA as 'COTA', 
+      ct.VERSAO as 'VERSÃO', 
+      format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
+        cl.NOME,
+        cl.RENDA 
+    from clientes cl inner join cotas ct
+      on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE and cl.TIPO = ct.tipo inner join GRUPOS gp
+      on ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+    where 
+      RENDA < 0.1 
+      and gp.CODIGO_SITUACAO = 'A'
+      and cl.PESSOA = 'J' /*Filtro Somente Pessoa Juridica*/
+    order by ct.CODIGO_GRUPO,CODIGO_COTA,VERSAO
+
     `
   );
   return result;

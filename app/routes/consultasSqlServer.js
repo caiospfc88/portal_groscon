@@ -185,4 +185,88 @@ module.exports = function (application) {
       res
     );
   });
+  application.get("/verificacaoNome", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.verificacaoNome(
+      application,
+      req,
+      res
+    );
+  });
+  application.get("/verificacaoFiliacao", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.verificacaoFiliacao(
+      application,
+      req,
+      res
+    );
+  });
+  application.get("/verificacaoDtNascimento", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.verificacaoDtNascimento(
+      application,
+      req,
+      res
+    );
+  });
+  application.get("/verificacaoLocalNascimento", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.verificacaoLocalNascimento(
+      application,
+      req,
+      res
+    );
+  });
+  application.get("/verificacaoNumeroRg", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.verificacaoNumeroRg(
+      application,
+      req,
+      res
+    );
+  });
+  application.get("/verificacaoDtEmissaoRg", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.verificacaoDtEmissaoRg(
+      application,
+      req,
+      res
+    );
+  });
+  application.get("/verificacaoOrgaoExpedicaoRg", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.verificacaoOrgaoExpedicaoRg(
+      application,
+      req,
+      res
+    );
+  });
+  application.get("/verificacaoSemRendaPf", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.verificacaoSemRendaPf(
+      application,
+      req,
+      res
+    );
+  });
+  application.get("/verificacaoFirmaDenominacaoSocial", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.verificacaoFirmaDenominacaoSocial(
+      application,
+      req,
+      res
+    );
+  });
+  application.get("/verificacaoAtivoPrincipal", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.verificacaoAtivoPrincipal(
+      application,
+      req,
+      res
+    );
+  });
+  application.get("/verificacaoDataConstituicao", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.verificacaoDataConstituicao(
+      application,
+      req,
+      res
+    );
+  });
+  application.get("/verificacaoSemRendaPj", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.verificacaoSemRendaPj(
+      application,
+      req,
+      res
+    );
+  });
 };

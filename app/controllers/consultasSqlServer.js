@@ -198,3 +198,87 @@ module.exports.verificacaoNacionalidade = async function (application, req, res)
   var resConsulta = await consultaModel.verificacaoNacionalidade(req);
   res.send(resConsulta);
 };
+
+module.exports.verificacaoNome = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.verificacaoNome(req);
+  res.send(resConsulta);
+};
+
+module.exports.verificacaoFiliacao = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.verificacaoFiliacao(req);
+  res.send(resConsulta);
+};
+
+module.exports.verificacaoDtNascimento = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.verificacaoDtNascimento(req);
+  res.send(resConsulta);
+};
+
+module.exports.verificacaoLocalNascimento = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.verificacaoLocalNascimento(req);
+  res.send(resConsulta);
+};
+
+module.exports.verificacaoNumeroRg = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.verificacaoNumeroRg(req);
+  res.send(resConsulta);
+};
+
+module.exports.verificacaoDtEmissaoRg = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.verificacaoDtEmissaoRg(req);
+  res.send(resConsulta);
+};
+
+module.exports.verificacaoOrgaoExpedicaoRg = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.verificacaoOrgaoExpedicaoRg(req);
+  res.send(resConsulta);
+};
+
+module.exports.verificacaoSemRendaPf = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.verificacaoSemRendaPf(req);
+  res.send(resConsulta);
+};
+
+module.exports.verificacaoFirmaDenominacaoSocial = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.verificacaoFirmaDenominacaoSocial(req);
+  res.send(resConsulta);
+};
+
+module.exports.verificacaoAtivoPrincipal = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.verificacaoAtivoPrincipal(req);
+  res.send(resConsulta);
+};
+
+module.exports.verificacaoDataConstituicao = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.verificacaoDataConstituicao(req);
+  res.send(resConsulta);
+};
+
+module.exports.verificacaoSemRendaPj = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.verificacaoSemRendaPj(req);
+  res.send(resConsulta);
+};
