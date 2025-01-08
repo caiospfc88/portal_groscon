@@ -1518,6 +1518,11 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
 };
 
 ConsultasDAO.prototype.verificacaoNacionalidade = async function (req) {
+  let filtroCotasAtivas = req.query.apenasCotasAtivas
+  let filtro = ''
+  if (filtroCotasAtivas == '1'){
+    filtro = 'and ct.versao = 0'
+  }
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1535,12 +1540,18 @@ ConsultasDAO.prototype.verificacaoNacionalidade = async function (req) {
       gp.CODIGO_SITUACAO = 'A' /*Filtro Somente grupos ativos*/
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and (cl.NACIONALIDADE is null or LEN(cl.NACIONALIDADE) < 2 )/*Filtro campo sem nacionalidade*/
+      ${filtro}
     `
   );
   return result;
 };
 
 ConsultasDAO.prototype.verificacaoNome = async function (req) {
+  let filtroCotasAtivas = req.query.apenasCotasAtivas
+  let filtro = ''
+  if (filtroCotasAtivas == '1'){
+    filtro = 'and ct.versao = 0'
+  }
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1558,12 +1569,18 @@ ConsultasDAO.prototype.verificacaoNome = async function (req) {
       gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and len(cl.nome) < 10 /*Nomes com menos de 10 caracteres*/
+      ${filtro}
     `
   );
   return result;
 };
 
 ConsultasDAO.prototype.verificacaoFiliacao = async function (req) {
+  let filtroCotasAtivas = req.query.apenasCotasAtivas
+  let filtro = ''
+  if (filtroCotasAtivas == '1'){
+    filtro = 'and ct.versao = 0'
+  }
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1581,12 +1598,18 @@ ConsultasDAO.prototype.verificacaoFiliacao = async function (req) {
       gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and len(cl.NOME_MAE) < 10 /*Sem Filiação*/
+      ${filtro}
     `
   );
   return result;
 };
 
 ConsultasDAO.prototype.verificacaoDtNascimento = async function (req) {
+  let filtroCotasAtivas = req.query.apenasCotasAtivas
+  let filtro = ''
+  if (filtroCotasAtivas == '1'){
+    filtro = 'and ct.versao = 0'
+  }
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1604,12 +1627,18 @@ ConsultasDAO.prototype.verificacaoDtNascimento = async function (req) {
       gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and cl.DATA_NASCIMENTO is null
+      ${filtro}
     `
   );
   return result;
 };
 
 ConsultasDAO.prototype.verificacaoLocalNascimento = async function (req) {
+  let filtroCotasAtivas = req.query.apenasCotasAtivas
+  let filtro = ''
+  if (filtroCotasAtivas == '1'){
+    filtro = 'and ct.versao = 0'
+  }
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1627,12 +1656,18 @@ ConsultasDAO.prototype.verificacaoLocalNascimento = async function (req) {
       gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and cl.NATURALIDADE is null
+      ${filtro}
     `
   );
   return result;
 };
 
 ConsultasDAO.prototype.verificacaoNumeroRg = async function (req) {
+  let filtroCotasAtivas = req.query.apenasCotasAtivas
+  let filtro = ''
+  if (filtroCotasAtivas == '1'){
+    filtro = 'and ct.versao = 0'
+  }
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1650,12 +1685,18 @@ ConsultasDAO.prototype.verificacaoNumeroRg = async function (req) {
       gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and cl.DOCUMENTO is null
+      ${filtro}
     `
   );
   return result;
 };
 
 ConsultasDAO.prototype.verificacaoDtEmissaoRg = async function (req) {
+  let filtroCotasAtivas = req.query.apenasCotasAtivas
+  let filtro = ''
+  if (filtroCotasAtivas == '1'){
+    filtro = 'and ct.versao = 0'
+  }
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1673,12 +1714,18 @@ ConsultasDAO.prototype.verificacaoDtEmissaoRg = async function (req) {
       gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and cl.DATA_EXP_DOC is null
+      ${filtro}
     `
   );
   return result;
 };
 
 ConsultasDAO.prototype.verificacaoOrgaoExpedicaoRg = async function (req) {
+  let filtroCotasAtivas = req.query.apenasCotasAtivas
+  let filtro = ''
+  if (filtroCotasAtivas == '1'){
+    filtro = 'and ct.versao = 0'
+  }
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1696,12 +1743,18 @@ ConsultasDAO.prototype.verificacaoOrgaoExpedicaoRg = async function (req) {
       gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and cl.ORGAO_EMISSOR is null
+      ${filtro}
     `
   );
   return result;
 };
 
 ConsultasDAO.prototype.verificacaoSemRendaPf = async function (req) {
+  let filtroCotasAtivas = req.query.apenasCotasAtivas
+  let filtro = ''
+  if (filtroCotasAtivas == '1'){
+    filtro = 'and ct.versao = 0'
+  }
   let result = await this._connection(
     `select
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1717,6 +1770,7 @@ ConsultasDAO.prototype.verificacaoSemRendaPf = async function (req) {
       RENDA < 0.1 
       and gp.CODIGO_SITUACAO = 'A'
       and cl.PESSOA = 'F'
+      ${filtro}
     order by ct.CODIGO_GRUPO,CODIGO_COTA,VERSAO
     `
   );
@@ -1724,6 +1778,11 @@ ConsultasDAO.prototype.verificacaoSemRendaPf = async function (req) {
 };
 
 ConsultasDAO.prototype.verificacaoFirmaDenominacaoSocial = async function (req) {
+  let filtroCotasAtivas = req.query.apenasCotasAtivas
+  let filtro = ''
+  if (filtroCotasAtivas == '1'){
+    filtro = 'and ct.versao = 0'
+  }
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1741,12 +1800,18 @@ ConsultasDAO.prototype.verificacaoFirmaDenominacaoSocial = async function (req) 
       gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
       and cl.PESSOA = 'J' /*Filtro Somente Pessoa Juridica*/
       and LEN(cl.NOME) < 10
+      ${filtro}
     `
   );
   return result;
 };
 
 ConsultasDAO.prototype.verificacaoAtivoPrincipal = async function (req) {
+  let filtroCotasAtivas = req.query.apenasCotasAtivas
+  let filtro = ''
+  if (filtroCotasAtivas == '1'){
+    filtro = 'and ct.versao = 0'
+  }
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1764,12 +1829,18 @@ ConsultasDAO.prototype.verificacaoAtivoPrincipal = async function (req) {
       gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
       and cl.PESSOA = 'J' /*Filtro Somente Pessoa Juridica*/
       and cl.RENDA < 100
+      ${filtro}
     `
   );
   return result;
 };
 
 ConsultasDAO.prototype.verificacaoDataConstituicao = async function (req) {
+  let filtroCotasAtivas = req.query.apenasCotasAtivas
+  let filtro = ''
+  if (filtroCotasAtivas == '1'){
+    filtro = 'and ct.versao = 0'
+  }
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1787,12 +1858,18 @@ ConsultasDAO.prototype.verificacaoDataConstituicao = async function (req) {
       gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
       and cl.PESSOA = 'J' /*Filtro Somente Pessoa Juridica*/
       and cl.DATA_NASCIMENTO is null
+      ${filtro}
     `
   );
   return result;
 };
 
 ConsultasDAO.prototype.verificacaoSemRendaPj = async function (req) {
+  let filtroCotasAtivas = req.query.apenasCotasAtivas
+  let filtro = ''
+  if (filtroCotasAtivas == '1'){
+    filtro = 'and ct.versao = 0'
+  }
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1808,8 +1885,8 @@ ConsultasDAO.prototype.verificacaoSemRendaPj = async function (req) {
       RENDA < 0.1 
       and gp.CODIGO_SITUACAO = 'A'
       and cl.PESSOA = 'J' /*Filtro Somente Pessoa Juridica*/
+      ${filtro}
     order by ct.CODIGO_GRUPO,CODIGO_COTA,VERSAO
-
     `
   );
   return result;
