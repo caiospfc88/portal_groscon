@@ -1,3 +1,4 @@
+const { geraFiltroSql } = require("../utils/geraFiltroSql");
 const { geraPlanilhaBradesco, geraPlanilha } = require("../utils/geraPlanilha");
 
 function ConsultasDAO(connection) {
@@ -1519,15 +1520,14 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
 
 ConsultasDAO.prototype.verificacaoNacionalidade = async function (req) {
   let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtro = ''
-  if (filtroCotasAtivas == '1'){
-    filtro = 'and ct.versao = 0'
-  }
+  let filtroQuitados = req.query.quitados
+  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO', 
+      ct.VERSAO as 'VERSÃO',
+      ct.codigo_situacao as 'SITUAÇÃO', 
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
       cl.NACIONALIDADE 
     from 
@@ -1548,15 +1548,14 @@ ConsultasDAO.prototype.verificacaoNacionalidade = async function (req) {
 
 ConsultasDAO.prototype.verificacaoNome = async function (req) {
   let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtro = ''
-  if (filtroCotasAtivas == '1'){
-    filtro = 'and ct.versao = 0'
-  }
+  let filtroQuitados = req.query.quitados
+  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO', 
+      ct.VERSAO as 'VERSÃO',
+      ct.codigo_situacao as 'SITUAÇÃO', 
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
       cl.NOME
     from 
@@ -1577,15 +1576,14 @@ ConsultasDAO.prototype.verificacaoNome = async function (req) {
 
 ConsultasDAO.prototype.verificacaoFiliacao = async function (req) {
   let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtro = ''
-  if (filtroCotasAtivas == '1'){
-    filtro = 'and ct.versao = 0'
-  }
+  let filtroQuitados = req.query.quitados
+  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
       ct.VERSAO as 'VERSÃO', 
+      ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
       cl.NOME_MAE as 'NOME DA MÃE', cl.NOME_PAI as 'NOME DO PAI'
     from 
@@ -1606,15 +1604,14 @@ ConsultasDAO.prototype.verificacaoFiliacao = async function (req) {
 
 ConsultasDAO.prototype.verificacaoDtNascimento = async function (req) {
   let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtro = ''
-  if (filtroCotasAtivas == '1'){
-    filtro = 'and ct.versao = 0'
-  }
+  let filtroQuitados = req.query.quitados
+  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
       ct.VERSAO as 'VERSÃO', 
+      ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
       cl.DATA_NASCIMENTO as 'DATA NASCIMENTO'
     from 
@@ -1635,15 +1632,14 @@ ConsultasDAO.prototype.verificacaoDtNascimento = async function (req) {
 
 ConsultasDAO.prototype.verificacaoLocalNascimento = async function (req) {
   let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtro = ''
-  if (filtroCotasAtivas == '1'){
-    filtro = 'and ct.versao = 0'
-  }
+  let filtroQuitados = req.query.quitados
+  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO', 
+      ct.VERSAO as 'VERSÃO',
+      ct.codigo_situacao as 'SITUAÇÃO', 
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
       cl.NATURALIDADE
     from 
@@ -1664,15 +1660,14 @@ ConsultasDAO.prototype.verificacaoLocalNascimento = async function (req) {
 
 ConsultasDAO.prototype.verificacaoNumeroRg = async function (req) {
   let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtro = ''
-  if (filtroCotasAtivas == '1'){
-    filtro = 'and ct.versao = 0'
-  }
+  let filtroQuitados = req.query.quitados
+  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
       ct.VERSAO as 'VERSÃO', 
+      ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
       cl.DOCUMENTO
     from 
@@ -1693,15 +1688,14 @@ ConsultasDAO.prototype.verificacaoNumeroRg = async function (req) {
 
 ConsultasDAO.prototype.verificacaoDtEmissaoRg = async function (req) {
   let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtro = ''
-  if (filtroCotasAtivas == '1'){
-    filtro = 'and ct.versao = 0'
-  }
+  let filtroQuitados = req.query.quitados
+  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
       ct.VERSAO as 'VERSÃO', 
+      ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
       cl.DATA_EXP_DOC as 'DATA DE EXPEDIÇÃO'
     from 
@@ -1722,15 +1716,14 @@ ConsultasDAO.prototype.verificacaoDtEmissaoRg = async function (req) {
 
 ConsultasDAO.prototype.verificacaoOrgaoExpedicaoRg = async function (req) {
   let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtro = ''
-  if (filtroCotasAtivas == '1'){
-    filtro = 'and ct.versao = 0'
-  }
+  let filtroQuitados = req.query.quitados
+  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
       ct.VERSAO as 'VERSÃO', 
+      ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
       cl.ORGAO_EMISSOR AS 'ORGÃO EMISSOR'
     from 
@@ -1751,15 +1744,14 @@ ConsultasDAO.prototype.verificacaoOrgaoExpedicaoRg = async function (req) {
 
 ConsultasDAO.prototype.verificacaoSemRendaPf = async function (req) {
   let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtro = ''
-  if (filtroCotasAtivas == '1'){
-    filtro = 'and ct.versao = 0'
-  }
+  let filtroQuitados = req.query.quitados
+  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
   let result = await this._connection(
     `select
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
       ct.VERSAO as 'VERSÃO', 
+      ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
         cl.NOME,
         cl.RENDA 
@@ -1779,15 +1771,14 @@ ConsultasDAO.prototype.verificacaoSemRendaPf = async function (req) {
 
 ConsultasDAO.prototype.verificacaoFirmaDenominacaoSocial = async function (req) {
   let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtro = ''
-  if (filtroCotasAtivas == '1'){
-    filtro = 'and ct.versao = 0'
-  }
+  let filtroQuitados = req.query.quitados
+  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
       ct.VERSAO as 'VERSÃO', 
+      ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
       cl.NOME AS 'DENOMINAÇÃO SOCIAL'
     from 
@@ -1808,15 +1799,14 @@ ConsultasDAO.prototype.verificacaoFirmaDenominacaoSocial = async function (req) 
 
 ConsultasDAO.prototype.verificacaoAtivoPrincipal = async function (req) {
   let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtro = ''
-  if (filtroCotasAtivas == '1'){
-    filtro = 'and ct.versao = 0'
-  }
+  let filtroQuitados = req.query.quitados
+  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
       ct.VERSAO as 'VERSÃO', 
+      ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
       cl.RENDA
     from 
@@ -1837,15 +1827,14 @@ ConsultasDAO.prototype.verificacaoAtivoPrincipal = async function (req) {
 
 ConsultasDAO.prototype.verificacaoDataConstituicao = async function (req) {
   let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtro = ''
-  if (filtroCotasAtivas == '1'){
-    filtro = 'and ct.versao = 0'
-  }
+  let filtroQuitados = req.query.quitados
+  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
       ct.VERSAO as 'VERSÃO', 
+      ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
       cl.DATA_NASCIMENTO AS 'DATA DA CONSTITUIÇÃO'
     from 
@@ -1866,15 +1855,14 @@ ConsultasDAO.prototype.verificacaoDataConstituicao = async function (req) {
 
 ConsultasDAO.prototype.verificacaoSemRendaPj = async function (req) {
   let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtro = ''
-  if (filtroCotasAtivas == '1'){
-    filtro = 'and ct.versao = 0'
-  }
+  let filtroQuitados = req.query.quitados
+  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
       ct.VERSAO as 'VERSÃO', 
+      ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
         cl.NOME,
         cl.RENDA 
