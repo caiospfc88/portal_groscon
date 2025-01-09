@@ -1595,7 +1595,7 @@ ConsultasDAO.prototype.verificacaoFiliacao = async function (req) {
     where
       gp.CODIGO_SITUACAO = 'A'/*Filtro Somente grupos ativos*/
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
-      and len(cl.NOME_MAE) < 10 /*Sem Filiação*/
+      and (len(cl.NOME_MAE) < 10 and LEN(cl.NOME_PAI) < 10)/*Sem Filiação*/
       ${filtro}
     `
   );

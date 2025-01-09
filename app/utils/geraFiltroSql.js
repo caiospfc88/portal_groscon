@@ -1,6 +1,6 @@
 function geraFiltroSql(cotasAtivas,quitados){
     let result = ""
-    console.log("parametro funçao: ", cotasAtivas,quitados)
+    
     if (cotasAtivas == '1' && quitados == '0'){
         result = "and ct.versao = 0"
     } else if (cotasAtivas == '1' && quitados == '1'){
