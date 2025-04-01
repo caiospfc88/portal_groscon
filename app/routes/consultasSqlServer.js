@@ -87,7 +87,10 @@ module.exports = function (application) {
   application.patch(
     "/gerarPlanilhasRelatorios",
     /*verifyJWT,*/ function (req, res) {
-      application.app.controllers.consultasSqlServer.gerarPlanilhasRelatorios(req,res);
+      application.app.controllers.consultasSqlServer.gerarPlanilhasRelatorios(
+        req,
+        res
+      );
     }
   );
   application.get(
@@ -155,21 +158,29 @@ module.exports = function (application) {
     );
   });
 
-  application.get("/selecionaCotasAtivasComEmail", verifyJWT, function (req, res) {
-    application.app.controllers.consultasSqlServer.selecionaCotasAtivasComEmail(
-      application,
-      req,
-      res
-    );
-  });
+  application.get(
+    "/selecionaCotasAtivasComEmail",
+    verifyJWT,
+    function (req, res) {
+      application.app.controllers.consultasSqlServer.selecionaCotasAtivasComEmail(
+        application,
+        req,
+        res
+      );
+    }
+  );
 
-  application.get("/selecionaCotasAtivasComEmailEx", verifyJWT, function (req, res) {
-    application.app.controllers.consultasSqlServer.selecionaCotasAtivasComEmailEx(
-      application,
-      req,
-      res
-    );
-  });
+  application.get(
+    "/selecionaCotasAtivasComEmailEx",
+    verifyJWT,
+    function (req, res) {
+      application.app.controllers.consultasSqlServer.selecionaCotasAtivasComEmailEx(
+        application,
+        req,
+        res
+      );
+    }
+  );
 
   application.get("/relatorioPerfilVendas", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.relatorioPerfilVendas(
@@ -206,13 +217,17 @@ module.exports = function (application) {
       res
     );
   });
-  application.get("/verificacaoLocalNascimento", verifyJWT, function (req, res) {
-    application.app.controllers.consultasSqlServer.verificacaoLocalNascimento(
-      application,
-      req,
-      res
-    );
-  });
+  application.get(
+    "/verificacaoLocalNascimento",
+    verifyJWT,
+    function (req, res) {
+      application.app.controllers.consultasSqlServer.verificacaoLocalNascimento(
+        application,
+        req,
+        res
+      );
+    }
+  );
   application.get("/verificacaoNumeroRg", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.verificacaoNumeroRg(
       application,
@@ -227,13 +242,17 @@ module.exports = function (application) {
       res
     );
   });
-  application.get("/verificacaoOrgaoExpedicaoRg", verifyJWT, function (req, res) {
-    application.app.controllers.consultasSqlServer.verificacaoOrgaoExpedicaoRg(
-      application,
-      req,
-      res
-    );
-  });
+  application.get(
+    "/verificacaoOrgaoExpedicaoRg",
+    verifyJWT,
+    function (req, res) {
+      application.app.controllers.consultasSqlServer.verificacaoOrgaoExpedicaoRg(
+        application,
+        req,
+        res
+      );
+    }
+  );
   application.get("/verificacaoSemRendaPf", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.verificacaoSemRendaPf(
       application,
@@ -241,13 +260,17 @@ module.exports = function (application) {
       res
     );
   });
-  application.get("/verificacaoFirmaDenominacaoSocial", verifyJWT, function (req, res) {
-    application.app.controllers.consultasSqlServer.verificacaoFirmaDenominacaoSocial(
-      application,
-      req,
-      res
-    );
-  });
+  application.get(
+    "/verificacaoFirmaDenominacaoSocial",
+    verifyJWT,
+    function (req, res) {
+      application.app.controllers.consultasSqlServer.verificacaoFirmaDenominacaoSocial(
+        application,
+        req,
+        res
+      );
+    }
+  );
   application.get("/verificacaoAtivoPrincipal", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.verificacaoAtivoPrincipal(
       application,
@@ -255,15 +278,26 @@ module.exports = function (application) {
       res
     );
   });
-  application.get("/verificacaoDataConstituicao", verifyJWT, function (req, res) {
-    application.app.controllers.consultasSqlServer.verificacaoDataConstituicao(
+  application.get(
+    "/verificacaoDataConstituicao",
+    verifyJWT,
+    function (req, res) {
+      application.app.controllers.consultasSqlServer.verificacaoDataConstituicao(
+        application,
+        req,
+        res
+      );
+    }
+  );
+  application.get("/verificacaoSemRendaPj", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.verificacaoSemRendaPj(
       application,
       req,
       res
     );
   });
-  application.get("/verificacaoSemRendaPj", verifyJWT, function (req, res) {
-    application.app.controllers.consultasSqlServer.verificacaoSemRendaPj(
+  application.get("/selecionaCliente", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.selecionaCliente(
       application,
       req,
       res

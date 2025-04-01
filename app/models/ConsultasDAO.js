@@ -916,7 +916,6 @@ WHERE
     )
 	order by [DATA_NASCIMENTO]`);
 
-  
   return result;
 };
 
@@ -1387,6 +1386,18 @@ ConsultasDAO.prototype.selecionaEquipes = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.selecionaCliente = async function (req) {
+  let doc = req.query.documento;
+  console.log("doc:", doc);
+  let result = await this._connection(`Select CGC_CPF_CLIENTE as 'CPF/CNPJ',
+                                        NOME,
+                                        E_MAIL as 'E-MAIL',
+                                        CELULAR
+                                        from clientes where CGC_CPF_CLIENTE = '${doc}'`);
+  console.log("result: ", result);
+  return result;
+};
+
 ConsultasDAO.prototype.relatorioPerfilVendas = async function (req) {
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
@@ -1484,7 +1495,7 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
                 END
           order by ct.CODIGO_SITUACAO`
     );
-  } else if (req.query.detalhado == 1){
+  } else if (req.query.detalhado == 1) {
     result = await this._connection(
       `select ct.CODIGO_GRUPO as 'GRUPO',
             ct.CODIGO_COTA as 'COTA',
@@ -1519,9 +1530,9 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
 };
 
 ConsultasDAO.prototype.verificacaoNacionalidade = async function (req) {
-  let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtroQuitados = req.query.quitados
-  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
+  let filtroCotasAtivas = req.query.apenasCotasAtivas;
+  let filtroQuitados = req.query.quitados;
+  let filtro = geraFiltroSql(filtroCotasAtivas, filtroQuitados);
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1547,9 +1558,9 @@ ConsultasDAO.prototype.verificacaoNacionalidade = async function (req) {
 };
 
 ConsultasDAO.prototype.verificacaoNome = async function (req) {
-  let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtroQuitados = req.query.quitados
-  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
+  let filtroCotasAtivas = req.query.apenasCotasAtivas;
+  let filtroQuitados = req.query.quitados;
+  let filtro = geraFiltroSql(filtroCotasAtivas, filtroQuitados);
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1575,9 +1586,9 @@ ConsultasDAO.prototype.verificacaoNome = async function (req) {
 };
 
 ConsultasDAO.prototype.verificacaoFiliacao = async function (req) {
-  let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtroQuitados = req.query.quitados
-  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
+  let filtroCotasAtivas = req.query.apenasCotasAtivas;
+  let filtroQuitados = req.query.quitados;
+  let filtro = geraFiltroSql(filtroCotasAtivas, filtroQuitados);
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1604,9 +1615,9 @@ ConsultasDAO.prototype.verificacaoFiliacao = async function (req) {
 };
 
 ConsultasDAO.prototype.verificacaoDtNascimento = async function (req) {
-  let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtroQuitados = req.query.quitados
-  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
+  let filtroCotasAtivas = req.query.apenasCotasAtivas;
+  let filtroQuitados = req.query.quitados;
+  let filtro = geraFiltroSql(filtroCotasAtivas, filtroQuitados);
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1632,9 +1643,9 @@ ConsultasDAO.prototype.verificacaoDtNascimento = async function (req) {
 };
 
 ConsultasDAO.prototype.verificacaoLocalNascimento = async function (req) {
-  let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtroQuitados = req.query.quitados
-  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
+  let filtroCotasAtivas = req.query.apenasCotasAtivas;
+  let filtroQuitados = req.query.quitados;
+  let filtro = geraFiltroSql(filtroCotasAtivas, filtroQuitados);
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1660,9 +1671,9 @@ ConsultasDAO.prototype.verificacaoLocalNascimento = async function (req) {
 };
 
 ConsultasDAO.prototype.verificacaoNumeroRg = async function (req) {
-  let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtroQuitados = req.query.quitados
-  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
+  let filtroCotasAtivas = req.query.apenasCotasAtivas;
+  let filtroQuitados = req.query.quitados;
+  let filtro = geraFiltroSql(filtroCotasAtivas, filtroQuitados);
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1688,9 +1699,9 @@ ConsultasDAO.prototype.verificacaoNumeroRg = async function (req) {
 };
 
 ConsultasDAO.prototype.verificacaoDtEmissaoRg = async function (req) {
-  let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtroQuitados = req.query.quitados
-  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
+  let filtroCotasAtivas = req.query.apenasCotasAtivas;
+  let filtroQuitados = req.query.quitados;
+  let filtro = geraFiltroSql(filtroCotasAtivas, filtroQuitados);
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1716,9 +1727,9 @@ ConsultasDAO.prototype.verificacaoDtEmissaoRg = async function (req) {
 };
 
 ConsultasDAO.prototype.verificacaoOrgaoExpedicaoRg = async function (req) {
-  let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtroQuitados = req.query.quitados
-  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
+  let filtroCotasAtivas = req.query.apenasCotasAtivas;
+  let filtroQuitados = req.query.quitados;
+  let filtro = geraFiltroSql(filtroCotasAtivas, filtroQuitados);
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1744,9 +1755,9 @@ ConsultasDAO.prototype.verificacaoOrgaoExpedicaoRg = async function (req) {
 };
 
 ConsultasDAO.prototype.verificacaoSemRendaPf = async function (req) {
-  let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtroQuitados = req.query.quitados
-  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
+  let filtroCotasAtivas = req.query.apenasCotasAtivas;
+  let filtroQuitados = req.query.quitados;
+  let filtro = geraFiltroSql(filtroCotasAtivas, filtroQuitados);
   let result = await this._connection(
     `select
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1770,10 +1781,12 @@ ConsultasDAO.prototype.verificacaoSemRendaPf = async function (req) {
   return result;
 };
 
-ConsultasDAO.prototype.verificacaoFirmaDenominacaoSocial = async function (req) {
-  let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtroQuitados = req.query.quitados
-  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
+ConsultasDAO.prototype.verificacaoFirmaDenominacaoSocial = async function (
+  req
+) {
+  let filtroCotasAtivas = req.query.apenasCotasAtivas;
+  let filtroQuitados = req.query.quitados;
+  let filtro = geraFiltroSql(filtroCotasAtivas, filtroQuitados);
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1799,9 +1812,9 @@ ConsultasDAO.prototype.verificacaoFirmaDenominacaoSocial = async function (req) 
 };
 
 ConsultasDAO.prototype.verificacaoAtivoPrincipal = async function (req) {
-  let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtroQuitados = req.query.quitados
-  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
+  let filtroCotasAtivas = req.query.apenasCotasAtivas;
+  let filtroQuitados = req.query.quitados;
+  let filtro = geraFiltroSql(filtroCotasAtivas, filtroQuitados);
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1827,9 +1840,9 @@ ConsultasDAO.prototype.verificacaoAtivoPrincipal = async function (req) {
 };
 
 ConsultasDAO.prototype.verificacaoDataConstituicao = async function (req) {
-  let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtroQuitados = req.query.quitados
-  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
+  let filtroCotasAtivas = req.query.apenasCotasAtivas;
+  let filtroQuitados = req.query.quitados;
+  let filtro = geraFiltroSql(filtroCotasAtivas, filtroQuitados);
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
@@ -1855,9 +1868,9 @@ ConsultasDAO.prototype.verificacaoDataConstituicao = async function (req) {
 };
 
 ConsultasDAO.prototype.verificacaoSemRendaPj = async function (req) {
-  let filtroCotasAtivas = req.query.apenasCotasAtivas
-  let filtroQuitados = req.query.quitados
-  let filtro = geraFiltroSql(filtroCotasAtivas,filtroQuitados)
+  let filtroCotasAtivas = req.query.apenasCotasAtivas;
+  let filtroQuitados = req.query.quitados;
+  let filtro = geraFiltroSql(filtroCotasAtivas, filtroQuitados);
   let result = await this._connection(
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 

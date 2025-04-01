@@ -34,7 +34,11 @@ module.exports.aniversariantesMes = async function (application, req, res) {
   res.send(resConsulta);
 };
 
-module.exports.getAniversariantesPeriodo = async function (application, req, res) {
+module.exports.getAniversariantesPeriodo = async function (
+  application,
+  req,
+  res
+) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.getAniversariantesPeriodo(req);
@@ -103,8 +107,8 @@ module.exports.gerarPlanilhasBradescoPj = async function (
   geraPlanilha(req, res, resConsulta);
 };
 
-module.exports.gerarPlanilhasRelatorios = async function (req,res) {
-  let Obj = req.body
+module.exports.gerarPlanilhasRelatorios = async function (req, res) {
+  let Obj = req.body;
   await geraPlanilhaRelatorios(req, res, Obj);
 };
 
@@ -157,6 +161,13 @@ module.exports.selecionaEquipes = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.selecionaCliente = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.selecionaCliente(req);
+  res.send(resConsulta);
+};
+
 module.exports.selecionaEstados = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -171,14 +182,22 @@ module.exports.situacaoCotasEstado = async function (application, req, res) {
   res.send(resConsulta);
 };
 
-module.exports.selecionaCotasAtivasComEmail = async function (application, req, res) {
+module.exports.selecionaCotasAtivasComEmail = async function (
+  application,
+  req,
+  res
+) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.selecionaCotasAtivasComEmail(req);
   res.send(resConsulta);
 };
 
-module.exports.selecionaCotasAtivasComEmailEx = async function (application, req, res) {
+module.exports.selecionaCotasAtivasComEmailEx = async function (
+  application,
+  req,
+  res
+) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.selecionaCotasAtivasComEmail(req);
@@ -192,7 +211,11 @@ module.exports.relatorioPerfilVendas = async function (application, req, res) {
   res.send(resConsulta);
 };
 
-module.exports.verificacaoNacionalidade = async function (application, req, res) {
+module.exports.verificacaoNacionalidade = async function (
+  application,
+  req,
+  res
+) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.verificacaoNacionalidade(req);
@@ -213,14 +236,22 @@ module.exports.verificacaoFiliacao = async function (application, req, res) {
   res.send(resConsulta);
 };
 
-module.exports.verificacaoDtNascimento = async function (application, req, res) {
+module.exports.verificacaoDtNascimento = async function (
+  application,
+  req,
+  res
+) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.verificacaoDtNascimento(req);
   res.send(resConsulta);
 };
 
-module.exports.verificacaoLocalNascimento = async function (application, req, res) {
+module.exports.verificacaoLocalNascimento = async function (
+  application,
+  req,
+  res
+) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.verificacaoLocalNascimento(req);
@@ -241,7 +272,11 @@ module.exports.verificacaoDtEmissaoRg = async function (application, req, res) {
   res.send(resConsulta);
 };
 
-module.exports.verificacaoOrgaoExpedicaoRg = async function (application, req, res) {
+module.exports.verificacaoOrgaoExpedicaoRg = async function (
+  application,
+  req,
+  res
+) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.verificacaoOrgaoExpedicaoRg(req);
@@ -255,21 +290,33 @@ module.exports.verificacaoSemRendaPf = async function (application, req, res) {
   res.send(resConsulta);
 };
 
-module.exports.verificacaoFirmaDenominacaoSocial = async function (application, req, res) {
+module.exports.verificacaoFirmaDenominacaoSocial = async function (
+  application,
+  req,
+  res
+) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.verificacaoFirmaDenominacaoSocial(req);
   res.send(resConsulta);
 };
 
-module.exports.verificacaoAtivoPrincipal = async function (application, req, res) {
+module.exports.verificacaoAtivoPrincipal = async function (
+  application,
+  req,
+  res
+) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.verificacaoAtivoPrincipal(req);
   res.send(resConsulta);
 };
 
-module.exports.verificacaoDataConstituicao = async function (application, req, res) {
+module.exports.verificacaoDataConstituicao = async function (
+  application,
+  req,
+  res
+) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.verificacaoDataConstituicao(req);
