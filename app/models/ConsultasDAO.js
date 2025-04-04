@@ -1388,13 +1388,45 @@ ConsultasDAO.prototype.selecionaEquipes = async function (req) {
 
 ConsultasDAO.prototype.selecionaCliente = async function (req) {
   let doc = req.query.documento;
-  console.log("doc:", doc);
+
   let result = await this._connection(`Select CGC_CPF_CLIENTE as 'CPF/CNPJ',
                                         NOME,
-                                        E_MAIL as 'E-MAIL',
-                                        CELULAR
+                                        E_MAIL 
                                         from clientes where CGC_CPF_CLIENTE = '${doc}'`);
-  console.log("result: ", result);
+
+  return result;
+};
+
+ConsultasDAO.prototype.selecionaContatosCliente = async function (req) {
+  let grupo = req.query.grupo;
+  let cota = req.query.cota;
+  let versao = req.query.versao;
+
+  let result = await this._connection(`select cl.CGC_CPF_CLIENTE as 'CPF_CNPJ', 
+        cl.NOME,
+				cl.E_MAIL, 
+				DDD_COMERCIAL,
+				DDD_OUTRO,
+				DDD_RESIDENCIAL,
+				CELULAR, 
+				FONE_FAX,
+				FONE_FAX_2,
+				FONE_FAX_COMERCIAL, 
+				FONE_FAX_OUTRO 
+from cotas ct inner join clientes cl
+on ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE and ct.TIPO = cl.TIPO
+where ct.CODIGO_GRUPO = ${grupo} and ct.CODIGO_COTA = ${cota} and VERSAO = ${versao}`);
+  console.log("teste:", result);
+  return result;
+};
+
+ConsultasDAO.prototype.selecionaTabTel = async function (req) {
+  let doc = req.query.documento;
+
+  let result = await this._connection(
+    `select FONE_FAX, RAMAL, DDD from TELEFONES_COTAS where CGC_CPF_CLIENTE = '${doc}'`
+  );
+
   return result;
 };
 
@@ -1537,7 +1569,7 @@ ConsultasDAO.prototype.verificacaoNacionalidade = async function (req) {
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO',
+      ct.VERSAO,
       ct.codigo_situacao as 'SITUAÇÃO', 
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
       cl.NACIONALIDADE 
@@ -1565,7 +1597,7 @@ ConsultasDAO.prototype.verificacaoNome = async function (req) {
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO',
+      ct.VERSAO,
       ct.codigo_situacao as 'SITUAÇÃO', 
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
       cl.NOME
@@ -1593,7 +1625,7 @@ ConsultasDAO.prototype.verificacaoFiliacao = async function (req) {
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO', 
+      ct.VERSAO, 
       ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
       cl.NOME_MAE as 'NOME DA MÃE', cl.NOME_PAI as 'NOME DO PAI'
@@ -1622,7 +1654,7 @@ ConsultasDAO.prototype.verificacaoDtNascimento = async function (req) {
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO', 
+      ct.VERSAO, 
       ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
       cl.DATA_NASCIMENTO as 'DATA NASCIMENTO'
@@ -1650,7 +1682,7 @@ ConsultasDAO.prototype.verificacaoLocalNascimento = async function (req) {
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO',
+      ct.VERSAO,
       ct.codigo_situacao as 'SITUAÇÃO', 
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
       cl.NATURALIDADE
@@ -1678,7 +1710,7 @@ ConsultasDAO.prototype.verificacaoNumeroRg = async function (req) {
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO', 
+      ct.VERSAO, 
       ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
       cl.DOCUMENTO
@@ -1706,7 +1738,7 @@ ConsultasDAO.prototype.verificacaoDtEmissaoRg = async function (req) {
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO', 
+      ct.VERSAO, 
       ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
       cl.DATA_EXP_DOC as 'DATA DE EXPEDIÇÃO'
@@ -1734,7 +1766,7 @@ ConsultasDAO.prototype.verificacaoOrgaoExpedicaoRg = async function (req) {
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO', 
+      ct.VERSAO, 
       ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA', 
       cl.ORGAO_EMISSOR AS 'ORGÃO EMISSOR'
@@ -1762,7 +1794,7 @@ ConsultasDAO.prototype.verificacaoSemRendaPf = async function (req) {
     `select
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO', 
+      ct.VERSAO, 
       ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
         cl.NOME,
@@ -1791,7 +1823,7 @@ ConsultasDAO.prototype.verificacaoFirmaDenominacaoSocial = async function (
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO', 
+      ct.VERSAO, 
       ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
       cl.NOME AS 'DENOMINAÇÃO SOCIAL'
@@ -1819,7 +1851,7 @@ ConsultasDAO.prototype.verificacaoAtivoPrincipal = async function (req) {
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO', 
+      ct.VERSAO, 
       ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
       cl.RENDA
@@ -1847,7 +1879,7 @@ ConsultasDAO.prototype.verificacaoDataConstituicao = async function (req) {
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO', 
+      ct.VERSAO, 
       ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
       cl.DATA_NASCIMENTO AS 'DATA DA CONSTITUIÇÃO'
@@ -1875,7 +1907,7 @@ ConsultasDAO.prototype.verificacaoSemRendaPj = async function (req) {
     `select 
       ct.CODIGO_GRUPO as 'GRUPO', 
       ct.CODIGO_COTA as 'COTA', 
-      ct.VERSAO as 'VERSÃO', 
+      ct.VERSAO, 
       ct.codigo_situacao as 'SITUAÇÃO',
       format (ct.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
         cl.NOME,

@@ -168,6 +168,24 @@ module.exports.selecionaCliente = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.selecionaContatosCliente = async function (
+  application,
+  req,
+  res
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.selecionaContatosCliente(req);
+  res.send(resConsulta);
+};
+
+module.exports.selecionaTabTel = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.selecionaTabTel(req);
+  res.send(resConsulta);
+};
+
 module.exports.selecionaEstados = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);

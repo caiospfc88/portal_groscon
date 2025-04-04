@@ -303,4 +303,18 @@ module.exports = function (application) {
       res
     );
   });
+  application.get("/selecionaContatosCliente", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.selecionaContatosCliente(
+      application,
+      req,
+      res
+    );
+  });
+  application.get("/selecionaTabTel", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.selecionaTabTel(
+      application,
+      req,
+      res
+    );
+  });
 };
