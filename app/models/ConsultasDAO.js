@@ -1424,7 +1424,7 @@ ConsultasDAO.prototype.selecionaTabTel = async function (req) {
   let doc = req.query.documento;
 
   let result = await this._connection(
-    `select FONE_FAX, RAMAL, DDD from TELEFONES_COTAS where CGC_CPF_CLIENTE = '${doc}'`
+    `select DDD, FONE_FAX as 'FONE' from TELEFONES_COTAS where CGC_CPF_CLIENTE = '${doc}'`
   );
 
   return result;
