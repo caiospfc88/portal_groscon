@@ -347,3 +347,14 @@ module.exports.verificacaoSemRendaPj = async function (application, req, res) {
   var resConsulta = await consultaModel.verificacaoSemRendaPj(req);
   res.send(resConsulta);
 };
+
+module.exports.cotasNaoContempParQuitacao = async function (
+  application,
+  req,
+  res
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.cotasNaoContempParQuitacao(req);
+  res.send(resConsulta);
+};

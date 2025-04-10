@@ -1926,6 +1926,65 @@ ConsultasDAO.prototype.verificacaoSemRendaPj = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.cotasNaoContempParQuitacao = async function (req) {
+  let qtdParcelas = req.query.qtdParcelas;
+  console.log("qtdParcelas:", qtdParcelas);
+  let result = await this._connection(
+    `SELECT 
+    ce.CODIGO_GRUPO as 'Grupo',
+    ce.CODIGO_COTA as 'Cota',
+    ce.VERSAO as 'Versão',
+    COUNT(ce.STATUS_PARCELA) AS 'Parcelas abertas',
+    (
+        SELECT COUNT(cob.CODIGO_MOVIMENTO)
+        FROM COBRANCAS cob 
+        WHERE cob.CODIGO_GRUPO = ce.CODIGO_GRUPO 
+          AND cob.CODIGO_COTA = ce.CODIGO_COTA 
+          AND cob.VERSAO = ce.VERSAO 
+          AND cob.CODIGO_MOVIMENTO = 270
+		  AND cob.ORIGEM_LANCAMENTO = 'TA'
+    ) as 'Termos',
+	(COUNT(ce.STATUS_PARCELA) - (
+        SELECT COUNT(cob.CODIGO_MOVIMENTO)
+        FROM COBRANCAS cob 
+        WHERE cob.CODIGO_GRUPO = ce.CODIGO_GRUPO 
+          AND cob.CODIGO_COTA = ce.CODIGO_COTA 
+          AND cob.VERSAO = ce.VERSAO 
+          AND cob.CODIGO_MOVIMENTO = 270
+		  AND cob.ORIGEM_LANCAMENTO = 'TA'
+    )) as 'Parcelas totais em aberto'
+FROM cotas ct
+INNER JOIN GRUPOS gp 
+    ON ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+INNER JOIN COBRANCAS_ESPECIAIS ce
+    ON ct.CODIGO_GRUPO = ce.CODIGO_GRUPO 
+    AND ct.CODIGO_COTA = ce.CODIGO_COTA 
+    AND ct.VERSAO = ce.VERSAO
+WHERE 
+    ct.DATA_CONTEMPLACAO IS NULL 
+    AND ct.VERSAO = 0 
+    AND gp.CODIGO_SITUACAO = 'A' 
+    AND ce.STATUS_PARCELA = 'N'
+    AND ce.CODIGO_MOVIMENTO = 10
+GROUP BY 
+    ce.CODIGO_GRUPO,
+    ce.CODIGO_COTA,
+    ce.VERSAO
+HAVING 
+    (COUNT(ce.STATUS_PARCELA) - (
+        SELECT COUNT(cob.CODIGO_MOVIMENTO)
+        FROM COBRANCAS cob 
+        WHERE cob.CODIGO_GRUPO = ce.CODIGO_GRUPO 
+          AND cob.CODIGO_COTA = ce.CODIGO_COTA 
+          AND cob.VERSAO = ce.VERSAO 
+          AND cob.CODIGO_MOVIMENTO = 270
+		  AND cob.ORIGEM_LANCAMENTO = 'TA'
+    )) <= ${qtdParcelas};
+`
+  );
+  return result;
+};
+
 module.exports = function () {
   return ConsultasDAO;
 };

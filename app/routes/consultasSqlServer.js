@@ -317,4 +317,15 @@ module.exports = function (application) {
       res
     );
   });
+  application.get(
+    "/cotasNaoContempParQuitacao",
+    verifyJWT,
+    function (req, res) {
+      application.app.controllers.consultasSqlServer.cotasNaoContempParQuitacao(
+        application,
+        req,
+        res
+      );
+    }
+  );
 };
