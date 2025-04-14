@@ -76,8 +76,8 @@ function gerarRelatorioPDF(dados, relatorio, usuario, complemento) {
           columns: [
             {
               image: "img/logo.jpg",
-              width: 200,
-              margin: [15, 5, 10, 10],
+              width: 150,
+              margin: [15, 0, 10, 10],
             },
             {
               stack: [
@@ -93,7 +93,7 @@ function gerarRelatorioPDF(dados, relatorio, usuario, complemento) {
           ],
         },
         {
-          text: relatorio.label,
+          text: relatorio.pdfTitulo.toUpperCase(),
           style: "header",
           margin: [0, 0, 0, 0],
         },
@@ -115,13 +115,12 @@ function gerarRelatorioPDF(dados, relatorio, usuario, complemento) {
               },
               layout: {
                 hLineWidth: function (i, node) {
-                  if (i === 0) return 0.5;
-                  if (i === 1) return 0.5;
-                  if (i === node.table.body.length) return 0.5;
+                  if (i === 0 || i === 1 || i === node.table.body.length)
+                    return 0.5;
                   return 0.25;
                 },
                 vLineWidth: () => 0,
-                hLineColor: () => "#aaa",
+                hLineColor: () => "#bbb",
               },
               style: "tabela",
             },
@@ -140,15 +139,16 @@ function gerarRelatorioPDF(dados, relatorio, usuario, complemento) {
           fillColor: "#035191",
           color: "white",
           alignment: "center",
-          lineHeight: 1.4,
+          lineHeight: 1.5,
           fontSize: tamanhoFonteCalculado + 1,
+          margin: [0, 4, 0, 4],
           valign: "middle",
         },
         tabela: {
           fontSize: tamanhoFonteCalculado,
           alignment: "center",
           lineHeight: 1.3,
-          margin: [0, 0, 0, 15],
+          margin: [0, 2, 0, 10],
           valign: "middle",
         },
         subHeader: {
@@ -163,14 +163,16 @@ function gerarRelatorioPDF(dados, relatorio, usuario, complemento) {
             {
               text: relatorio.descricao || "",
               fontSize: 6,
-              alignment: "justify",
-              margin: [40, 10, 0, 10],
+              color: "#555",
+              alignment: "left",
+              margin: [30, 10, 0, 10],
             },
             {
               text: `Página ${currentPage} de ${pageCount}`,
-              alignment: "right",
-              margin: [0, 10, 40, 10],
               fontSize: 6,
+              alignment: "right",
+              margin: [0, 10, 30, 10],
+              color: "#555",
             },
           ],
         };
