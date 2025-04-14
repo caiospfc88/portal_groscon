@@ -47,7 +47,7 @@ function calcularTamanhoFonte(dados) {
 
 const printer = new PdfPrinter(fonts);
 
-function gerarRelatorioPDF(dados, relatorio, usuario) {
+function gerarRelatorioPDF(dados, relatorio, usuario, complemento) {
   const data = new Date().toLocaleDateString("pt-BR");
   return new Promise((resolve, reject) => {
     if (!Array.isArray(dados) || dados.length === 0) {
@@ -59,7 +59,7 @@ function gerarRelatorioPDF(dados, relatorio, usuario) {
       colunas.map((coluna) => ({
         text: coluna,
         style: "tableHeader",
-        margin: [4, 2, 4, 2],
+        margin: [3, 3, 3, 0],
       })),
       ...dados.map((item) =>
         colunas.map((coluna) => String(item[coluna] ?? ""))
@@ -95,7 +95,12 @@ function gerarRelatorioPDF(dados, relatorio, usuario) {
         {
           text: relatorio.label,
           style: "header",
-          margin: [0, 0, 0, 10],
+          margin: [0, 0, 0, 0],
+        },
+        {
+          text: `(${complemento})`,
+          style: "subHeader",
+          margin: [0, 5, 0, 10],
         },
         {
           columns: [
@@ -146,9 +151,10 @@ function gerarRelatorioPDF(dados, relatorio, usuario) {
           margin: [0, 0, 0, 15],
           valign: "middle",
         },
-        userInfo: {
-          fontSize: 7,
-          alignment: "right",
+        subHeader: {
+          fontSize: 8,
+          bold: true,
+          alignment: "center",
         },
       },
       footer: function (currentPage, pageCount) {

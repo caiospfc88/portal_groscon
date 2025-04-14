@@ -134,13 +134,18 @@ module.exports.gerarPdfComissaoDados = async function (application, req, res) {
 };
 
 module.exports.gerarPdfGenerico = async function (application, req, res) {
-  const { dados, relatorio, usuario } = req.body;
+  const { dados, relatorio, usuario, complemento } = req.body;
   if (!dados || !Array.isArray(dados)) {
     return res.status(400).json({ erro: "Dados inválidos" });
   }
 
   try {
-    const pdfBuffer = await gerarRelatorioPDF(dados, relatorio, usuario);
+    const pdfBuffer = await gerarRelatorioPDF(
+      dados,
+      relatorio,
+      usuario,
+      complemento
+    );
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "attachment; filename=relatorio.pdf");
