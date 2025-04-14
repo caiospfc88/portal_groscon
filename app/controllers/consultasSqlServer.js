@@ -1,8 +1,9 @@
 const { formataComissao } = require("../utils/comissaoFormat");
-const { geraPlanilha, saveAsExcel } = require("../utils/geraPlanilha");
+const { geraPlanilha } = require("../utils/geraPlanilha");
 const { geraPdfComissao } = require("../utils/geradorPDF");
 const { formataComissaoPdf } = require("../utils/comissaoFormatPdf");
 const { geraPlanilhaRelatorios } = require("../utils/geraPlanilhaRelatorios");
+const { gerarRelatorioPDF } = require("../utils/gerarPDFGenerico");
 
 module.exports.comissoesComReducao = async function (application, req, res) {
   var connection = application.config.dbConnection;
@@ -130,6 +131,24 @@ module.exports.gerarPdfComissaoDados = async function (application, req, res) {
   var comissao = formataComissaoPdf(req, resConsulta);
   geraPdfComissao(comissao, req, res);
   //res.send("Relatório gerado");
+};
+
+module.exports.gerarPdfGenerico = async function (application, req, res) {
+  const { dados, relatorio, usuario } = req.body;
+  if (!dados || !Array.isArray(dados)) {
+    return res.status(400).json({ erro: "Dados inválidos" });
+  }
+
+  try {
+    const pdfBuffer = await gerarRelatorioPDF(dados, relatorio, usuario);
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=relatorio.pdf");
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error("Erro ao gerar PDF:", error);
+    res.status(500).json({ erro: "Erro ao gerar o PDF" });
+  }
 };
 
 module.exports.selecionaPeriodoComissao = async function (

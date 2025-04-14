@@ -113,6 +113,13 @@ module.exports = function (application) {
       );
     }
   );
+  application.patch("/gerarPdfGenerico", function (req, res) {
+    application.app.controllers.consultasSqlServer.gerarPdfGenerico(
+      application,
+      req,
+      res
+    );
+  });
   application.get(
     "/selecionaPeriodoComissao",
     /*verifyJWT,*/ function (req, res) {
