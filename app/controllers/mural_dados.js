@@ -52,7 +52,7 @@ module.exports.excluirDadosMural = async function (req, res) {
 module.exports.filtrarDadosMural = async function (req, res) {
   try {
     const { anos, meses, id_mural_descricao } = req.body;
-    console.log("params: ", anos, meses, id_mural_descricao);
+
     if (!Array.isArray(anos) || !Array.isArray(meses) || !id_mural_descricao) {
       return res.status(400).json({ Msg: "Parâmetros inválidos." });
     }
@@ -65,8 +65,6 @@ module.exports.filtrarDadosMural = async function (req, res) {
         id_mural_descricao: id_mural_descricao,
       },
     });
-
-    console.log("dados: ", dados);
 
     res.json(dados);
   } catch (error) {
