@@ -48,3 +48,29 @@ module.exports.excluirDadosMural = async function (req, res) {
   dados.destroy();
   res.json({ Dados: dados, Msg: "Excluido com sucesso!" });
 };
+
+module.exports.filtrarDadosMural = async function (req, res) {
+  try {
+    const { anos, meses, id_mural_descricao } = req.body;
+    console.log("params: ", anos, meses, id_mural_descricao);
+    if (!Array.isArray(anos) || !Array.isArray(meses) || !id_mural_descricao) {
+      return res.status(400).json({ Msg: "Parâmetros inválidos." });
+    }
+
+    const dados = await models.mural_dados.findAll({
+      attributes: ["ano", "mes", "valor"],
+      where: {
+        ano: { [Op.in]: anos },
+        mes: { [Op.in]: meses },
+        id_mural_descricao: id_mural_descricao,
+      },
+    });
+
+    console.log("dados: ", dados);
+
+    res.json(dados);
+  } catch (error) {
+    console.error("Erro ao buscar mural_dados:", error);
+    res.status(500).json({ Msg: "Erro interno no servidor." });
+  }
+};

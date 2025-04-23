@@ -36,4 +36,7 @@ module.exports = function (application) {
   application.delete("/excluirDadosMural", verifyJWT, function (req, res) {
     application.app.controllers.mural_dados.excluirDadosMural(req, res);
   });
+  application.post("/filtrarDadosMural", verifyJWT, function (req, res) {
+    application.app.controllers.mural_dados.filtrarDadosMural(req, res);
+  });
 };
