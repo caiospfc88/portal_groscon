@@ -382,3 +382,17 @@ module.exports.cotasNaoContempParQuitacao = async function (
   var resConsulta = await consultaModel.cotasNaoContempParQuitacao(req);
   res.send(resConsulta);
 };
+
+module.exports.dadosCliente = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.dadosCliente(req);
+  res.send(resConsulta);
+};
+
+module.exports.docPorCota = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.docPorCota(req);
+  res.send(resConsulta);
+};

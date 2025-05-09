@@ -335,4 +335,18 @@ module.exports = function (application) {
       );
     }
   );
+  application.get("/dadosCliente", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.dadosCliente(
+      application,
+      req,
+      res
+    );
+  });
+  application.get("/docPorCota", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.docPorCota(
+      application,
+      req,
+      res
+    );
+  });
 };
