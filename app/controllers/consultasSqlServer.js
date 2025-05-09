@@ -396,3 +396,14 @@ module.exports.docPorCota = async function (application, req, res) {
   var resConsulta = await consultaModel.docPorCota(req);
   res.send(resConsulta);
 };
+
+module.exports.cotasPagasAtrasoSemMultaJuros = async function (
+  application,
+  req,
+  res
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.cotasPagasAtrasoSemMultaJuros(req);
+  res.send(resConsulta);
+};

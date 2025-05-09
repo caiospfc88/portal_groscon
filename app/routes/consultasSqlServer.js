@@ -349,4 +349,15 @@ module.exports = function (application) {
       res
     );
   });
+  application.get(
+    "/cotasPagasAtrasoSemMultaJuros",
+    verifyJWT,
+    function (req, res) {
+      application.app.controllers.consultasSqlServer.cotasPagasAtrasoSemMultaJuros(
+        application,
+        req,
+        res
+      );
+    }
+  );
 };

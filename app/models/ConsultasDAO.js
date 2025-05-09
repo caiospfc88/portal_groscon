@@ -2092,6 +2092,31 @@ ConsultasDAO.prototype.docPorCota = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.cotasPagasAtrasoSemMultaJuros = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+  let result = await this._connection(`select mg.CODIGO_GRUPO as Grupo,
+	mg.codigo_cota as Cota, 
+	mg.VERSAO as Versao, 
+	cl.NOME,
+	format(DATA_PAGAMENTO, 'dd/MM/yyyy', 'en-us') as Pagamento,
+	format(mg.DATA_VENCIMENTO, 'dd/MM/yyyy', 'en-us') as Vencimento,
+	mg.VALOR_MULTA as Multa,
+	mg.VALOR_JUROS as Juros
+from MOVIMENTOS_GRUPOS mg left join cotas ct
+on mg.CODIGO_GRUPO = ct.CODIGO_GRUPO and mg.CODIGO_COTA = ct.CODIGO_COTA and mg.VERSAO = ct.VERSAO
+left join CLIENTES cl on ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE and cl.tipo = ct.TIPO
+where DATA_PAGAMENTO between '${data_inicial}' and '${data_final}' 
+	and DATA_VENCIMENTO < DATA_PAGAMENTO 
+	and mg.VALOR_JUROS = 0 
+	and mg.VALOR_MULTA = 0
+	and mg.CODIGO_GRUPO < 70
+	and ct.DATA_CONTEMPLACAO is null --or (DATA_CONTEMPLACAO between '20220525' and '20220830')
+	and ct.VERSAO = 0`);
+
+  return result;
+};
+
 module.exports = function () {
   return ConsultasDAO;
 };
