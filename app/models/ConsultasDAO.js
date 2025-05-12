@@ -1497,9 +1497,10 @@ ConsultasDAO.prototype.selecionaCotasAtivasComEmail = async function (req) {
 
 ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
   let estado = req.query.estado;
+  let filtroContemplacao = req.query.filtroContemplacao;
   const estados = estado?.split(",").filter((e) => e); // remove vazios
   const estadosSql = estados.map((uf) => `'${uf}'`).join(","); // "'BA','AM'"
-  console.log("estado: ", estado);
+  console.log("filtroContemplacao: ", filtroContemplacao);
   if (req.query.detalhado == 0) {
     result = await this._connection(
       `select cid.ESTADO,ct.CODIGO_SITUACAO as 'CÓDIGO',
@@ -1521,7 +1522,7 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
           on ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
           inner join cidades cid
           on cl.CODIGO_CIDADE = cid.CODIGO_CIDADE
-          where cid.ESTADO in (${estadosSql}) and gp.CODIGO_SITUACAO = 'A'
+          where cid.ESTADO in (${estadosSql}) and gp.CODIGO_SITUACAO = 'A' ${filtroContemplacao}
           group by cid.estado,ct.CODIGO_SITUACAO,SC.DESCRICAO,case
                 when ct.DATA_CONTEMPLACAO is null AND ccc.DATA_CONTEMPLACAO is NULL
                   then 'NÃO CONTEMPLADO'
@@ -1557,7 +1558,7 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
         on ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
         left join COTAS_CONTEMPLADAS_CANCELADAS ccc
         on ccc.ID_COTA = ct.ID_COTA
-        where cid.ESTADO in (${estadosSql}) and gp.CODIGO_SITUACAO = 'A'
+        where cid.ESTADO in (${estadosSql}) and gp.CODIGO_SITUACAO = 'A' ${filtroContemplacao}
         order by cid.estado,ct.CODIGO_SITUACAO, [CONTEMPLAÇÃO]`
     );
   }
@@ -2098,24 +2099,35 @@ ConsultasDAO.prototype.docPorCota = async function (req) {
 ConsultasDAO.prototype.cotasPagasAtrasoSemMultaJuros = async function (req) {
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
+  let filtroContemplacao = req.query.filtroContemplacao;
   let result = await this._connection(`select mg.CODIGO_GRUPO as Grupo,
 	mg.codigo_cota as Cota, 
 	mg.VERSAO as Versao, 
 	cl.NOME,
+  case
+    when ct.DATA_CONTEMPLACAO is null 
+      then 'NÃO CONTEMPLADO'
+    WHEN ct.DATA_CONTEMPLACAO is not null
+      THEN 'CONTEMPLADO'
+    END AS 'CONTEMPLAÇÃO',
+  sc.NOMENCLATURA as 'SITUAÇÃO',
 	format(DATA_PAGAMENTO, 'dd/MM/yyyy', 'en-us') as Pagamento,
 	format(mg.DATA_VENCIMENTO, 'dd/MM/yyyy', 'en-us') as Vencimento,
 	mg.VALOR_MULTA as Multa,
 	mg.VALOR_JUROS as Juros
 from MOVIMENTOS_GRUPOS mg left join cotas ct
 on mg.CODIGO_GRUPO = ct.CODIGO_GRUPO and mg.CODIGO_COTA = ct.CODIGO_COTA and mg.VERSAO = ct.VERSAO
+inner join SITUACOES_COBRANCAS sc
+on ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
 left join CLIENTES cl on ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE and cl.tipo = ct.TIPO
 where DATA_PAGAMENTO between '${data_inicial}' and '${data_final}' 
 	and DATA_VENCIMENTO < DATA_PAGAMENTO 
 	and mg.VALOR_JUROS = 0 
 	and mg.VALOR_MULTA = 0
+  and mg.CODIGO_MOVIMENTO = 10
 	and mg.CODIGO_GRUPO < 70
-	and ct.DATA_CONTEMPLACAO is null --or (DATA_CONTEMPLACAO between '20220525' and '20220830')
-	and ct.VERSAO = 0`);
+	and ct.VERSAO = 0
+  ${filtroContemplacao}`);
 
   return result;
 };
