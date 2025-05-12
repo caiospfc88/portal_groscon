@@ -1497,9 +1497,12 @@ ConsultasDAO.prototype.selecionaCotasAtivasComEmail = async function (req) {
 
 ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
   let estado = req.query.estado;
+  const estados = estado?.split(",").filter((e) => e); // remove vazios
+  const estadosSql = estados.map((uf) => `'${uf}'`).join(","); // "'BA','AM'"
+  console.log("estado: ", estado);
   if (req.query.detalhado == 0) {
     result = await this._connection(
-      `select ct.CODIGO_SITUACAO as 'CÓDIGO',
+      `select cid.ESTADO,ct.CODIGO_SITUACAO as 'CÓDIGO',
               SC.DESCRICAO AS 'DESCRIÇÃO',
               case
                 when ct.DATA_CONTEMPLACAO is null AND ccc.DATA_CONTEMPLACAO is NULL
@@ -1507,7 +1510,7 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
                 WHEN ct.DATA_CONTEMPLACAO is not null or ccc.DATA_CONTEMPLACAO is not NULL
                   THEN 'CONTEMPLADO'
                 END AS 'CONTEMPLAÇÃO',
-              count(ct.numero_contrato) as TOTAL 
+				count(ct.numero_contrato) as TOTAL
           from cotas ct inner join CLIENTES cl
           on ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE and ct.tipo = cl.tipo
           left join COTAS_CONTEMPLADAS_CANCELADAS ccc
@@ -1518,14 +1521,14 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
           on ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
           inner join cidades cid
           on cl.CODIGO_CIDADE = cid.CODIGO_CIDADE
-          where cid.ESTADO in ('${estado}') and gp.CODIGO_SITUACAO = 'A'
-          group by ct.CODIGO_SITUACAO,SC.DESCRICAO,case
+          where cid.ESTADO in (${estadosSql}) and gp.CODIGO_SITUACAO = 'A'
+          group by cid.estado,ct.CODIGO_SITUACAO,SC.DESCRICAO,case
                 when ct.DATA_CONTEMPLACAO is null AND ccc.DATA_CONTEMPLACAO is NULL
                   then 'NÃO CONTEMPLADO'
                 WHEN ct.DATA_CONTEMPLACAO is not null or ccc.DATA_CONTEMPLACAO is not NULL
                   THEN 'CONTEMPLADO'
                 END
-          order by ct.CODIGO_SITUACAO`
+          order by cid.estado,ct.CODIGO_SITUACAO, [CONTEMPLAÇÃO]`
     );
   } else if (req.query.detalhado == 1) {
     result = await this._connection(
@@ -1554,8 +1557,8 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
         on ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
         left join COTAS_CONTEMPLADAS_CANCELADAS ccc
         on ccc.ID_COTA = ct.ID_COTA
-        where cid.ESTADO in ('${estado}') and gp.CODIGO_SITUACAO = 'A'
-        order by ct.DATA_ADESAO`
+        where cid.ESTADO in (${estadosSql}) and gp.CODIGO_SITUACAO = 'A'
+        order by cid.estado,ct.CODIGO_SITUACAO, [CONTEMPLAÇÃO]`
     );
   }
   return result;
