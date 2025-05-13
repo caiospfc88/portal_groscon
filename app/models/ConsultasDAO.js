@@ -2162,13 +2162,55 @@ where DATA_PAGAMENTO between '${data_inicial}' and '${data_final}'
 ConsultasDAO.prototype.cotasCliente = async function (req) {
   let doc = req.query.doc;
   let result = await this._connection(
-    `select ct.CODIGO_GRUPO as 'grupo',
-      ct.CODIGO_COTA as 'cota',
-      ct.VERSAO as 'versao',
-      ct.CGC_CPF_CLIENTE as 'doc',
-      format(ct.DATA_ADESAO, 'dd/MM/yyyy', 'en-US') as 'adesao'
-    from cotas ct 
-    where CGC_CPF_CLIENTE = '${doc}'
+    `SELECT 
+    ct.CODIGO_GRUPO AS grupo,
+    ct.CODIGO_COTA AS cota,
+    ct.VERSAO AS versao,
+    ct.CGC_CPF_CLIENTE AS doc,
+    FORMAT(ct.DATA_ADESAO, 'dd/MM/yyyy', 'en-US') AS adesao,
+    CASE
+        WHEN ct.DATA_CONTEMPLACAO IS NULL AND ccc.DATA_CONTEMPLACAO IS NULL THEN 'NÃO CONTEMPLADO'
+        WHEN ct.DATA_CONTEMPLACAO IS NOT NULL OR ccc.DATA_CONTEMPLACAO IS NOT NULL THEN 'CONTEMPLADO'
+    END AS contemplacao,
+    FORMAT(((((100 - ct.PERCENTUAL_IDEAL_DEVIDO) + (ct.PERCENTUAL_TAXA_ADMINISTRACAO - ct.TAXA_ADMINISTRACAO_PAGA)) * ValorBem.PRECO_TABELA) / 100), 'C', 'pt-br') AS saldo_devedor_fc_tx,
+    FORMAT(ValorBem.PRECO_TABELA, 'C', 'pt-br') AS credito_atual,
+
+    -- Contagem de parcelas em aberto (status = 'N')
+    SUM(CASE WHEN ce.STATUS_PARCELA = 'N' AND ce.CODIGO_MOVIMENTO = 10 THEN 1 ELSE 0 END) AS parcelas_abertas,
+
+    -- Contagem de parcelas em pagamento (status = 'P')
+    SUM(CASE WHEN ce.STATUS_PARCELA = 'P' AND ce.CODIGO_MOVIMENTO = 10 THEN 1 ELSE 0 END) AS parcelas_pagas
+
+FROM 
+    cotas ct 
+LEFT JOIN 
+    COTAS_CONTEMPLADAS_CANCELADAS ccc ON ccc.ID_COTA = ct.ID_COTA
+OUTER APPLY (
+    SELECT TOP 1 preco_tabela 
+    FROM REAJUSTES_BENS rb
+    WHERE ct.codigo_bem = rb.CODIGO_BEM 
+    ORDER BY DATA_REAJUSTE DESC
+) AS ValorBem
+INNER JOIN 
+    COBRANCAS_ESPECIAIS ce ON ct.CODIGO_GRUPO = ce.CODIGO_GRUPO 
+                           AND ct.CODIGO_COTA = ce.CODIGO_COTA 
+                           AND ct.VERSAO = ce.VERSAO
+WHERE 
+    ct.CGC_CPF_CLIENTE = '${doc}'
+GROUP BY 
+    ct.CODIGO_GRUPO,
+    ct.CODIGO_COTA,
+    ct.VERSAO,
+    ct.CGC_CPF_CLIENTE,
+    ct.DATA_ADESAO,
+    ct.DATA_CONTEMPLACAO,
+    ccc.DATA_CONTEMPLACAO,
+    ct.PERCENTUAL_IDEAL_DEVIDO,
+    ct.PERCENTUAL_TAXA_ADMINISTRACAO,
+    ct.TAXA_ADMINISTRACAO_PAGA,
+    ValorBem.PRECO_TABELA
+ORDER BY 
+    ct.CODIGO_GRUPO, ct.CODIGO_COTA, ct.VERSAO
 `
   );
   return result;
