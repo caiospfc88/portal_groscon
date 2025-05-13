@@ -1938,6 +1938,11 @@ ConsultasDAO.prototype.cotasNaoContempParQuitacao = async function (req) {
     ce.CODIGO_GRUPO as 'Grupo',
     ce.CODIGO_COTA as 'Cota',
     ce.VERSAO as 'Versão',
+    FORMAT(ct.DATA_ADESAO, 'dd/MM/yyyy', 'en-US') as 'Adesão',
+    FORMAT((ct.VALOR_FUNDO_COMUM + ct.VALOR_TAXA_ADMINISTRACAO + ct.VALOR_MULTA + ct.VALOR_JUROS + ct.VALOR_SEGURO),
+	'C', 'pt-br') as 'Total Pago',
+    format(((((100 - ct.PERCENTUAL_IDEAL_DEVIDO) + (ct.PERCENTUAL_TAXA_ADMINISTRACAO - ct.TAXA_ADMINISTRACAO_PAGA)) * ValorBem.PRECO_TABELA) / 100),
+	'C','pt-br') as 'Saldo Devedor FC + TX',
     COUNT(ce.STATUS_PARCELA) AS 'Parcelas abertas',
     (
         SELECT COUNT(cob.CODIGO_MOVIMENTO)
@@ -1946,18 +1951,24 @@ ConsultasDAO.prototype.cotasNaoContempParQuitacao = async function (req) {
           AND cob.CODIGO_COTA = ce.CODIGO_COTA 
           AND cob.VERSAO = ce.VERSAO 
           AND cob.CODIGO_MOVIMENTO = 270
-		  AND cob.ORIGEM_LANCAMENTO = 'TA'
+          AND cob.ORIGEM_LANCAMENTO = 'TA'
     ) as 'Termos',
-	(COUNT(ce.STATUS_PARCELA) - (
+    (COUNT(ce.STATUS_PARCELA) - (
         SELECT COUNT(cob.CODIGO_MOVIMENTO)
         FROM COBRANCAS cob 
         WHERE cob.CODIGO_GRUPO = ce.CODIGO_GRUPO 
           AND cob.CODIGO_COTA = ce.CODIGO_COTA 
           AND cob.VERSAO = ce.VERSAO 
           AND cob.CODIGO_MOVIMENTO = 270
-		  AND cob.ORIGEM_LANCAMENTO = 'TA'
+          AND cob.ORIGEM_LANCAMENTO = 'TA'
     )) as 'Parcelas totais em aberto'
 FROM cotas ct
+OUTER APPLY (
+    SELECT TOP 1 preco_tabela 
+    FROM REAJUSTES_BENS rb
+    WHERE ct.codigo_bem = rb.CODIGO_BEM 
+    ORDER BY DATA_REAJUSTE DESC
+) as ValorBem
 INNER JOIN GRUPOS gp 
     ON ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
 INNER JOIN COBRANCAS_ESPECIAIS ce
@@ -1973,7 +1984,17 @@ WHERE
 GROUP BY 
     ce.CODIGO_GRUPO,
     ce.CODIGO_COTA,
-    ce.VERSAO
+    ce.VERSAO,
+    ct.DATA_ADESAO,
+    ct.VALOR_FUNDO_COMUM,
+    ct.VALOR_TAXA_ADMINISTRACAO,
+    ct.VALOR_MULTA,
+    ct.VALOR_JUROS,
+    ct.VALOR_SEGURO,
+    ValorBem.PRECO_TABELA,
+    ct.PERCENTUAL_IDEAL_DEVIDO,
+    ct.PERCENTUAL_TAXA_ADMINISTRACAO,
+    ct.TAXA_ADMINISTRACAO_PAGA
 HAVING 
     (COUNT(ce.STATUS_PARCELA) - (
         SELECT COUNT(cob.CODIGO_MOVIMENTO)
@@ -1982,8 +2003,8 @@ HAVING
           AND cob.CODIGO_COTA = ce.CODIGO_COTA 
           AND cob.VERSAO = ce.VERSAO 
           AND cob.CODIGO_MOVIMENTO = 270
-		  AND cob.ORIGEM_LANCAMENTO = 'TA'
-    )) <= ${qtdParcelas};
+          AND cob.ORIGEM_LANCAMENTO = 'TA'
+    )) <=  ${qtdParcelas};
 `
   );
   return result;
