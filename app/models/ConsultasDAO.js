@@ -1502,6 +1502,8 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
   const estadosSql = estados.map((uf) => `'${uf}'`).join(","); // "'BA','AM'"
   console.log("filtroContemplacao: ", filtroContemplacao);
   if (req.query.detalhado == 0) {
+    console.log("Detalhado: ", req.query.detalhado);
+    console.log("estados: ", estadosSql);
     result = await this._connection(
       `select cid.ESTADO,ct.CODIGO_SITUACAO as 'CÓDIGO',
               SC.DESCRICAO AS 'DESCRIÇÃO',
@@ -1532,6 +1534,7 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
           order by cid.estado,ct.CODIGO_SITUACAO, [CONTEMPLAÇÃO]`
     );
   } else if (req.query.detalhado == 1) {
+    console.log("estados: ", estadosSql);
     result = await this._connection(
       `select ct.CODIGO_GRUPO as 'GRUPO',
             ct.CODIGO_COTA as 'COTA',
@@ -1562,6 +1565,8 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
         order by cid.estado,ct.CODIGO_SITUACAO, [CONTEMPLAÇÃO]`
     );
   }
+
+  console.log("result: ", result);
   return result;
 };
 
@@ -1942,7 +1947,8 @@ ConsultasDAO.prototype.cotasNaoContempParQuitacao = async function (req) {
     FORMAT((ct.VALOR_FUNDO_COMUM + ct.VALOR_TAXA_ADMINISTRACAO + ct.VALOR_MULTA + ct.VALOR_JUROS + ct.VALOR_SEGURO),
 	'C', 'pt-br') as 'Total Pago',
     format(((((100 - ct.PERCENTUAL_IDEAL_DEVIDO) + (ct.PERCENTUAL_TAXA_ADMINISTRACAO - ct.TAXA_ADMINISTRACAO_PAGA)) * ValorBem.PRECO_TABELA) / 100),
-	'C','pt-br') as 'Saldo Devedor FC + TX',
+	'C','pt-br') as 'Saldo Dev. FC + TX',
+    format(ValorBem.PRECO_TABELA,'C','pt-br') as 'Crédito Atual',
     COUNT(ce.STATUS_PARCELA) AS 'Parcelas abertas',
     (
         SELECT COUNT(cob.CODIGO_MOVIMENTO)
@@ -2150,6 +2156,21 @@ where DATA_PAGAMENTO between '${data_inicial}' and '${data_final}'
 	and ct.VERSAO = 0
   ${filtroContemplacao}`);
 
+  return result;
+};
+
+ConsultasDAO.prototype.cotasCliente = async function (req) {
+  let doc = req.query.doc;
+  let result = await this._connection(
+    `select ct.CODIGO_GRUPO as 'grupo',
+      ct.CODIGO_COTA as 'cota',
+      ct.VERSAO as 'versao',
+      ct.CGC_CPF_CLIENTE as 'doc',
+      format(ct.DATA_ADESAO, 'dd/MM/yyyy', 'en-US') as 'adesao'
+    from cotas ct 
+    where CGC_CPF_CLIENTE = '${doc}'
+`
+  );
   return result;
 };
 

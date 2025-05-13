@@ -360,4 +360,12 @@ module.exports = function (application) {
       );
     }
   );
+
+  application.get("/cotasCliente", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.cotasCliente(
+      application,
+      req,
+      res
+    );
+  });
 };
