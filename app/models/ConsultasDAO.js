@@ -2123,6 +2123,30 @@ ConsultasDAO.prototype.docPorCota = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.historicoCota = async function (req) {
+  let grupo = req.query.grupo;
+  let cota = req.query.cota;
+  let versao = req.query.versao;
+
+  let result = await this._connection(
+    `select 
+      hc.ID_HISTORICO_CONSORCIADO as id_evento,
+      format(hc.DATA_OCORRENCIA,'dd/MM/yyyy','en-US') as data_evento,
+      us.NOME as usuario,
+      hc.OCORRENCIA as ocorrencia,
+      df.DESCRICAO as motivo
+    from HISTORICOS_CONSORCIADOS hc 
+    inner join USUARIOS us
+    on hc.CODIGO_USUARIO = us.CODIGO_USUARIO
+    inner join DEF_HISTORICOS df
+    on hc.CODIGO_FASE = df.CODIGO_FASE
+    where hc.codigo_grupo = ${grupo} and hc.CODIGO_COTA = ${cota} and hc.versao = ${versao}
+    order by hc.DATA_OCORRENCIA
+`
+  );
+  return result;
+};
+
 ConsultasDAO.prototype.cotasPagasAtrasoSemMultaJuros = async function (req) {
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
@@ -2174,7 +2198,7 @@ ConsultasDAO.prototype.cotasCliente = async function (req) {
     END AS contemplacao,
     FORMAT(((((100 - ct.PERCENTUAL_IDEAL_DEVIDO) + (ct.PERCENTUAL_TAXA_ADMINISTRACAO - ct.TAXA_ADMINISTRACAO_PAGA)) * ValorBem.PRECO_TABELA) / 100), 'C', 'pt-br') AS saldo_devedor_fc_tx,
     FORMAT(ValorBem.PRECO_TABELA, 'C', 'pt-br') AS credito_atual,
-
+	SC.DESCRICAO AS situacao,
     -- Contagem de parcelas em aberto (status = 'N')
     SUM(CASE WHEN ce.STATUS_PARCELA = 'N' AND ce.CODIGO_MOVIMENTO = 10 THEN 1 ELSE 0 END) AS parcelas_abertas,
 
@@ -2195,6 +2219,8 @@ INNER JOIN
     COBRANCAS_ESPECIAIS ce ON ct.CODIGO_GRUPO = ce.CODIGO_GRUPO 
                            AND ct.CODIGO_COTA = ce.CODIGO_COTA 
                            AND ct.VERSAO = ce.VERSAO
+inner join SITUACOES_COBRANCAS sc
+          on ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
 WHERE 
     ct.CGC_CPF_CLIENTE = '${doc}'
 GROUP BY 
@@ -2208,9 +2234,11 @@ GROUP BY
     ct.PERCENTUAL_IDEAL_DEVIDO,
     ct.PERCENTUAL_TAXA_ADMINISTRACAO,
     ct.TAXA_ADMINISTRACAO_PAGA,
-    ValorBem.PRECO_TABELA
+    ValorBem.PRECO_TABELA,
+	sc.DESCRICAO
 ORDER BY 
     ct.CODIGO_GRUPO, ct.CODIGO_COTA, ct.VERSAO
+
 `
   );
   return result;

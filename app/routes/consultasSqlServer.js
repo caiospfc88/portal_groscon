@@ -368,4 +368,12 @@ module.exports = function (application) {
       res
     );
   });
+
+  application.get("/historicoCota", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.historicoCota(
+      application,
+      req,
+      res
+    );
+  });
 };
