@@ -376,4 +376,22 @@ module.exports = function (application) {
       res
     );
   });
+  application.get("/movimentosFinanceirosCota", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.movimentosFinanceirosCota(
+      application,
+      req,
+      res
+    );
+  });
+  application.get(
+    "/codigosMovimentosFinanceirosCota",
+    verifyJWT,
+    function (req, res) {
+      application.app.controllers.consultasSqlServer.codigosMovimentosFinanceirosCota(
+        application,
+        req,
+        res
+      );
+    }
+  );
 };

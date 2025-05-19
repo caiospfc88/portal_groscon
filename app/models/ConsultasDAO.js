@@ -2146,6 +2146,98 @@ ConsultasDAO.prototype.historicoCota = async function (req) {
   );
   return result;
 };
+ConsultasDAO.prototype.movimentosFinanceirosCota = async function (req) {
+  let grupo = req.query.grupo;
+  let cota = req.query.cota;
+  let versao = req.query.versao;
+
+  let result = await this._connection(
+    `
+    select 
+	mg.NUMERO_AVISO as aviso,
+	mg.AVISO_ESTORNO as aviso_estorno,
+	mg.NUMERO_LOTE as lote,
+	me.DESCRICAO as motivo_estorno,
+	mg.CODIGO_AGENTE_FINANCEIRO as agente,
+	b.DESCRICAO as bem,
+	us.NOME as usuario,
+	concat(mg.CODIGO_TIPO_MOVIMENTO,' - ',tm.DESCRICAO) as tipo_movimento,
+	concat(mg.CODIGO_MOVIMENTO,' - ',cm.DESCRICAO) as movimento,
+	CASE 
+    WHEN mg.CODIGO_MOVIMENTO in (10,60,110,130,750)
+        THEN mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1
+		ELSE 0
+	END AS parcela,
+	format(mg.DATA_CONTABILIZACAO,'dd/MM/yyyy', 'en-US') as contabilizacao,
+	format(mg.DATA_PAGAMENTO,'dd/MM/yyyy', 'en-US') as pagamento,
+	format(mg.DATA_VENCIMENTO,'dd/MM/yyyy', 'en-US') as vencimento,
+	mg.COMPLEMENTO_HISTORICO as complemento_historico,
+	mg.DOCUMENTO as documento,
+	mg.PERCENTUAL_IDEAL as '% ideal',
+	mg.PERCENTUAL_NORMAL as '% normal',
+	mg.PERCENTUAL_ANTECIPADO as '% antecipado',
+	mg.PERCENTUAL_RATEIO as '% rateio',
+	mg.TOTAL_LANCAMENTO as total_lancamento,
+	mg.VALOR_BEM as valor_bem,
+	mg.VALOR_MULTA_JUROS as multa_juros,
+	mg.VALOR_OUTROS as outros_valores,
+	mg.VALOR_RATEIO as valor_rateio,
+	mg.VALOR_REPASSE_MULTA as valor_repasse_multa,
+	mg.VALOR_SEGURO_VIDA as valor_seguro_vida,
+	mg.VALOR_FUNDO_COMUM as valor_fc,
+	mg.VALOR_TAXA_ADMINISTRACAO as valor_tx,
+	mg.SEGURO_VIDA as seguro_vida,
+	mg.SEGURO_QUEBRA as seguro_quebra,
+	mg.SEGURO_DESEMP as seguro_desemp,
+	mg.SEGURO_CONS as seguro_cons,
+	format(mg.DATA_LANCAMENTO,'dd/MM/yyyy', 'en-US') as lancamento,
+	format(mg.DATA_PAGAMENTO_COMISSAO,'dd/MM/yyyy', 'en-US') as data_pag_comissao,
+	usi.NOME as usuario_inclusao,
+	format(mg.AUD_DATA_INCLUSAO,'dd/MM/yyyy', 'en-US') as data_inclusao,
+	usa.NOME as usuario_alteracao,	
+	format(mg.AUD_DATA_ALTERACAO,'dd/MM/yyyy', 'en-US') as data_alteracao,
+	mg.CODIGO_FILIAL_FISCAL as filial_fiscal,
+	mg.STATUS as 'status',
+	mg.PE_TA_IDEAL as pe_ta_ideal,
+	mg.PE_TA as pe_ta,
+	mg.VALOR_MULTA as valor_multa,
+	mg.VALOR_JUROS as valor_juros
+from MOVIMENTOS_GRUPOS mg 
+	left join MOTIVOS_ESTORNOS me on mg.CODIGO_MOTIVO_ESTORNO = me.CODIGO_MOTIVO_ESTORNO
+	left join BENS b on mg.CODIGO_BEM = b.CODIGO_BEM
+	left join USUARIOS us on mg.CODIGO_USUARIO = us.CODIGO_USUARIO
+	left join TIPOS_MOVIMENTOS tm on mg.CODIGO_TIPO_MOVIMENTO = tm.CODIGO_TIPO_MOVIMENTO
+	left join CODIGOS_MOVIMENTOS cm on mg.CODIGO_MOVIMENTO = cm.CODIGO_MOVIMENTO
+	left join cotas ct on mg.ID_Cota_Pagamento = ct.ID_COTA
+	left join USUARIOS usa on mg.AUD_CODIGO_USUARIO_ALTERACAO = usa.CODIGO_USUARIO
+	left join USUARIOS usi on mg.AUD_CODIGO_USUARIO_INCLUSAO = usi.CODIGO_USUARIO
+where 
+	mg.codigo_grupo = ${grupo} and mg.CODIGO_COTA = ${cota} and mg.versao = ${versao} 
+`
+  );
+  console.log("result", result);
+  return result;
+};
+
+ConsultasDAO.prototype.codigosMovimentosFinanceirosCota = async function (req) {
+  let grupo = req.query.grupo;
+  let cota = req.query.cota;
+  let versao = req.query.versao;
+
+  let result = await this._connection(
+    `
+    select 
+      mg.CODIGO_MOVIMENTO as codigo,
+      cm.DESCRICAO as descricao
+    from MOVIMENTOS_GRUPOS mg inner join CODIGOS_MOVIMENTOS cm
+    on mg.CODIGO_MOVIMENTO = cm.CODIGO_MOVIMENTO
+    where mg.codigo_grupo = ${grupo} and mg.CODIGO_COTA = ${cota} and mg.versao = ${versao} 
+    group by mg.CODIGO_MOVIMENTO,cm.DESCRICAO      
+`
+  );
+  console.log("result", result);
+  return result;
+};
 
 ConsultasDAO.prototype.cotasPagasAtrasoSemMultaJuros = async function (req) {
   let data_inicial = req.query.data_inicial;
@@ -2154,30 +2246,36 @@ ConsultasDAO.prototype.cotasPagasAtrasoSemMultaJuros = async function (req) {
   let result = await this._connection(`select mg.CODIGO_GRUPO as Grupo,
 	mg.codigo_cota as Cota, 
 	mg.VERSAO as Versao, 
-	cl.NOME,
-  case
-    when ct.DATA_CONTEMPLACAO is null 
-      then 'NÃO CONTEMPLADO'
-    WHEN ct.DATA_CONTEMPLACAO is not null
-      THEN 'CONTEMPLADO'
-    END AS 'CONTEMPLAÇÃO',
-  sc.NOMENCLATURA as 'SITUAÇÃO',
+	cl.Nome,
+	us.nome as 'Usuario que gerou' ,
+	usa.NOME as 'Usuario que alterou',	
+	case
+		when ct.DATA_CONTEMPLACAO is null 
+		then 'NÃO CONTEMPLADO'
+		WHEN ct.DATA_CONTEMPLACAO is not null
+		THEN 'CONTEMPLADO'
+		END AS 'CONTEMPLAÇÃO',
+	sc.NOMENCLATURA as 'SITUAÇÃO',
 	format(DATA_PAGAMENTO, 'dd/MM/yyyy', 'en-us') as Pagamento,
 	format(mg.DATA_VENCIMENTO, 'dd/MM/yyyy', 'en-us') as Vencimento,
 	mg.VALOR_MULTA as Multa,
 	mg.VALOR_JUROS as Juros
 from MOVIMENTOS_GRUPOS mg left join cotas ct
 on mg.CODIGO_GRUPO = ct.CODIGO_GRUPO and mg.CODIGO_COTA = ct.CODIGO_COTA and mg.VERSAO = ct.VERSAO
-inner join SITUACOES_COBRANCAS sc
-on ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
+left join SITUACOES_COBRANCAS sc
+        on ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
 left join CLIENTES cl on ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE and cl.tipo = ct.TIPO
+left join COBRANCAS cb on mg.NUMERO_AVISO = cb.NUMERO_AVISO
+left join USUARIOS us on cb.CODIGO_USUARIO = us.CODIGO_USUARIO
+left join USUARIOS usa on cb.CODIGO_USUARIO_ALTERACAO = usa.CODIGO_USUARIO
 where DATA_PAGAMENTO between '${data_inicial}' and '${data_final}' 
-	and DATA_VENCIMENTO < DATA_PAGAMENTO 
+	and mg.DATA_VENCIMENTO < mg.DATA_PAGAMENTO 
 	and mg.VALOR_JUROS = 0 
 	and mg.VALOR_MULTA = 0
-  and mg.CODIGO_MOVIMENTO = 10
+	and mg.CODIGO_MOVIMENTO = 10
 	and mg.CODIGO_GRUPO < 70
 	and ct.VERSAO = 0
+	and cb.ABONA_MULTA = 'S'
   ${filtroContemplacao}`);
 
   return result;

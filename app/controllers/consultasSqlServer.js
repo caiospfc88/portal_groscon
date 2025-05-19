@@ -421,3 +421,24 @@ module.exports.historicoCota = async function (application, req, res) {
   var resConsulta = await consultaModel.historicoCota(req);
   res.send(resConsulta);
 };
+
+module.exports.movimentosFinanceirosCota = async function (
+  application,
+  req,
+  res
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.movimentosFinanceirosCota(req);
+  res.send(resConsulta);
+};
+module.exports.codigosMovimentosFinanceirosCota = async function (
+  application,
+  req,
+  res
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.codigosMovimentosFinanceirosCota(req);
+  res.send(resConsulta);
+};
