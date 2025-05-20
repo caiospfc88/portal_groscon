@@ -401,4 +401,11 @@ module.exports = function (application) {
       res
     );
   });
+  application.get("/gruposAtivos", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.gruposAtivos(
+      application,
+      req,
+      res
+    );
+  });
 };

@@ -2152,8 +2152,8 @@ ConsultasDAO.prototype.movimentosFinanceirosCota = async function (req) {
   let versao = req.query.versao;
   let codMovimentos = req.query.codMovs;
   console.log("codigosParam: ", codMovimentos);
-  const codigos = codMovimentos?.split(",").filter((e) => e); // remove vazios
-  const codigosSql = codigos.map((cod) => `${cod}`).join(","); // "'BA','AM'"
+  const codigos = codMovimentos?.split(",").filter((e) => e);
+  const codigosSql = codigos.map((cod) => `${cod}`).join(",");
 
   let result = await this._connection(
     `
@@ -2240,15 +2240,26 @@ ConsultasDAO.prototype.codigosMovimentosFinanceirosCota = async function (req) {
     group by mg.CODIGO_MOVIMENTO,cm.DESCRICAO      
 `
   );
-  console.log("result", result);
+  return result;
+};
+
+ConsultasDAO.prototype.gruposAtivos = async function (req) {
+  let result = await this._connection(
+    `
+    select CODIGO_GRUPO as grupo
+    from grupos 
+    where CODIGO_SITUACAO = 'A'      
+`
+  );
   return result;
 };
 
 ConsultasDAO.prototype.relatorioValoresDevolver = async function (req) {
-  let grupo = req.query.grupo;
+  let grupos = req.query.grupos;
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
-
+  const codigosGrupos = grupos?.split(",").filter((e) => e);
+  const gruposSql = codigosGrupos.map((cod) => `${cod}`).join(",");
   let result = await this._connection(
     `
     select 
@@ -2272,7 +2283,7 @@ ConsultasDAO.prototype.relatorioValoresDevolver = async function (req) {
       left join clientes cl on ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE
       where 
         ct.VERSAO between 1 and 39 
-        and ct.CODIGO_GRUPO = ${grupo}
+        and ct.CODIGO_GRUPO in (${gruposSql})
         and ct.DATA_ADESAO between '${data_inicial}' and '${data_final}'
       
 `
