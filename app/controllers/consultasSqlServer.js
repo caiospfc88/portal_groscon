@@ -422,6 +422,17 @@ module.exports.historicoCota = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.relatorioValoresDevolver = async function (
+  application,
+  req,
+  res
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.relatorioValoresDevolver(req);
+  res.send(resConsulta);
+};
+
 module.exports.movimentosFinanceirosCota = async function (
   application,
   req,

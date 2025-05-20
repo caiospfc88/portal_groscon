@@ -2150,6 +2150,10 @@ ConsultasDAO.prototype.movimentosFinanceirosCota = async function (req) {
   let grupo = req.query.grupo;
   let cota = req.query.cota;
   let versao = req.query.versao;
+  let codMovimentos = req.query.codMovs;
+  console.log("codigosParam: ", codMovimentos);
+  const codigos = codMovimentos?.split(",").filter((e) => e); // remove vazios
+  const codigosSql = codigos.map((cod) => `${cod}`).join(","); // "'BA','AM'"
 
   let result = await this._connection(
     `
@@ -2212,10 +2216,11 @@ from MOVIMENTOS_GRUPOS mg
 	left join USUARIOS usa on mg.AUD_CODIGO_USUARIO_ALTERACAO = usa.CODIGO_USUARIO
 	left join USUARIOS usi on mg.AUD_CODIGO_USUARIO_INCLUSAO = usi.CODIGO_USUARIO
 where 
-	mg.codigo_grupo = ${grupo} and mg.CODIGO_COTA = ${cota} and mg.versao = ${versao} 
+	mg.codigo_grupo = ${grupo} and mg.CODIGO_COTA = ${cota} and mg.versao = ${versao}
+  and mg.CODIGO_MOVIMENTO in (${codigosSql})
 `
   );
-  console.log("result", result);
+  console.log("codigos", codigosSql);
   return result;
 };
 
@@ -2236,6 +2241,42 @@ ConsultasDAO.prototype.codigosMovimentosFinanceirosCota = async function (req) {
 `
   );
   console.log("result", result);
+  return result;
+};
+
+ConsultasDAO.prototype.relatorioValoresDevolver = async function (req) {
+  let grupo = req.query.grupo;
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+
+  let result = await this._connection(
+    `
+    select 
+      ct.CODIGO_GRUPO as grupo,
+      ct.CODIGO_COTA as cota,
+      ct.VERSAO as 'versão',
+      cl.nome as nome,
+      format(ct.DATA_ADESAO,'dd/MM/yyyy', 'en-US') as 'adesão',
+      ct.PERCENTUAL_IDEAL_DEVIDO as '% fc Pago',
+      format(ct.VALOR_FUNDO_COMUM,'C','pt-BR') as 'valor fc pago',
+      ct.CODIGO_SITUACAO as 'situação',
+      format(ValorBem.PRECO_TABELA,'C','pt-BR') as 'crédito Atual',
+      format(((ct.PERCENTUAL_IDEAL_DEVIDO / 100.0) * ValorBem.PRECO_TABELA * 0.90), 'C', 'pt-BR') AS [valor devolução]
+      from cotas ct
+      OUTER APPLY (
+          SELECT TOP 1 preco_tabela 
+          FROM REAJUSTES_BENS rb
+          WHERE ct.codigo_bem = rb.CODIGO_BEM 
+          ORDER BY DATA_REAJUSTE DESC
+      ) as ValorBem
+      left join clientes cl on ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE
+      where 
+        ct.VERSAO between 1 and 39 
+        and ct.CODIGO_GRUPO = ${grupo}
+        and ct.DATA_ADESAO between '${data_inicial}' and '${data_final}'
+      
+`
+  );
   return result;
 };
 

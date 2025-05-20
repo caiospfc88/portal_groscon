@@ -394,4 +394,11 @@ module.exports = function (application) {
       );
     }
   );
+  application.get("/relatorioValoresDevolver", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.relatorioValoresDevolver(
+      application,
+      req,
+      res
+    );
+  });
 };
