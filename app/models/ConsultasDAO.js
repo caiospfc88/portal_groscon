@@ -2260,6 +2260,7 @@ ConsultasDAO.prototype.relatorioValoresDevolver = async function (req) {
   let data_final = req.query.data_final;
   const codigosGrupos = grupos?.split(",").filter((e) => e);
   const gruposSql = codigosGrupos.map((cod) => `${cod}`).join(",");
+  console.log("grupos param: ", gruposSql);
   let result = await this._connection(
     `
     select 
