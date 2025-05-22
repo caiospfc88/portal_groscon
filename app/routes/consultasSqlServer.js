@@ -408,4 +408,11 @@ module.exports = function (application) {
       res
     );
   });
+  application.get("/telefonesCota", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.telefonesCota(
+      application,
+      req,
+      res
+    );
+  });
 };

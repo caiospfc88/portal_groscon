@@ -429,6 +429,13 @@ module.exports.gruposAtivos = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.telefonesCota = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.telefonesCota(req);
+  res.send(resConsulta);
+};
+
 module.exports.relatorioValoresDevolver = async function (
   application,
   req,

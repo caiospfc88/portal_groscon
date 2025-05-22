@@ -2254,6 +2254,23 @@ ConsultasDAO.prototype.gruposAtivos = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.telefonesCota = async function (req) {
+  let doc = req.query.doc;
+  let result = await this._connection(
+    `
+    select
+      tc.DDD as ddd,
+      tc.FONE_FAX as numero,
+      tc.RAMAL as ramal,
+      tt.DESCRICAO as tipo_de_contato  
+    from TELEFONES_COTAS tc
+    left join TIPOS_TELEFONES tt on tc.CODIGO_TIPO_TELEFONE = tt.DESCRICAO
+    where tc.CGC_CPF_CLIENTE = '${doc}'      
+`
+  );
+  return result;
+};
+
 ConsultasDAO.prototype.relatorioValoresDevolver = async function (req) {
   let grupos = req.query.grupos;
   let data_inicial = req.query.data_inicial;
