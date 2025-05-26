@@ -2228,6 +2228,10 @@ ConsultasDAO.prototype.codigosMovimentosFinanceirosCota = async function (req) {
   let grupo = req.query.grupo;
   let cota = req.query.cota;
   let versao = req.query.versao;
+  let modeloExtrato = "";
+  if (req.query.modeloExtrato == "sim") {
+    modeloExtrato = "and cm.LISTA_HISTORICO_EXTRATO = 'S'";
+  }
 
   let result = await this._connection(
     `
@@ -2237,6 +2241,7 @@ ConsultasDAO.prototype.codigosMovimentosFinanceirosCota = async function (req) {
     from MOVIMENTOS_GRUPOS mg inner join CODIGOS_MOVIMENTOS cm
     on mg.CODIGO_MOVIMENTO = cm.CODIGO_MOVIMENTO
     where mg.codigo_grupo = ${grupo} and mg.CODIGO_COTA = ${cota} and mg.versao = ${versao} 
+      ${modeloExtrato}
     group by mg.CODIGO_MOVIMENTO,cm.DESCRICAO      
 `
   );
