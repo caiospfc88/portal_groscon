@@ -2182,12 +2182,12 @@ ConsultasDAO.prototype.movimentosFinanceirosCota = async function (req) {
 	mg.PERCENTUAL_ANTECIPADO as '% antecipado',
 	mg.PERCENTUAL_RATEIO as '% rateio',
 	mg.TOTAL_LANCAMENTO as total_lancamento,
-	mg.VALOR_BEM as valor_bem,
+	format(mg.VALOR_BEM,'C','pt-BR') as valor_bem,
 	mg.VALOR_MULTA_JUROS as multa_juros,
 	mg.VALOR_OUTROS as outros_valores,
 	mg.VALOR_RATEIO as valor_rateio,
 	mg.VALOR_REPASSE_MULTA as valor_repasse_multa,
-	mg.VALOR_SEGURO_VIDA as valor_seguro_vida,
+	mg.VALOR_SEGURO_VIDA as valor_seguros,
 	mg.VALOR_FUNDO_COMUM as valor_fc,
 	mg.VALOR_TAXA_ADMINISTRACAO as valor_tx,
 	mg.SEGURO_VIDA as seguro_vida,
@@ -2304,8 +2304,11 @@ ConsultasDAO.prototype.relatorioValoresDevolver = async function (req) {
           ORDER BY DATA_REAJUSTE DESC
       ) as ValorBem
       left join clientes cl on ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE
+      left join COTAS_CONTEMPLADAS_CANCELADAS ccc on ct.ID_COTA = ccc.ID_COTA
       where 
-        ct.VERSAO between 1 and 39 
+        ccc.DATA_CONTEMPLACAO is null
+        and ct.CODIGO_SITUACAO not like 'E01'
+        and ct.VERSAO between 1 and 39  
         and ct.CODIGO_GRUPO in (${gruposSql})
         and ct.DATA_ADESAO between '${data_inicial}' and '${data_final}'
       
