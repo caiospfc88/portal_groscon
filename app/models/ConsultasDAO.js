@@ -1416,7 +1416,6 @@ ConsultasDAO.prototype.selecionaContatosCliente = async function (req) {
 from cotas ct inner join clientes cl
 on ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE and ct.TIPO = cl.TIPO
 where ct.CODIGO_GRUPO = ${grupo} and ct.CODIGO_COTA = ${cota} and VERSAO = ${versao}`);
-  console.log("teste:", result);
   return result;
 };
 
@@ -1500,10 +1499,7 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
   let filtroContemplacao = req.query.filtroContemplacao;
   const estados = estado?.split(",").filter((e) => e); // remove vazios
   const estadosSql = estados.map((uf) => `'${uf}'`).join(","); // "'BA','AM'"
-  console.log("filtroContemplacao: ", filtroContemplacao);
   if (req.query.detalhado == 0) {
-    console.log("Detalhado: ", req.query.detalhado);
-    console.log("estados: ", estadosSql);
     result = await this._connection(
       `select cid.ESTADO,ct.CODIGO_SITUACAO as 'CÓDIGO',
               SC.DESCRICAO AS 'DESCRIÇÃO',
@@ -1534,7 +1530,6 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
           order by cid.estado,ct.CODIGO_SITUACAO, [CONTEMPLAÇÃO]`
     );
   } else if (req.query.detalhado == 1) {
-    console.log("estados: ", estadosSql);
     result = await this._connection(
       `select ct.CODIGO_GRUPO as 'GRUPO',
             ct.CODIGO_COTA as 'COTA',
@@ -1937,7 +1932,6 @@ ConsultasDAO.prototype.verificacaoSemRendaPj = async function (req) {
 
 ConsultasDAO.prototype.cotasNaoContempParQuitacao = async function (req) {
   let qtdParcelas = req.query.qtdParcelas;
-  console.log("qtdParcelas:", qtdParcelas);
   let result = await this._connection(
     `SELECT 
     ce.CODIGO_GRUPO as 'Grupo',
@@ -2151,7 +2145,6 @@ ConsultasDAO.prototype.movimentosFinanceirosCota = async function (req) {
   let cota = req.query.cota;
   let versao = req.query.versao;
   let codMovimentos = req.query.codMovs;
-  console.log("codigosParam: ", codMovimentos);
   const codigos = codMovimentos?.split(",").filter((e) => e);
   const codigosSql = codigos.map((cod) => `${cod}`).join(",");
 
@@ -2220,7 +2213,6 @@ where
   and mg.CODIGO_MOVIMENTO in (${codigosSql})
 `
   );
-  console.log("codigos", codigosSql);
   return result;
 };
 
@@ -2230,7 +2222,8 @@ ConsultasDAO.prototype.codigosMovimentosFinanceirosCota = async function (req) {
   let versao = req.query.versao;
   let modeloExtrato = "";
   if (req.query.modeloExtrato == "sim") {
-    modeloExtrato = "and cm.LISTA_HISTORICO_EXTRATO = 'S'";
+    modeloExtrato =
+      "and cm.LISTA_EXTRATO = 'S' and mg.CODIGO_MOVIMENTO not in (580) and cm.LISTA_HISTORICO_EXTRATO = 'S'";
   }
 
   let result = await this._connection(
@@ -2276,13 +2269,46 @@ ConsultasDAO.prototype.telefonesCota = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.proximasAssembleias = async function (req) {
+  let num = req.query.num;
+  let result = await this._connection(
+    `
+    WITH ProximaAssembleia AS (
+      SELECT 
+        a.CODIGO_GRUPO AS grupo,
+        a.NUMERO_ASSEMBLEIA AS assembleia,
+        format(a.DATA_VENCIMENTO,'dd/MM/yyyy') AS vencimento,
+        format(a.DATA_SORTEIO,'dd/MM/yyyy') AS loteria,
+        format(a.DATA_ASSEMBLEIA,'dd/MM/yyyy') AS data_assembleia,
+        ROW_NUMBER() OVER (
+          PARTITION BY a.CODIGO_GRUPO 
+          ORDER BY a.DATA_ASSEMBLEIA ASC
+        ) AS rn
+      FROM ASSEMBLEIAS a
+      INNER JOIN GRUPOS g ON a.CODIGO_GRUPO = g.CODIGO_GRUPO
+      WHERE 
+        g.CODIGO_SITUACAO = 'A'
+        AND a.DATA_ASSEMBLEIA >= GETDATE()
+    )
+    SELECT 
+      grupo,
+      assembleia,
+      vencimento,
+      loteria,
+      data_assembleia
+    FROM ProximaAssembleia
+    WHERE rn = ${num};     
+`
+  );
+  return result;
+};
+
 ConsultasDAO.prototype.relatorioValoresDevolver = async function (req) {
   let grupos = req.query.grupos;
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
   const codigosGrupos = grupos?.split(",").filter((e) => e);
   const gruposSql = codigosGrupos.map((cod) => `${cod}`).join(",");
-  console.log("grupos param: ", gruposSql);
   let result = await this._connection(
     `
     select 
@@ -2361,6 +2387,7 @@ where DATA_PAGAMENTO between '${data_inicial}' and '${data_final}'
 
 ConsultasDAO.prototype.cotasCliente = async function (req) {
   let doc = req.query.doc;
+  console.log("doc: ", doc);
   let result = await this._connection(
     `SELECT 
     ct.CODIGO_GRUPO AS grupo,
@@ -2391,11 +2418,11 @@ OUTER APPLY (
     WHERE ct.codigo_bem = rb.CODIGO_BEM 
     ORDER BY DATA_REAJUSTE DESC
 ) AS ValorBem
-INNER JOIN 
+LEFT JOIN 
     COBRANCAS_ESPECIAIS ce ON ct.CODIGO_GRUPO = ce.CODIGO_GRUPO 
                            AND ct.CODIGO_COTA = ce.CODIGO_COTA 
                            AND ct.VERSAO = ce.VERSAO
-inner join SITUACOES_COBRANCAS sc
+LEFT join SITUACOES_COBRANCAS sc
           on ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
 WHERE 
     ct.CGC_CPF_CLIENTE = '${doc}'
@@ -2414,9 +2441,9 @@ GROUP BY
 	sc.DESCRICAO
 ORDER BY 
     ct.CODIGO_GRUPO, ct.CODIGO_COTA, ct.VERSAO
-
 `
   );
+  console.log("result: ", result);
   return result;
 };
 

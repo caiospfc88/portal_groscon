@@ -361,6 +361,14 @@ module.exports = function (application) {
     }
   );
 
+  application.get("/proximasAssembleias", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.proximasAssembleias(
+      application,
+      req,
+      res
+    );
+  });
+
   application.get("/cotasCliente", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.cotasCliente(
       application,

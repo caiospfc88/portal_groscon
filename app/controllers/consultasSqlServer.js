@@ -457,6 +457,14 @@ module.exports.movimentosFinanceirosCota = async function (
   var resConsulta = await consultaModel.movimentosFinanceirosCota(req);
   res.send(resConsulta);
 };
+
+module.exports.proximasAssembleias = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.proximasAssembleias(req);
+  res.send(resConsulta);
+};
+
 module.exports.codigosMovimentosFinanceirosCota = async function (
   application,
   req,
