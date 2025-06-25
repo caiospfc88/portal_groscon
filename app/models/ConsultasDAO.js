@@ -1560,8 +1560,6 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
         order by cid.estado,ct.CODIGO_SITUACAO, [CONTEMPLAÇÃO]`
     );
   }
-
-  console.log("result: ", result);
   return result;
 };
 
@@ -2119,7 +2117,6 @@ ConsultasDAO.prototype.docPorCota = async function (req) {
 
 ConsultasDAO.prototype.docPorPlaca = async function (req) {
   let placa = req.query.placa;
-  console.log("placa: ", placa);
   let result = await this._connection(
     `
     select 
@@ -2129,7 +2126,6 @@ ConsultasDAO.prototype.docPorPlaca = async function (req) {
     where placa = '${placa}'
 `
   );
-  console.log("result: ", result);
   return result;
 };
 
@@ -2403,7 +2399,6 @@ where DATA_PAGAMENTO between '${data_inicial}' and '${data_final}'
 
 ConsultasDAO.prototype.cotasCliente = async function (req) {
   let doc = req.query.doc;
-  console.log("doc: ", doc);
   let result = await this._connection(
     `SELECT 
     ct.CODIGO_GRUPO AS grupo,
@@ -2459,7 +2454,6 @@ ORDER BY
     ct.CODIGO_GRUPO, ct.CODIGO_COTA, ct.VERSAO
 `
   );
-  console.log("result: ", result);
   return result;
 };
 
