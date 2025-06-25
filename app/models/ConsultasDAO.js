@@ -2119,12 +2119,17 @@ ConsultasDAO.prototype.docPorCota = async function (req) {
 
 ConsultasDAO.prototype.docPorPlaca = async function (req) {
   let placa = req.query.placa;
-
+  console.log("placa: ", placa);
   let result = await this._connection(
     `
-    select CGC_CPF_FAVORECIDO from CONTROLES_OPCOES where placa = '${placa}'
+    select 
+    ct.CGC_CPF_CLIENTE as 'DOC'
+    from CONTROLES_OPCOES co inner join cotas ct
+    on co.codigo_grupo = ct.codigo_grupo and co.CODIGO_COTA = ct.CODIGO_COTA and co.VERSAO = ct.VERSAO
+    where placa = '${placa}'
 `
   );
+  console.log("result: ", result);
   return result;
 };
 

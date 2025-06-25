@@ -350,7 +350,7 @@ module.exports = function (application) {
     );
   });
   application.get("/docPorPlaca", verifyJWT, function (req, res) {
-    application.app.controllers.consultasSqlServer.docPorCota(
+    application.app.controllers.consultasSqlServer.docPorPlaca(
       application,
       req,
       res
