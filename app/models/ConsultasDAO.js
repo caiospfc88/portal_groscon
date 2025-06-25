@@ -2117,6 +2117,17 @@ ConsultasDAO.prototype.docPorCota = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.docPorPlaca = async function (req) {
+  let placa = req.query.placa;
+
+  let result = await this._connection(
+    `
+    select CGC_CPF_FAVORECIDO from CONTROLES_OPCOES where placa = '${placa}'
+`
+  );
+  return result;
+};
+
 ConsultasDAO.prototype.historicoCota = async function (req) {
   let grupo = req.query.grupo;
   let cota = req.query.cota;

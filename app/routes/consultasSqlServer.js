@@ -349,6 +349,13 @@ module.exports = function (application) {
       res
     );
   });
+  application.get("/docPorPlaca", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.docPorCota(
+      application,
+      req,
+      res
+    );
+  });
   application.get(
     "/cotasPagasAtrasoSemMultaJuros",
     verifyJWT,
