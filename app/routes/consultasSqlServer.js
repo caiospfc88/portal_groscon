@@ -196,6 +196,18 @@ module.exports = function (application) {
       res
     );
   });
+
+  application.get(
+    "/relatorioVendasTabelaComissao",
+    verifyJWT,
+    function (req, res) {
+      application.app.controllers.consultasSqlServer.relatorioVendasTabelaComissao(
+        application,
+        req,
+        res
+      );
+    }
+  );
   application.get("/verificacaoNacionalidade", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.verificacaoNacionalidade(
       application,

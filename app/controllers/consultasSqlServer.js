@@ -253,6 +253,17 @@ module.exports.relatorioPerfilVendas = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.relatorioVendasTabelaComissao = async function (
+  application,
+  req,
+  res
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.relatorioVendasTabelaComissao(req);
+  res.send(resConsulta);
+};
+
 module.exports.verificacaoNacionalidade = async function (
   application,
   req,

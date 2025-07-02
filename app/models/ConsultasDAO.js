@@ -1459,6 +1459,30 @@ ConsultasDAO.prototype.relatorioPerfilVendas = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.relatorioVendasTabelaComissao = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+
+  let result = await this._connection(`
+          select 
+        format (cT.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA DA VENDA',
+        CODIGO_GRUPO as 'GRUPO',
+        CODIGO_COTA AS 'COTA',
+        ct.VERSAO,
+        concat(rep.CODIGO_REPRESENTANTE,' - ',rep.NOME) as 'REPRESENTANTE',
+        CT.CODIGO_TABELA_COMISSAO AS 'TABELA DE COMISSÃO'
+      from COTAS CT inner JOIN CLIENTES CL ON CT.CGC_CPF_CLIENTE = CL.CGC_CPF_CLIENTE and ct.TIPO = cl.TIPO
+        left join REPRESENTANTES rep
+        on ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
+      where 
+        DATA_VENDA between '${data_inicial}' and '${data_final}' 
+        and ct.VERSAO in (0,40,41) 
+        and (ct.CODIGO_TABELA_COMISSAO is null or ct.CODIGO_TABELA_COMISSAO = 0)
+      ORDER BY CT.DATA_VENDA 
+    `);
+  return result;
+};
+
 ConsultasDAO.prototype.selecionaEstados = async function (req) {
   let result = await this._connection(
     `select distinct Estado from CIDADES order by estado`
