@@ -391,6 +391,20 @@ module.exports = function (application) {
       res
     );
   });
+  application.get("/alienacao", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.alienacao(
+      application,
+      req,
+      res
+    );
+  });
+  application.get("/fasesProcessoAlienacao", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.fasesProcessoAlienacao(
+      application,
+      req,
+      res
+    );
+  });
   application.get("/movimentosFinanceirosCota", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.movimentosFinanceirosCota(
       application,

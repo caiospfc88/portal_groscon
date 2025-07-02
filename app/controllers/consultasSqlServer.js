@@ -429,6 +429,20 @@ module.exports.historicoCota = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.alienacao = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.alienacao(req);
+  res.send(resConsulta);
+};
+
+module.exports.fasesProcessoAlienacao = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.fasesProcessoAlienacao(req);
+  res.send(resConsulta);
+};
+
 module.exports.gruposAtivos = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);

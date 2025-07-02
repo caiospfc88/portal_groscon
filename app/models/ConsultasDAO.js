@@ -2404,6 +2404,7 @@ ConsultasDAO.prototype.cotasCliente = async function (req) {
     ct.CODIGO_GRUPO AS grupo,
     ct.CODIGO_COTA AS cota,
     ct.VERSAO AS versao,
+	tg.DESCRICAO as seguimento,
     ct.CGC_CPF_CLIENTE AS doc,
     FORMAT(ct.DATA_ADESAO, 'dd/MM/yyyy', 'en-US') AS adesao,
     CASE
@@ -2435,12 +2436,17 @@ LEFT JOIN
                            AND ct.VERSAO = ce.VERSAO
 LEFT join SITUACOES_COBRANCAS sc
           on ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
+Left join GRUPOS gp
+		  on gp.CODIGO_GRUPO = ct.CODIGO_GRUPO
+left join TIPOS_GRUPOS tg
+		  on gp.CODIGO_TIPO_GRUPO = tg.CODIGO_TIPO_GRUPO	
 WHERE 
     ct.CGC_CPF_CLIENTE = '${doc}'
 GROUP BY 
     ct.CODIGO_GRUPO,
     ct.CODIGO_COTA,
     ct.VERSAO,
+	tg.DESCRICAO,
     ct.CGC_CPF_CLIENTE,
     ct.DATA_ADESAO,
     ct.DATA_CONTEMPLACAO,
@@ -2452,6 +2458,179 @@ GROUP BY
 	sc.DESCRICAO
 ORDER BY 
     ct.CODIGO_GRUPO, ct.CODIGO_COTA, ct.VERSAO
+`
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.alienacao = async function (req) {
+  let grupo = req.query.grupo;
+  let cota = req.query.cota;
+  let versao = req.query.versao;
+
+  let result = await this._connection(
+    `select
+	fr.NOME 'Forma de Recebimento',
+	tpb.DESCRICAO as 'Tipo de Pagamento',
+	co.DESCRICAO_BEM as 'Bem Alienado',
+	fc.NOME as Fornecedor,
+	format(co.VALOR_BEM, 'C', 'pt-BR') as 'Valor do Bem',
+	co.MARCA as Marca,
+	co.MODELO as Modelo,
+	co.COR as Cor,
+	co.ANO_MODELO as 'Ano/Modelo',
+	co.CHASSI as Chassi,
+	co.PLACA as Placa,
+	co.NOTA_FISCAL as 'Nota Fiscal',
+	format(co.DATA_NOTA_FISCAL, 'dd/MM/yyyy', 'en-US') as 'Dt. Nota Fiscal',
+	format(co.VALOR_NOTA_FISCAL, 'C', 'pt-BR') as 'Valor Nota Fiscal',
+	co.OBSERVACOES as Observacoes,
+	format(co.DATA_LIBERACAO, 'dd/MM/yyyy', 'en-US') as 'Dt. da Liberação',
+	co.NUMERO_RECIBO as 'Numero do Recibo',
+	co.NUMERO_CERTIFICADO as 'Numero do Certificado',
+	case
+		when co.SITUACAO_ALIENACAO = 'A' then 'ALIENADO'
+		when co.SITUACAO_ALIENACAO = 'S' then 'SUBSTITUIDO'
+		when co.SITUACAO_ALIENACAO = 'D' then 'DESALIENADO'
+		else 'INDEFINIDO'
+	end as 'Situação da Alienação',
+	co.CODIGO_RENAVAM as 'Renavam',
+	co.CODIGO_CONTROLE_SUBSTITUIDO as Substituido,
+	format(co.DATA_REVISAO_DOCUMENTOS, 'dd/MM/yyyy', 'en-US') as 'Dt. Revisão Documentos',
+	tc.DESCRICAO as Combustivel,
+	case 
+		when co.procedencia = 'N' then 'NOVO'
+		when co.procedencia = 'U' then 'USADO'
+		Else 'INDEFINIDO'
+	End as Procedencia,
+	co.CGC_CPF_FAVORECIDO as 'Doc. Favorecido',
+	co.FAVORECIDO as Favorecido,
+	co.NUMERO_CONTA_CORRENTE as 'Conta Corrente',
+	co.NUMERO_AGENCIA as Agencia,
+	format(co.VALOR_QUITACAO_PARCELAS,'C','pt-BR') as 'Valor Quitação Parcelas',
+	fb.DESCRICAO as Fabricante,
+	concat(co.CODIGO_BANCO,' - ',b.NOME_REDUZIDO) as Banco,
+	co.NUMERO_PROGRAMACAO as 'Nº Programação',
+	rep.NOME as 'Representante Favorecido',
+	case
+		when co.IMOVEL_TIPO = 1 then 'RESIDENCIAL'
+		when co.IMOVEL_TIPO = 2 then 'COMERCIAL'
+		when co.IMOVEL_TIPO = 3 then 'RURAL'
+		else 'INDEFINIDO'
+	end as 'Tipo de Imóvel',
+	case
+		when co.IMOVEL_CATEGORIA = 1 then 'NOVO'
+		when co.IMOVEL_CATEGORIA = 2 then 'USADO'
+		when co.IMOVEL_CATEGORIA = 3 then 'TERRENO'
+		when co.IMOVEL_CATEGORIA = 4 then 'CONSTRUÇÃO'
+		else 'INDEFINIDO'
+	end as 'Categoria',
+	format(co.IMOVEL_VALOR_COMPRA_VENDA, 'C', 'pt-BR') as 'Valor Compra/Venda',
+	format(co.IMOVEL_VALOR_AVALIACAO, 'C', 'pt-BR') as 'Valor Avaliação',
+	co.IMOVEL_LOGRADOURO as Endereco,
+	co.IMOVEL_COMPLEMENTO as Complemento,
+	co.IMOVEL_NUMERO as Numero,
+	co.IMOVEL_BAIRRO as Bairro,
+	cid.NOME AS Cidade,
+  cid.ESTADO as Estado, 
+	co.IMOVEL_CEP as Cep,
+	co.IMOVEL_ESCRITURA_OFICIO as 'Escritura Oficio',
+	co.IMOVEL_ESCRITURA_LIVRO as 'Escritura Livro',
+	co.IMOVEL_ESCRITURA_FOLHA as 'Escritura Folha',
+	concat(cide.NOME,' - ',cide.ESTADO) as 'Escritura Comarca',
+	co.IMOVEL_REGISTRO_MATRICULA as 'Registro Matricula',
+	co.IMOVEL_REGISTRO as 'Registro',
+	co.IMOVEL_REGISTRO_OFICIO as 'Registro Oficio',
+	co.IMOVEL_REGISTRO_PROCESSO as 'Registro Processo',
+	co.IMOVEL_REGISTRO_LIVRO as 'Registro Livro',
+	co.IMOVEL_REGISTRO_FOLHA as 'Registro Folha',
+	co.FAVORECIDO_ENDERECO as 'Endereco Favorecido',
+	co.FAVORECIDO_BAIRRO as 'Bairro Favorecido',
+	cidf.NOME AS 'Cidade Favorecido', 
+	co.FAVORECIDO_CEP as 'Cep Favorecido',
+	co.FAVORECIDO_TELEFONE as 'Tel. Favorecido',
+	format(co.FAVORECIDO_DATA_NASCIMENTO, 'dd/MM/yyyy', 'en-US') as 'Dt. Nasc. Favorecido',
+	cidl.NOME as 'Cidade Licenciamento',
+	format(co.DATA_DESALIENACAO, 'dd/MM/yyyy', 'en-US') as 'Dt. Desalienação',
+	co.NUMERO_AUTORIZACAO as 'Nº Autorização',
+	co.DIGITO_AGENCIA as 'Digito Agencia',
+	co.DIGITO_CONTA_CORRENTE as 'Digito Conta Corrente',
+	format(co.IMOVEL_REGISTRO_DATA,'dd/MM/yyyy','en-US') as 'Dt. Registro do Imovel',
+	co.IMOVEL_REGISTRO_OBS_REGISTRO as 'Obs. Registro Imovel',
+	format(co.IMOVEL_ESCRITURA_DATA,'dd/MM/yyyy','en-US') as 'Dt. Escritura Imovel',
+	co.IMOVEL_ESCRITURA_OBS_ESCRITURA as 'Obs. Escritura Imovel',
+	co.IMOVEL_ESCRITURA_OBS_TITULO as 'Obs. Escritura Titulo',
+	case
+		when co.IMOVEL_GARANTIA = 'P' then 'PRINCIPAL'
+		else 'INDEFINIDO'
+	end as 'Garantia Imovel',
+	case
+		when co.IMOVEL_GARANTIA_TIPO = 'H' then 'HIPOTECA'
+		when co.IMOVEL_GARANTIA_TIPO = 'F' then 'FIDUCIA'
+		else 'INDEFINIDO'
+	end as 'Tipo Garantia Imovel',
+	format(co.IMOVEL_GARANTIA_DATA, 'dd/MM/yyyy','pt-BR') as 'Dt. Garantia Imovel',
+	format(co.DATA_ALIENACAO,'dd/MM/yyyy','pt-BR') as 'Dt. Alienação',
+	format(co.DATA_SUBSTITUICAO,'dd/MM/yyyy','pt-BR') as 'Dt. Substituição',
+	co.UF_PLACA as 'UF Placa',
+	co.NUMERO_GRAVAME as 'Nº Gravame',
+  hpb.DESCRICAO as Historico,
+	af.NOME_REDUZIDO as 'Agente Financeiro',
+  us.NOME as 'Usuario Pagamento'
+from CONTROLES_OPCOES co left join cotas ct
+	on co.codigo_grupo = ct.codigo_grupo and co.codigo_cota = ct.codigo_cota and co.VERSAO = ct.VERSAO
+	left join FORMAS_RECEBIMENTOS fr
+	on co.FORMA_PAGAMENTO = fr.FORMA_RECEBIMENTO
+	left join TIPOS_PAGAMENTOS_BENS tpb
+	on tpb.CODIGO_TIPO_PAGAMENTO = co.CODIGO_TIPO_PAGAMENTO
+	left join FORNECEDORES fc
+	on co.CODIGO_FORNECEDOR = fc.CODIGO_FORNECEDOR
+	left join TIPOS_COMBUSTIVEL tc
+	on co.COMBUSTIVEL = tc.CODIGO_TIPO_COMBUSTIVEL
+	left join FABRICANTES fb
+	on fb.CODIGO_FABRICANTE = co.CODIGO_FABRICANTE
+	left join bancos b
+	on b.codigo_banco = co.codigo_banco
+	left join REPRESENTANTES rep
+	on rep.codigo_representante = co.CODIGO_FAVORECIDO_REPR
+	left join CIDADES cid
+	on co.IMOVEL_MUNICIPIO = cid.CODIGO_CIDADE
+	left join CIDADES cidf
+	on co.FAVORECIDO_CIDADE = cidf.CODIGO_CIDADE
+	left join CIDADES cidl
+	on co.CODIGO_CIDADE_LICENCIAMENTO = cidl.CODIGO_CIDADE
+  left join HISTORICOS_PAGAMENTOS_BENS hpb
+	on hpb.CODIGO_HISTORICO = co.CODIGO_HISTORICO
+  left join AGENTES_FINANCEIROS af
+	on co.CODIGO_AGENTE = af.CODIGO_AGENTE
+  left join USUARIOS us
+	on us.CODIGO_USUARIO = co.CODIGO_USUARIO_PAGAMENTO
+  left join CIDADES cide
+	on cide.CODIGO_CIDADE = co.IMOVEL_ESCRITURA_COMARCA
+where ct.CODIGO_GRUPO = ${grupo} and ct.codigo_cota = ${cota}	and ct.VERSAO = ${versao}
+`
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.fasesProcessoAlienacao = async function (req) {
+  let grupo = req.query.grupo;
+  let cota = req.query.cota;
+  let versao = req.query.versao;
+
+  let result = await this._connection(
+    `
+        SELECT 
+      us.NOME as 'Usuario Cadastro',
+      format(fp.DATA_OCORRENCIA, 'dd/MM/yyyy', 'en-US') as 'Dt. Ocorrencia',
+      CONCAT(fp.CODIGO_FASE, ' - ', dp.DESCRICAO) as 'Fase do Processo'
+    FROM FASES_PROCESSOS FP
+      LEFT JOIN DEF_PROCESSOS DP
+      ON FP.CODIGO_FASE = DP.CODIGO_FASE
+      left join USUARIOS us
+      on fp.CODIGO_USUARIO = us.CODIGO_USUARIO
+    WHERE codigo_grupo = ${grupo} and CODIGO_COTA = ${cota} and VERSAO = ${versao}
+    order by FP.DATA_OCORRENCIA desc
 `
   );
   return result;
