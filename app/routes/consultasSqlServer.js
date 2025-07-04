@@ -50,40 +50,24 @@ module.exports = function (application) {
       res
     );
   });
-  application.get("/relatorioSeguroBradescoPf", verifyJWT, function (req, res) {
-    application.app.controllers.consultasSqlServer.relatorioSeguroBradescoPf(
-      application,
-      req,
-      res
-    );
-  });
-  application.get("/relatorioSeguroBradescoPj", verifyJWT, function (req, res) {
-    application.app.controllers.consultasSqlServer.relatorioSeguroBradescoPj(
+  application.get("/relatorioSeguroBradesco", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.relatorioSeguroBradesco(
       application,
       req,
       res
     );
   });
   application.get(
-    "/gerarPlanilhasBradescoPf",
+    "/gerarPlanilhasBradesco",
     /*verifyJWT,*/ function (req, res) {
-      application.app.controllers.consultasSqlServer.gerarPlanilhasBradescoPf(
+      application.app.controllers.consultasSqlServer.gerarPlanilhasBradesco(
         application,
         req,
         res
       );
     }
   );
-  application.get(
-    "/gerarPlanilhasBradescoPj",
-    /*verifyJWT,*/ function (req, res) {
-      application.app.controllers.consultasSqlServer.gerarPlanilhasBradescoPj(
-        application,
-        req,
-        res
-      );
-    }
-  );
+
   application.patch(
     "/gerarPlanilhasRelatorios",
     /*verifyJWT,*/ function (req, res) {

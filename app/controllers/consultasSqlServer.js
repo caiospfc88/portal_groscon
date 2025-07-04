@@ -63,48 +63,21 @@ module.exports.relatorioAproveitamento = async function (
   var resConsulta = await consultaModel.getRelatorioAproveitamento(req);
   res.send(resConsulta);
 };
-
-module.exports.relatorioSeguroBradescoPf = async function (
+module.exports.relatorioSeguroBradesco = async function (
   application,
   req,
   res
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
-  var resConsulta = await consultaModel.getRelatorioSeguroBradescoPf(req, res);
+  var resConsulta = await consultaModel.relatorioSeguroBradesco(req, res);
   res.send(resConsulta);
 };
 
-module.exports.relatorioSeguroBradescoPj = async function (
-  application,
-  req,
-  res
-) {
+module.exports.gerarPlanilhasBradesco = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
-  var resConsulta = await consultaModel.getRelatorioSeguroBradescoPj(req, res);
-  res.send(resConsulta);
-};
-
-module.exports.gerarPlanilhasBradescoPf = async function (
-  application,
-  req,
-  res
-) {
-  var connection = application.config.dbConnection;
-  var consultaModel = new application.app.models.ConsultasDAO(connection);
-  var resConsulta = await consultaModel.getRelatorioSeguroBradescoPf(req, res);
-  geraPlanilha(req, res, resConsulta);
-};
-
-module.exports.gerarPlanilhasBradescoPj = async function (
-  application,
-  req,
-  res
-) {
-  var connection = application.config.dbConnection;
-  var consultaModel = new application.app.models.ConsultasDAO(connection);
-  var resConsulta = await consultaModel.getRelatorioSeguroBradescoPj(req, res);
+  var resConsulta = await consultaModel.relatorioSeguroBradesco(req, res);
   geraPlanilha(req, res, resConsulta);
 };
 

@@ -43,7 +43,7 @@ function geraPlanilha(req, res, obj) {
     },
     alignment: {
       shrinkToFit: false,
-      horizontal: "right",
+      horizontal: "left",
       wrapText: false,
     },
     border: {
@@ -66,23 +66,52 @@ function geraPlanilha(req, res, obj) {
     },
   });
 
+  if (!Array.isArray(obj) || obj.length === 0) {
+    return res
+      .status(400)
+      .send("Nenhum dado encontrado para gerar a planilha.");
+  }
+
   Object.entries(obj[0]).map(([chave, valor]) => colunas.push(chave));
   let colunaIndex = 1;
-  colunas.forEach((heading) => {
-    ws.cell(1, colunaIndex++).string(heading).style(myStyle);
-    //ws.column(colunaIndex).setWidth(heading.length);
+  let largurasColunas = [];
+
+  colunas.forEach((heading, index) => {
+    ws.cell(1, colunaIndex).string(heading).style(myStyle);
+    // Inicializa largura com o tamanho do cabeçalho
+    largurasColunas[index] = heading.length;
+    colunaIndex++;
   });
   let linhaIndex = 2;
   obj.forEach((record) => {
     let colunaIndex = 1;
-    Object.keys(record).forEach((colunaNome) => {
-      ws.cell(linhaIndex, colunaIndex++)
-        .string(record[colunaNome].toString())
-        .style(myStyle);
+    Object.keys(record).forEach((colunaNome, i) => {
+      let valorCelula =
+        record[colunaNome] != null ? record[colunaNome].toString() : "";
+      ws.cell(linhaIndex, colunaIndex).string(valorCelula).style(myStyle);
+
+      // Atualiza largura máxima
+      if (valorCelula.length > largurasColunas[i]) {
+        largurasColunas[i] = valorCelula.length;
+      }
+
+      colunaIndex++;
     });
     linhaIndex++;
   });
   let pathArquivo = nomeArquivo + ".xls";
+
+  largurasColunas.forEach((largura, index) => {
+    // Limita largura mínima/máxima se quiser
+    let larguraFinal = Math.min(Math.max(largura, 10), 50); // entre 10 e 50
+    ws.column(index + 1).setWidth(larguraFinal);
+  });
+
+  res.setHeader("Content-Type", EXCEL_TYPE);
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename=${nomeArquivo}.xlsx`
+  );
 
   wb.write(pathArquivo, res);
 }
