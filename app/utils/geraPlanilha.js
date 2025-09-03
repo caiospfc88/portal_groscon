@@ -24,6 +24,7 @@ function geraPlanilha(req, res, obj) {
   ano = data_inicial.substr(0, 4);
 
   let nomeArquivo = req.query.nomeArquivo + mes + ano;
+  console.log("nome do arquivo: ", nomeArquivo);
   const options = {
     sheetView: {
       showGridLines: false,
@@ -112,7 +113,7 @@ function geraPlanilha(req, res, obj) {
     "Content-Disposition",
     `attachment; filename=${nomeArquivo}.xlsx`
   );
-
+  console.log("path do arquivo: ", pathArquivo);
   wb.write(pathArquivo, res);
 }
 

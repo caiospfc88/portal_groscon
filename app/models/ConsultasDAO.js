@@ -1212,6 +1212,112 @@ ConsultasDAO.prototype.relatorioSeguroBradesco = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.relatorioSeguroHdi = async function (req) {
+  let data_inicial = req.query.contabil_ini;
+  let data_final = req.query.contabil_fin;
+
+  let result = await this._connection(`
+        select
+  ct.NUMERO_CONTRATO as CONTRATO
+  ,case
+    when cl.PESSOA = 'F' THEN cl.NOME
+    when cl.PESSOA = 'J' THEN cls.NOME
+    else cl.NOME
+  end as 'NOME'
+  ,case
+	when cl.PESSOA = 'F' then 
+		SUBSTRING(cl.CGC_CPF_CLIENTE,1,3) + '.'
+	  + SUBSTRING(cl.CGC_CPF_CLIENTE,4,3) + '.'
+	  + SUBSTRING(cl.CGC_CPF_CLIENTE,7,3) + '-'
+	  + SUBSTRING(cl.CGC_CPF_CLIENTE,10,2)
+	when cl.PESSOA = 'J' then
+		SUBSTRING(cls.CGC_CPF_CLIENTE,1,3) + '.'
+        + SUBSTRING(cls.CGC_CPF_CLIENTE,4,3) + '.'
+        + SUBSTRING(cls.CGC_CPF_CLIENTE,7,3) + '-'
+        + SUBSTRING(cls.CGC_CPF_CLIENTE,10,2)
+  end AS CPF
+  ,convert(CHAR,cl.DATA_NASCIMENTO,103) AS 'DT NASC'
+  ,cl.SEXO as SEXO
+  ,round((((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO)-(ct.PERCENTUAL_NORMAL+ct.TAXA_ADMINISTRACAO_PAGA+ct.PERCENTUAL_ANTECIPADO))*(valor_bem.PRECO_TABELA/100)),2) AS 'VLR COBERT(CATEGORIA)'
+  ,case
+    when DATA_ADESAO < DATA_TRANSFERENCIA
+    THEN convert(CHAR,ct.DATA_TRANSFERENCIA,103)
+    else convert(CHAR,ct.DATA_ADESAO,103)
+  end as 'DATA DE ADESÃO'
+  ,CAST(round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*(VALOR_BEM.PRECO_TABELA/100*sg.PERCENTUAL_SEG_VIDA/100),2,1) AS DECIMAL(18,2)) as 'PRÊMIO TOTAL'
+  ,ct.CODIGO_GRUPO AS GRUPO
+  ,ct.CODIGO_COTA AS COTA
+  ,CT.PRAZO_ORIGINAL_VENDA AS PRAZO
+  ,MES_ANO.NUMERO_ASSEMBLEIA - CT.NUMERO_ASSEMBLEIA_EMISSAO +1 AS PARCELA
+  ,(right(replicate('0',2) + convert(VARCHAR,MONTH(MES_ANO.DATA_CONTABILIZACAO)),2)+CAST(YEAR(MES_ANO.DATA_CONTABILIZACAO) AS CHAR(4))) AS 'MÊS ANO'
+from
+  cotas ct inner join clientes cl on
+    ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE
+    and ct.TIPO = cl.TIPO
+  inner join CIDADES cd on
+    case when CL.CODIGO_CIDADE IS NULL THEN CL.CODIGO_CIDADE_COMERCIAL ELSE cl.CODIGO_CIDADE END = cd.CODIGO_CIDADE
+  inner join SEGURADORAS sg on
+    sg.CODIGO_SEGURADORA = ct.CODIGO_SEGURADORA
+  left join CLIENTES_SOCIOS cls on
+          cls.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+  outer apply (
+    select 
+      top 1 rb.PRECO_TABELA  
+    from 
+      REAJUSTES_BENS rb 
+    where 
+      rb.CODIGO_BEM = ct.CODIGO_BEM 
+    order by rb.DATA_REAJUSTE desc
+  ) as VALOR_BEM
+  outer apply (
+    select 
+      COUNT(*) as Total 
+    from 
+    COBRANCAS_ESPECIAIS ce 
+    where 
+      ce.CODIGO_GRUPO = ct.CODIGO_GRUPO  
+      and ce.CODIGO_COTA = ct.CODIGO_COTA 
+      and ce.VERSAO = ct.VERSAO 
+      and STATUS_PARCELA = 'N'
+  ) as Parcelas_Quitacao
+  outer apply (
+    select
+     COUNT(*) as Parcelas_Pagas
+    from
+      MOVIMENTOS_GRUPOS mg
+    where
+      mg.CODIGO_GRUPO = ct.CODIGO_GRUPO
+      and mg.CODIGO_COTA = ct.CODIGO_COTA
+      and mg.VERSAO = ct.VERSAO
+      and mg.DATA_CONTABILIZACAO between '${data_inicial}' and '${data_final}'
+      and mg.CODIGO_MOVIMENTO in ('010','030','040','200')
+  ) as PP
+  
+  outer apply (
+    select
+     MG.DATA_CONTABILIZACAO, MG.NUMERO_ASSEMBLEIA
+    from
+      MOVIMENTOS_GRUPOS mg
+    where
+      mg.CODIGO_GRUPO = ct.CODIGO_GRUPO
+      and mg.CODIGO_COTA = ct.CODIGO_COTA
+      and mg.VERSAO = ct.VERSAO
+      and mg.DATA_CONTABILIZACAO between '${data_inicial}' and '${data_final}'
+      and mg.CODIGO_MOVIMENTO in ('010','030','040','200')
+  ) as MES_ANO      
+where
+   ct.VERSAO < '50'
+  and pp.Parcelas_Pagas > 0
+  and ct.CODIGO_SEGURADORA = '039'
+  and round((((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO)-(ct.PERCENTUAL_NORMAL+ct.TAXA_ADMINISTRACAO_PAGA+ct.PERCENTUAL_ANTECIPADO))*(valor_bem.PRECO_TABELA/100)),2) > 5
+  and round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*VALOR_BEM.PRECO_TABELA/100,2)+round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*(VALOR_BEM.PRECO_TABELA/100*sg.PERCENTUAL_SEG_VIDA/100)*parcelas_quitacao.total,2) > 0
+order by
+  ct.NUMERO_CONTRATO
+    `);
+
+  return result;
+};
+
 ConsultasDAO.prototype.selecionaPeriodoComissao = async function (req) {
   let periodo = req.query.periodo;
 

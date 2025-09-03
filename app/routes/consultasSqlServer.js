@@ -57,10 +57,28 @@ module.exports = function (application) {
       res
     );
   });
+  application.get("/relatorioSeguroHdi", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.relatorioSeguroHdi(
+      application,
+      req,
+      res
+    );
+  });
   application.get(
     "/gerarPlanilhasBradesco",
     /*verifyJWT,*/ function (req, res) {
       application.app.controllers.consultasSqlServer.gerarPlanilhasBradesco(
+        application,
+        req,
+        res
+      );
+    }
+  );
+
+  application.get(
+    "/gerarPlanilhasHdi",
+    /*verifyJWT,*/ function (req, res) {
+      application.app.controllers.consultasSqlServer.gerarPlanilhasHdi(
         application,
         req,
         res

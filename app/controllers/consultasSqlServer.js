@@ -74,10 +74,24 @@ module.exports.relatorioSeguroBradesco = async function (
   res.send(resConsulta);
 };
 
+module.exports.relatorioSeguroHdi = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.relatorioSeguroHdi(req, res);
+  res.send(resConsulta);
+};
+
 module.exports.gerarPlanilhasBradesco = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.relatorioSeguroBradesco(req, res);
+  geraPlanilha(req, res, resConsulta);
+};
+
+module.exports.gerarPlanilhasHdi = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.relatorioSeguroHdi(req, res);
   geraPlanilha(req, res, resConsulta);
 };
 
