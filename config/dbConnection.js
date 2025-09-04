@@ -16,6 +16,8 @@ const sqlConfig = {
     encrypt: false,
     trustServerCertificate: true, // change to true for local dev / self-signed certs
   },
+  requestTimeout: 120000, // até 120s para execução do select
+  connectionTimeout: 30000, // até 30s para conectar
 };
 
 var conexao = async function (sqlQuery) {
