@@ -799,8 +799,8 @@ ConsultasDAO.prototype.getQuitados = async function (req) {
 	   tc.FONE_FAX as 'Telefone tab.',
 	   cl.NOME as 'Nome',
 	   format(rb.PRECO_TABELA, 'C', 'pt-br') as 'Valor Crédito',
-	   cl.E_MAIL as 'E-mail'
-	   --rep.NOME as Representante, 
+	   cl.E_MAIL as 'E-mail',
+	   (ct.CODIGO_REPRESENTANTE + ' - ' +  rep.NOME) as Vendedor
   from cotas ct
  inner join clientes cl 
    on cl.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
