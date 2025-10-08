@@ -1248,6 +1248,10 @@ ConsultasDAO.prototype.relatorioSeguroHdi = async function (req) {
   ,round((100+ct.PERCENTUAL_TAXA_ADMINISTRACAO-ct.PERCENTUAL_NORMAL-ct.TAXA_ADMINISTRACAO_PAGA-ct.PERCENTUAL_ANTECIPADO)*(VALOR_BEM.PRECO_TABELA/100*sg.PERCENTUAL_SEG_VIDA/100),2,1)  as 'PRÊMIO TOTAL'
   ,ct.CODIGO_GRUPO AS GRUPO
   ,ct.CODIGO_COTA AS COTA
+  ,case 
+    when tgp.DESCRICAO = 'AUTOMOVEIS NACIONAIS' then 'AUTOMÓVEIS'
+    else tgp.DESCRICAO
+  end as 'TIPO BEM'
   ,CT.PRAZO_ORIGINAL_VENDA AS PRAZO
   ,MES_ANO.NUMERO_ASSEMBLEIA - CT.NUMERO_ASSEMBLEIA_EMISSAO +1 AS PARCELA
   ,(right(replicate('0',2) + convert(VARCHAR,MONTH(MES_ANO.DATA_CONTABILIZACAO)),2)+CAST(YEAR(MES_ANO.DATA_CONTABILIZACAO) AS CHAR(4))) AS 'MÊS ANO'
@@ -1261,6 +1265,10 @@ from
     sg.CODIGO_SEGURADORA = ct.CODIGO_SEGURADORA
   left join CLIENTES_SOCIOS cls on
           cls.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+  left join GRUPOS gp on
+		  ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+  left join TIPOS_GRUPOS tgp on
+		  gp.CODIGO_TIPO_GRUPO = tgp.CODIGO_TIPO_GRUPO
   outer apply (
     select 
       top 1 rb.PRECO_TABELA  
@@ -1290,7 +1298,7 @@ from
       mg.CODIGO_GRUPO = ct.CODIGO_GRUPO
       and mg.CODIGO_COTA = ct.CODIGO_COTA
       and mg.VERSAO = ct.VERSAO
-	    and mg.CODIGO_SEGURADORA = 40 --39 Bradesco     40 - HDI
+	  and mg.CODIGO_SEGURADORA = 40 -- in (40,39) -- 39 - Bradesco   40 - HDI
       and mg.DATA_CONTABILIZACAO between '${data_inicial}' and '${data_final}'
       and mg.CODIGO_MOVIMENTO in ('010','030','040','200')
   ) as PP
@@ -1303,10 +1311,9 @@ from
         mg.CODIGO_GRUPO = ct.CODIGO_GRUPO
         and mg.CODIGO_COTA = ct.CODIGO_COTA
         and mg.VERSAO = ct.VERSAO
-        and mg.CODIGO_SEGURADORA = 40 -- Bradesco
+        and mg.CODIGO_SEGURADORA = 40 -- in (40,39) -- 39 - Bradesco   40 - HDI
         and mg.CODIGO_MOVIMENTO in ('010','030','040','200')
-) as ADS
-  
+	) as ADS
   outer apply (
     select
      MG.DATA_CONTABILIZACAO, MG.NUMERO_ASSEMBLEIA
