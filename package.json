@@ -35,6 +35,6 @@
   "devDependencies": {
     "@types/pdfmake": "^0.2.9",
     "excel4node": "^1.8.2",
-    "sequelize-cli": "^6.6.1"
+    "sequelize-cli": "^6.6.3"
   }
 }

@@ -1,25 +1,42 @@
 const { verifyJWT } = require("../utils/auth");
 
-module.exports = function (application) {
-  application.get("/listarPaginasUsuario", verifyJWT, function (req, res) {
-    application.app.controllers.paginas_usuario.listarPaginasUsuario(req, res);
-  });
-  application.get("/consultarPaginasUsuario", verifyJWT, function (req, res) {
-    application.app.controllers.paginas_usuario.consultarPaginasUsuario(
-      req,
-      res
-    );
-  });
-  application.post("/cadastrarPaginasUsuario", verifyJWT, function (req, res) {
-    application.app.controllers.paginas_usuario.cadastrarPaginasUsuario(
-      req,
-      res
-    );
-  });
-  application.put("/alterarPaginasUsuario", verifyJWT, function (req, res) {
-    application.app.controllers.paginas_usuario.alterarPaginasUsuario(req, res);
-  });
-  application.delete("/excluirPaginasUsuario", verifyJWT, function (req, res) {
-    application.app.controllers.paginas_usuario.excluirPaginasUsuario(req, res);
-  });
+module.exports = (application) => {
+  const controller = application.app.controllers.paginas_usuario;
+
+  application.get(
+    "/listarPaginasUsuario",
+    verifyJWT,
+    controller.listarPaginasUsuario
+  );
+  application.get(
+    "/consultarPaginasUsuario",
+    verifyJWT,
+    controller.consultarPaginasUsuario
+  );
+  application.post(
+    "/cadastrarPaginasUsuario",
+    verifyJWT,
+    controller.cadastrarPaginasUsuario
+  );
+  application.post(
+    "/cadastrarPaginasUsuarioBatch",
+    verifyJWT,
+    controller.cadastrarPaginasUsuarioBatch
+  );
+
+  application.delete(
+    "/excluirPaginasUsuarioBatch",
+    verifyJWT,
+    controller.excluirPaginasUsuarioBatch
+  );
+  application.put(
+    "/alterarPaginasUsuario",
+    verifyJWT,
+    controller.alterarPaginasUsuario
+  );
+  application.delete(
+    "/excluirPaginasUsuario",
+    verifyJWT,
+    controller.excluirPaginasUsuario
+  );
 };

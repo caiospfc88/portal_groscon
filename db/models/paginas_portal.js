@@ -25,6 +25,8 @@ module.exports = (sequelize, DataTypes) => {
   Paginas_portal.associate = (models) => {
     models.paginas_portal.belongsToMany(models.usuarios, {
       through: models.paginas_usuario,
+      foreignKey: "id_pagina",
+      otherKey: "id_usuario",
     });
   };
 

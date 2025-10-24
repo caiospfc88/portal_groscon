@@ -14,14 +14,14 @@ app.set("views", "./app/views");
 
 app.use(cors({ origin: "*" }));
 
-app.use(bodyParser.json({ limit: '10mb' })); // Ajuste o valor conforme necessário
-app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+app.use(bodyParser.json({ limit: "10mb" })); // Ajuste o valor conforme necessário
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 
 consign()
-  .include("app/routes")
-  .then("config/dbConnection.js")
+  .include("config/dbConnection.js")
   .then("app/models")
   .then("app/controllers")
+  .then("app/routes")
   .into(app);
 
 module.exports = app;

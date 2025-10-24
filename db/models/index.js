@@ -46,13 +46,19 @@ fs.readdirSync(__dirname)
     db[model.name] = model;
   });
 
-/*Object.keys(db).forEach((modelName) => {
+Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
   }
-});*/
+});
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
+console.log("Models carregados:", Object.keys(db));
+console.log(
+  "Associações usuarios:",
+  Object.keys(db.usuarios?.associations || {})
+);
 
 module.exports = db;
