@@ -2,15 +2,11 @@
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Mural_dados extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
+      // pertence a mural_descricao usando a FK existente no banco
       models.mural_dados.belongsTo(models.mural_descricao, {
         foreignKey: "id_mural_descricao",
-        as: "id_mural_descricao_fk",
+        as: "muralDescricao", // alias legível para usar em include
       });
     }
   }
@@ -27,10 +23,6 @@ module.exports = (sequelize, DataTypes) => {
       freezeTableName: true,
     }
   );
-
-  /*Mural_dados.associate = (models) => {
-    models.mural_dados.belongsTo(models.mural_descricao);
-  };*/
 
   return Mural_dados;
 };
