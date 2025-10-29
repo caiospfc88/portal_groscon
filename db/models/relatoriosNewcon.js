@@ -4,8 +4,8 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class RelatoriosNewcon extends Model {
     static associate(models) {
-      models.relatoriosNewcon.belongsToMany(models.usuarios, {
-        through: models.relatoriosNewcon_usuario,
+      models.relatoriosnewcon.belongsToMany(models.usuarios, {
+        through: models.relatoriosnewcon_usuario,
         foreignKey: "relatorio_id",
         otherKey: "id_usuario",
       });
@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "relatoriosNewcon",
+      modelName: "relatoriosnewcon",
       freezeTableName: true,
     }
   );
