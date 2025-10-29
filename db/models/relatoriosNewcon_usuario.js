@@ -4,10 +4,10 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class RelatoriosNewcon_usuario extends Model {
     static associate(models) {
-      models.relatoriosnewcon_usuario.belongsTo(models.usuarios, {
+      models.relatoriosNewcon_usuario.belongsTo(models.usuarios, {
         foreignKey: "id_usuario",
       });
-      models.relatoriosnewcon_usuario.belongsTo(models.relatoriosnewcon, {
+      models.relatoriosNewcon_usuario.belongsTo(models.relatoriosNewcon, {
         foreignKey: "relatorio_id",
       });
     }
@@ -20,8 +20,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "relatoriosnewcon_usuario",
+      modelName: "relatoriosNewcon_usuario", // mantém referência usada no código
+      tableName: "relatoriosnewcon_usuario", // <-- nome exato da tabela no MySQL (lowercase)
       freezeTableName: true,
+      timestamps: true, // ajuste se sua tabela NÃO tiver createdAt/updatedAt
     }
   );
 
