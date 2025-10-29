@@ -211,8 +211,8 @@ module.exports.listarDescricoesRelatoriosDoUsuario = async function (req, res) {
 
     const sql = `
       SELECT r.descricao AS descricao
-      FROM relatoriosNewcon_usuario ru
-      JOIN relatoriosNewcon r ON r.id = ru.relatorio_id
+      FROM relatoriosnewcon_usuario ru
+      JOIN relatoriosnewcon r ON r.id = ru.relatorio_id
       WHERE ru.id_usuario = :userId
     `;
 
