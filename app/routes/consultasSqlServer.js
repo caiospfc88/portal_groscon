@@ -151,6 +151,30 @@ module.exports = function (application) {
     );
   });
 
+  application.get("/comissoesPagasAnalitico", function (req, res) {
+    application.app.controllers.consultasSqlServer.comissoesPagasAnalitico(
+      application,
+      req,
+      res
+    );
+  });
+
+  application.get("/comissoesPagasSintetico", function (req, res) {
+    application.app.controllers.consultasSqlServer.comissoesPagasSintetico(
+      application,
+      req,
+      res
+    );
+  });
+
+  application.get("/rateioComissaoFixa", function (req, res) {
+    application.app.controllers.consultasSqlServer.rateioComissaoFixa(
+      application,
+      req,
+      res
+    );
+  });
+
   application.get("/selecionaEstados", function (req, res) {
     application.app.controllers.consultasSqlServer.selecionaEstados(
       application,

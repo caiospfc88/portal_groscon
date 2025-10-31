@@ -47,7 +47,41 @@ function calcularTamanhoFonte(dados) {
 
 const printer = new PdfPrinter(fonts);
 
-function gerarRelatorioPDF(dados, relatorio, usuario, complemento) {
+function formatarBRL(valor) {
+  try {
+    // aceita number ou string numérica
+    const n =
+      typeof valor === "number"
+        ? valor
+        : parseFloat(
+            String(valor)
+              .replace(/[^\d,-\.]/g, "")
+              .replace(",", ".")
+          );
+    if (!isFinite(n)) return String(valor);
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(n);
+  } catch (e) {
+    return String(valor);
+  }
+}
+
+/**
+ * gerarRelatorioPDF(dados, relatorio, usuario, complemento, total?)
+ * - total opcional: pode ser
+ *    - number -> exibido como uma linha "Total: R$ X"
+ *    - string -> exibida como fornecida
+ *    - object -> interpretado como { label1: value1, label2: value2, ... } e renderiza múltiplas linhas
+ */
+function gerarRelatorioPDF(
+  dados,
+  relatorio,
+  usuario,
+  complemento,
+  total = null
+) {
   const data = new Date().toLocaleDateString("pt-BR");
   return new Promise((resolve, reject) => {
     if (!Array.isArray(dados) || dados.length === 0) {
@@ -67,6 +101,49 @@ function gerarRelatorioPDF(dados, relatorio, usuario, complemento) {
     ];
 
     const tamanhoFonteCalculado = calcularTamanhoFonte(dados);
+
+    // --- Bloco opcional de total (construído somente se houver total) ---
+    let blocoTotal = null;
+    if (total !== null && total !== undefined) {
+      // se for objeto, percorre as chaves; se string/number monta uma única linha
+      if (typeof total === "object" && !Array.isArray(total)) {
+        // monta um array de linhas [{ text: 'Label: R$ X' }, ...]
+        const linhas = Object.keys(total).map((k) => {
+          const v = total[k];
+          const texto = `${k}: ${
+            typeof v === "number" ? formatarBRL(v) : String(v)
+          }`;
+          return { text: texto, margin: [0, 2, 0, 2] };
+        });
+        blocoTotal = {
+          margin: [0, 8, 0, 0],
+          stack: [
+            { text: "Totais", style: "subHeader", margin: [0, 0, 0, 6] },
+            ...linhas,
+          ],
+          alignment: "right",
+        };
+      } else {
+        // number ou string
+        const textoTotal =
+          typeof total === "number" ? formatarBRL(total) : String(total);
+        blocoTotal = {
+          margin: [0, 8, 0, 0],
+          columns: [
+            { width: "*", text: "" },
+            {
+              width: "auto",
+              stack: [
+                { text: "Total", style: "subHeader", margin: [0, 0, 0, 6] },
+                { text: textoTotal, bold: true },
+              ],
+              alignment: "right",
+            },
+          ],
+        };
+      }
+    }
+    // --- fim bloco opcional de total ---
 
     const docDefinition = {
       pageOrientation: relatorio.pdfOrientation,
@@ -127,6 +204,8 @@ function gerarRelatorioPDF(dados, relatorio, usuario, complemento) {
             { width: "*", text: "" },
           ],
         },
+        // aqui inserimos o blocoTotal (se existir)
+        ...(blocoTotal ? [blocoTotal] : []),
       ],
       styles: {
         header: {

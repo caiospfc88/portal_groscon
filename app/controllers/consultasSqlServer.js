@@ -21,6 +21,35 @@ module.exports.comissoesSemReducao = async function (application, req, res) {
   res.send(comissao);
 };
 
+module.exports.comissoesPagasAnalitico = async function (
+  application,
+  req,
+  res
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.comissoesPagasAnalitico(req);
+  res.send(resConsulta);
+};
+
+module.exports.comissoesPagasSintetico = async function (
+  application,
+  req,
+  res
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.comissoesPagasSintetico(req);
+  res.send(resConsulta);
+};
+
+module.exports.rateioComissaoFixa = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.rateioComissaoFixa(req);
+  res.send(resConsulta);
+};
+
 module.exports.quitados = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -121,7 +150,7 @@ module.exports.gerarPdfComissaoDados = async function (application, req, res) {
 };
 
 module.exports.gerarPdfGenerico = async function (application, req, res) {
-  const { dados, relatorio, usuario, complemento } = req.body;
+  const { dados, relatorio, usuario, complemento, total } = req.body;
   if (!dados || !Array.isArray(dados)) {
     return res.status(400).json({ erro: "Dados inválidos" });
   }
@@ -131,7 +160,8 @@ module.exports.gerarPdfGenerico = async function (application, req, res) {
       dados,
       relatorio,
       usuario,
-      complemento
+      complemento,
+      total
     );
 
     res.setHeader("Content-Type", "application/pdf");

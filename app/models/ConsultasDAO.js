@@ -828,6 +828,388 @@ ConsultasDAO.prototype.getQuitados = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.comissoesPagasAnalitico = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+
+  let result = await this._connection(`select 
+case 
+	when COMISSAO_BONIFICACAO = 'C' then 'Comissão Paga'
+	else COMISSAO_BONIFICACAO
+end as 'Tipo',
+ct.ID_COTA as ID_Cota,
+'ID_Empresa' = 1,
+cp.CODIGO_GRUPO as CD_Grupo,
+cp.CODIGO_COTA as CD_Cota,
+cp.VERSAO,
+( rep.NOME + ' - ' + cp.CODIGO_REPRESENTANTE)  as Represent,
+format(cp.DATA_FINAL,'dd/MM/yyyy','en-US') as 'DT_Evento',
+cp.PARCELA_LIBERACAO as Parcela,
+cp.VALOR_COMISSAO_BONIFICACAO as Valor
+from COMISSOES_PAGAS cp
+inner join cotas ct
+on ct.codigo_grupo = cp.CODIGO_GRUPO and ct.CODIGO_COTA = cp.CODIGO_COTA and ct.VERSAO = cp.VERSAO
+left join REPRESENTANTES rep
+on cp.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
+where DATA_FInal between '${data_inicial}' and '${data_final}' --and CODIGO_REPRESENTANTE in (2377) and CODIGO_COTA = 10
+order by cp.CODIGO_REPRESENTANTE`);
+  return result;
+};
+
+ConsultasDAO.prototype.comissoesPagasSintetico = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+
+  let result = await this._connection(`SELECT
+    
+    (rep.NOME + ' - ' + cp.CODIGO_REPRESENTANTE) AS Represent,
+    SUM(cp.VALOR_COMISSAO_BONIFICACAO) AS 'Valor Por Representante'
+    
+FROM
+    COMISSOES_PAGAS cp
+LEFT JOIN
+    REPRESENTANTES rep ON cp.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
+WHERE
+    cp.DATA_FINAL BETWEEN '${data_inicial}' and '${data_final}'
+    -- AND cp.CODIGO_REPRESENTANTE IN (2377) AND cp.CODIGO_COTA = 10 -- Linha comentada do seu exemplo
+GROUP BY
+    (rep.NOME + ' - ' + cp.CODIGO_REPRESENTANTE)
+ORDER BY
+    Represent;`);
+  return result;
+};
+
+ConsultasDAO.prototype.rateioComissaoFixa = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+  let data_pag_comissao = req.query.data_pag_comissao;
+  let valorFixo = req.query.valorFixo;
+  let representante = req.query.representante;
+
+  let result = await this._connection(`;WITH base AS
+(
+    select distinct
+         0 as ID_Sequencia,
+         1 as ID_Empresa,
+         ct.ID_COTA as ID_Cota,
+         (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) as Parcela,
+         RIGHT('000000' + CAST(${representante} AS VARCHAR(6)), 6) AS Represent,
+         0 as Categoria,
+         0 as 'Período',
+         '${data_pag_comissao}' as Data_Com,
+         '${data_pag_comissao}' as DT_Geracao,
+         mg.VALOR_BEM AS VL_BEM,
+		 'N' as SN_Bonus,
+		 'J' as Tipo_Favorecido
+    from COTAS ct
+    inner join MOVIMENTOS_GRUPOS mg
+        on ct.CODIGO_GRUPO = mg.CODIGO_GRUPO
+        and ct.CODIGO_COTA = mg.CODIGO_COTA
+        and ct.VERSAO = mg.VERSAO
+    inner join REPRESENTANTES rp
+        on rp.CODIGO_REPRESENTANTE = ct.CODIGO_REPRESENTANTE
+    inner join CATEGORIAS_REPRESENTANTES ctr
+        on case when rp.CODIGO_CATEGORIA is null then rp.CODIGO_CATEGORIA_SUPERVISAO else rp.CODIGO_CATEGORIA end = ctr.CODIGO_CATEGORIA
+    inner join PROPOSTAS pp
+        on pp.NUMERO_CONTRATO = ct.NUMERO_CONTRATO
+    inner join PERIODOS_COMISSOES pc
+        on pc.CODIGO_PERIODO = rp.CODIGO_PERIODO or mg.DATA_CONTABILIZACAO between pc.DATA_CONTABILIZACAO_INICIAL and pc.DATA_CONTABILIZACAO_FINAL
+
+    /* OUTER APPLYs que precisamos declarar antes do WHERE */
+    outer apply(
+        select TOP 1 pc.DATA_CONTABILIZACAO_INICIAL AS DATA_INICIAL_VENDA
+        from PERIODOS_COMISSOES pc
+        where CODIGO_PERIODO = 1
+          and DATA_CONTABILIZACAO_INICIAL <= ct.DATA_VENDA
+        ORDER BY pc.DATA_CONTABILIZACAO_INICIAL DESC
+    ) PC_DT1
+
+    outer apply(
+        select TOP 1 pc.DATA_CONTABILIZACAO_FINAL AS DATA_FINAL_VENDA
+        from PERIODOS_COMISSOES pc
+        where CODIGO_PERIODO = 1
+          and DATA_CONTABILIZACAO_FINAL >= ct.DATA_VENDA
+        ORDER BY pc.DATA_CONTABILIZACAO_INICIAL
+    ) PC_DT2
+
+    outer apply
+    (
+        select SUM(pp2.VALOR_BEM) as total
+        from PROPOSTAS pp2
+        where pp2.DATA_VENDA between PC_DT1.DATA_INICIAL_VENDA and PC_DT2.DATA_FINAL_VENDA
+          and pp2.CODIGO_REPRESENTANTE = ct.CODIGO_REPRESENTANTE
+    ) as TOTAL_VENDAS
+
+    outer apply
+    (
+        select top 1 pce.PERCENTUAL_NORMAL
+        from COBRANCAS_ESPECIAIS ce
+        inner join PERC_COBRANCAS_ESPECIAIS pce
+            on ce.CODIGO_COBRANCA_ESPECIAL = pce.CODIGO_COBRANCA_ESPECIAL
+        where ce.CODIGO_GRUPO = ct.CODIGO_GRUPO
+          and ce.CODIGO_COTA = ct.CODIGO_COTA
+          and ce.VERSAO = ct.VERSAO
+        order by ce.PARCELA desc
+    ) as Perc_reduz
+
+    /* nivel1 */
+    outer apply
+    (
+        select
+           case 
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_1  THEN cc.PERC_1
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_2  THEN cc.PERC_2
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_3  THEN cc.PERC_3
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_4  THEN cc.PERC_4
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_5  THEN cc.PERC_5
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_6  THEN cc.PERC_6
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_7  THEN cc.PERC_7
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_8  THEN cc.PERC_8
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_9  THEN cc.PERC_9
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_10 THEN cc.PERC_10
+           END AS PERC_COMISSAO,
+           cc.NUMERO_PARCELA,
+           cc.PERC_1,
+           ctr.DESCRICAO,
+           rp.CODIGO_REPRESENTANTE,
+           rp.CODIGO_ENCARREGADO,
+           rp.CODIGO_EQUIPE,
+           QPC.NUMERO_PARCELAS_MAXIMO
+        from COMISSOES_CATEGORIAS cc
+        outer apply
+        (
+            select max(NUMERO_PARCELA) as NUMERO_PARCELAS_MAXIMO
+            from COMISSOES_CATEGORIAS
+            where NUMERO_PARCELA < 500
+              AND CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+              and case when rp.CODIGO_CATEGORIA IS NULL THEN rp.CODIGO_CATEGORIA_SUPERVISAO ELSE rp.CODIGO_CATEGORIA END = CODIGO_CATEGORIA
+        ) as QPC
+        where cc.CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+          and cc.NUMERO_PARCELA = (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1)
+          and case when rp.CODIGO_CATEGORIA IS NULL THEN rp.CODIGO_CATEGORIA_SUPERVISAO ELSE rp.CODIGO_CATEGORIA END = CC.CODIGO_CATEGORIA
+    ) as nivel1
+
+    /* rep2 (usa rp.CODIGO_ENCARREGADO) */
+    outer apply
+    (
+        select rp2.CODIGO_REPRESENTANTE, rp2.CODIGO_ENCARREGADO, rp2.CODIGO_CATEGORIA, rp2.CODIGO_CATEGORIA_SUPERVISAO, rp2.CODIGO_EQUIPE
+        from REPRESENTANTES rp2
+        where rp2.CODIGO_REPRESENTANTE = rp.CODIGO_ENCARREGADO
+    ) as rep2
+
+    /* nivel2 (usa rep2) */
+    outer apply
+    (
+        select
+           case 
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_1  THEN cc.PERC_1
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_2  THEN cc.PERC_2
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_3  THEN cc.PERC_3
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_4  THEN cc.PERC_4
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_5  THEN cc.PERC_5
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_6  THEN cc.PERC_6
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_7  THEN cc.PERC_7
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_8  THEN cc.PERC_8
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_9  THEN cc.PERC_9
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_10 THEN cc.PERC_10
+           END AS PERC_COMISSAO,
+           cc.NUMERO_PARCELA,
+           cc.PERC_1,
+           rep2.CODIGO_CATEGORIA_SUPERVISAO,
+           rep2.CODIGO_REPRESENTANTE,
+           rep2.CODIGO_ENCARREGADO,
+           rep2.CODIGO_EQUIPE,
+           cr.DESCRICAO,
+           QPC.NUMERO_PARCELAS_MAXIMO
+        from COMISSOES_CATEGORIAS cc
+        inner join CATEGORIAS_REPRESENTANTES cr on cc.CODIGO_CATEGORIA = cr.CODIGO_CATEGORIA
+        outer apply
+        (
+            select max(NUMERO_PARCELA) as NUMERO_PARCELAS_MAXIMO
+            from COMISSOES_CATEGORIAS
+            where NUMERO_PARCELA < 500
+              AND CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+              and case when rep2.CODIGO_CATEGORIA_SUPERVISAO IS NULL THEN rep2.CODIGO_CATEGORIA ELSE rep2.CODIGO_CATEGORIA_SUPERVISAO END = CODIGO_CATEGORIA
+        ) as QPC
+        where cc.CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+          and cc.NUMERO_PARCELA = (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1)
+          and case when rep2.CODIGO_CATEGORIA_SUPERVISAO IS NULL THEN rep2.CODIGO_CATEGORIA ELSE rep2.CODIGO_CATEGORIA_SUPERVISAO END = CC.CODIGO_CATEGORIA
+    ) as nivel2
+
+    /* rep3 (usa rep2.CODIGO_ENCARREGADO) */
+    outer apply
+    (
+        select rp3.CODIGO_REPRESENTANTE, rp3.CODIGO_ENCARREGADO, rp3.CODIGO_CATEGORIA, rp3.CODIGO_CATEGORIA_SUPERVISAO, rp3.CODIGO_EQUIPE
+        from REPRESENTANTES rp3
+        where rp3.CODIGO_REPRESENTANTE = rep2.CODIGO_ENCARREGADO
+    ) as rep3
+
+    /* nivel3 */
+    outer apply
+    (
+        select
+           cc.NUMERO_PARCELA,
+           case 
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_1  THEN cc.PERC_1
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_2  THEN cc.PERC_2
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_3  THEN cc.PERC_3
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_4  THEN cc.PERC_4
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_5  THEN cc.PERC_5
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_6  THEN cc.PERC_6
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_7  THEN cc.PERC_7
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_8  THEN cc.PERC_8
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_9  THEN cc.PERC_9
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_10 THEN cc.PERC_10
+           END AS PERC_COMISSAO,
+           cc.PERC_1,
+           rep3.CODIGO_CATEGORIA_SUPERVISAO,
+           rep3.CODIGO_REPRESENTANTE,
+           rep3.CODIGO_ENCARREGADO,
+           rep3.CODIGO_EQUIPE,
+           cr.DESCRICAO,
+           qpc.NUMERO_PARCELAS_MAXIMO
+        from COMISSOES_CATEGORIAS cc
+        inner join CATEGORIAS_REPRESENTANTES cr on cc.CODIGO_CATEGORIA = cr.CODIGO_CATEGORIA
+        outer apply
+        (
+            select max(NUMERO_PARCELA) as NUMERO_PARCELAS_MAXIMO
+            from COMISSOES_CATEGORIAS
+            where NUMERO_PARCELA < 500
+              AND CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+              and case when rep3.CODIGO_CATEGORIA_SUPERVISAO IS NULL THEN rep3.CODIGO_CATEGORIA ELSE rep3.CODIGO_CATEGORIA_SUPERVISAO END = CODIGO_CATEGORIA
+        ) as qpc
+        where cc.CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+          and cc.NUMERO_PARCELA = (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1)
+          and case when rep3.CODIGO_CATEGORIA_SUPERVISAO IS NULL THEN rep3.CODIGO_CATEGORIA ELSE rep3.CODIGO_CATEGORIA_SUPERVISAO END = CC.CODIGO_CATEGORIA
+    ) as nivel3
+
+    /* rep4 */
+    outer apply
+    (
+        select rp4.CODIGO_REPRESENTANTE, rp4.CODIGO_ENCARREGADO, rp4.CODIGO_CATEGORIA, rp4.CODIGO_CATEGORIA_SUPERVISAO, rp4.CODIGO_EQUIPE
+        from REPRESENTANTES rp4
+        where rp4.CODIGO_REPRESENTANTE = rep3.CODIGO_ENCARREGADO
+    ) as rep4
+
+    /* nivel4 */
+    outer apply
+    (
+        select
+           case 
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_1  THEN cc.PERC_1
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_2  THEN cc.PERC_2
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_3  THEN cc.PERC_3
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_4  THEN cc.PERC_4
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_5  THEN cc.PERC_5
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_6  THEN cc.PERC_6
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_7  THEN cc.PERC_7
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_8  THEN cc.PERC_8
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_9  THEN cc.PERC_9
+             WHEN TOTAL_VENDAS.total <= cc.FAIXA_10 THEN cc.PERC_10
+           END AS PERC_COMISSAO,
+           cc.NUMERO_PARCELA,
+           cc.PERC_1,
+           rep4.CODIGO_CATEGORIA_SUPERVISAO,
+           rep4.CODIGO_REPRESENTANTE,
+           rep4.CODIGO_ENCARREGADO,
+           rep4.CODIGO_EQUIPE,
+           cr.DESCRICAO,
+           qpc.NUMERO_PARCELAS_MAXIMO
+        from COMISSOES_CATEGORIAS cc
+        inner join CATEGORIAS_REPRESENTANTES cr on cc.CODIGO_CATEGORIA = cr.CODIGO_CATEGORIA
+        outer apply
+        (
+            select max(NUMERO_PARCELA) as NUMERO_PARCELAS_MAXIMO
+            from COMISSOES_CATEGORIAS
+            where NUMERO_PARCELA < 500
+              AND CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+              and case when rep4.CODIGO_CATEGORIA_SUPERVISAO IS NULL THEN rep4.CODIGO_CATEGORIA ELSE rep4.CODIGO_CATEGORIA_SUPERVISAO END = CODIGO_CATEGORIA
+        ) as qpc
+        where cc.CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+          and cc.NUMERO_PARCELA = (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1)
+          and case when rep4.CODIGO_CATEGORIA_SUPERVISAO IS NULL THEN rep4.CODIGO_CATEGORIA ELSE rep4.CODIGO_CATEGORIA_SUPERVISAO END = CC.CODIGO_CATEGORIA
+    ) as nivel4
+
+    /* QUANTIDADE_PARCELAS (também precisa existir antes do WHERE) */
+    outer apply
+    (
+        select max(NUMERO_PARCELA) as NUMERO_PARCELAS_MAXIMO
+        from COMISSOES_CATEGORIAS
+        where NUMERO_PARCELA < 500
+          AND CODIGO_TABELA_COMISSAO = ct.CODIGO_TABELA_COMISSAO
+    ) as QUANTIDADE_PARCELAS
+
+    /* agora o WHERE usa os aliases já declarados */
+    where
+      mg.CODIGO_MOVIMENTO in ('010','011')
+      and (
+          (nivel1.CODIGO_REPRESENTANTE = ${representante})
+       or (nivel2.CODIGO_REPRESENTANTE = ${representante})
+       or (nivel3.CODIGO_REPRESENTANTE = ${representante})
+       or (nivel4.CODIGO_REPRESENTANTE = ${representante})
+      )
+      and ct.VERSAO < '40'
+      and mg.DATA_CONTABILIZACAO between '${data_inicial}' and '${data_final}'
+      and ct.DATA_VENDA between pc.DATA_CONTABILIZACAO_INICIAL and pc.DATA_CONTABILIZACAO_FINAL
+      and (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) <= QUANTIDADE_PARCELAS.NUMERO_PARCELAS_MAXIMO
+      and mg.AVISO_ESTORNO = 0
+), calc AS
+(
+    SELECT
+        b.*,
+        SUM(b.VL_BEM) OVER() AS TOTAL_VL_BEM,
+        CASE WHEN SUM(b.VL_BEM) OVER() = 0 THEN 0
+             ELSE ${valorFixo} * CAST(b.VL_BEM AS DECIMAL(18,6)) / CAST(SUM(b.VL_BEM) OVER() AS DECIMAL(18,6))
+        END AS ValorRaw
+    FROM base b
+), rounded AS
+(
+    SELECT
+        c.ID_Sequencia,
+        c.ID_Empresa,
+        c.ID_Cota,
+        c.Parcela,
+        c.Represent,
+        c.Categoria,
+        c.Período,
+        c.Data_Com,
+        c.DT_Geracao,
+        c.VL_BEM,
+        ROW_NUMBER() OVER (ORDER BY c.ID_Cota) AS rn,
+        COUNT(*) OVER() AS cnt,
+        SUM(CAST(ROUND(c.ValorRaw, 2) AS DECIMAL(18,2))) OVER() AS SumRounded,
+        CAST(ROUND(c.ValorRaw, 2) AS DECIMAL(18,2)) AS ValorRounded,
+		c.SN_Bonus,
+		c.Tipo_Favorecido
+    FROM calc c
+)
+SELECT
+    ID_Sequencia,
+    ID_Empresa,
+    ID_Cota,
+    Parcela,
+    Represent,
+    Categoria,
+    Período,
+    CONVERT(CHAR(8), Data_Com, 112) AS Data_Com,
+    CONVERT(CHAR(8), DT_Geracao, 112) AS DT_Geracao,
+    /* mesma coluna formatada como texto com vírgula (apenas visual) */
+    REPLACE(LTRIM(STR(
+      CAST(
+        CASE
+          WHEN cnt = 0 THEN CAST(0 AS DECIMAL(18,2))
+          WHEN rn = cnt THEN ValorRounded + (${valorFixo} - SumRounded)
+          ELSE ValorRounded
+        END
+      AS DECIMAL(18,2))
+    ,18,2)),'.',',') AS Valor,
+	SN_Bonus,
+	Tipo_Favorecido
+FROM rounded
+ORDER BY Represent;`);
+  return result;
+};
+
 ConsultasDAO.prototype.getAniversariantesMes = async function (req) {
   let mes_nascimento = req.query.mes_nascimento;
 
