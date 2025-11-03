@@ -150,7 +150,8 @@ module.exports.gerarPdfComissaoDados = async function (application, req, res) {
 };
 
 module.exports.gerarPdfGenerico = async function (application, req, res) {
-  const { dados, relatorio, usuario, complemento, total } = req.body;
+  const { dados, relatorio, usuario, complemento, total, representantes } =
+    req.body;
   if (!dados || !Array.isArray(dados)) {
     return res.status(400).json({ erro: "Dados inválidos" });
   }
@@ -161,7 +162,8 @@ module.exports.gerarPdfGenerico = async function (application, req, res) {
       relatorio,
       usuario,
       complemento,
-      total
+      total,
+      representantes
     );
 
     res.setHeader("Content-Type", "application/pdf");
