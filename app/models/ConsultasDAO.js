@@ -892,6 +892,7 @@ ConsultasDAO.prototype.rateioComissaoFixa = async function (req) {
          0 as ID_Sequencia,
          1 as ID_Empresa,
          ct.ID_COTA as ID_Cota,
+		 (concat(ct.codigo_grupo,' - ',ct.CODIGO_COTA,' / ',ct.VERSAO)) as Cota,
          (mg.NUMERO_ASSEMBLEIA - ct.NUMERO_ASSEMBLEIA_EMISSAO + 1) as Parcela,
          RIGHT('000000' + CAST(${representante} AS VARCHAR(6)), 6) AS Represent,
          0 as Categoria,
@@ -1167,6 +1168,7 @@ ConsultasDAO.prototype.rateioComissaoFixa = async function (req) {
     SELECT
         c.ID_Sequencia,
         c.ID_Empresa,
+        c.Cota,
         c.ID_Cota,
         c.Parcela,
         c.Represent,
@@ -1175,17 +1177,27 @@ ConsultasDAO.prototype.rateioComissaoFixa = async function (req) {
         c.Data_Com,
         c.DT_Geracao,
         c.VL_BEM,
-        ROW_NUMBER() OVER (ORDER BY c.ID_Cota) AS rn,
+        ROW_NUMBER() OVER (ORDER BY c.ID_COTA) AS rn,
         COUNT(*) OVER() AS cnt,
+        -- soma dos valores já arredondados (usada para o ajuste final)
         SUM(CAST(ROUND(c.ValorRaw, 2) AS DECIMAL(18,2))) OVER() AS SumRounded,
+        -- valor arredondado desta linha
         CAST(ROUND(c.ValorRaw, 2) AS DECIMAL(18,2)) AS ValorRounded,
-		c.SN_Bonus,
-		c.Tipo_Favorecido
+        -- total de VL_BEM (veio de c.TOTAL_VL_BEM no CTE calc)
+        c.TOTAL_VL_BEM,
+        -- ValorRaw bruto (antes do round) caso queira exibir
+        c.ValorRaw,
+        -- as colunas que você precisa no SELECT final
+        c.SN_Bonus,
+        c.Tipo_Favorecido
     FROM calc c
 )
+
 SELECT
     ID_Sequencia,
     ID_Empresa,
+    Cota,
+    FORMAT(VL_BEM, 'N2', 'pt-BR') as 'Bem',
     ID_Cota,
     Parcela,
     Represent,
@@ -1193,7 +1205,8 @@ SELECT
     Período,
     CONVERT(CHAR(8), Data_Com, 112) AS Data_Com,
     CONVERT(CHAR(8), DT_Geracao, 112) AS DT_Geracao,
-    /* mesma coluna formatada como texto com vírgula (apenas visual) */
+
+    /* Valor exibido (string com vírgula) - mantém a lógica de ajuste final */
     REPLACE(LTRIM(STR(
       CAST(
         CASE
@@ -1203,8 +1216,35 @@ SELECT
         END
       AS DECIMAL(18,2))
     ,18,2)),'.',',') AS Valor,
-	SN_Bonus,
-	Tipo_Favorecido
+
+    SN_Bonus,
+    Tipo_Favorecido,
+
+    /* coluna com a fórmula (nomes curtos e explicação) */
+    CASE
+      WHEN cnt = 0 THEN 'Sem registros para cálculo'
+      WHEN rn = cnt THEN
+        -- última linha: mostra VF, VB, TT, fórmula, resultado, SumRounded e Ajuste
+        'Ajuste: '
+        + 'VF = ' + FORMAT(${valorFixo}, 'N2', 'pt-BR') + '; '
+        + 'VB = ' + FORMAT(VL_BEM, 'N2', 'pt-BR') + '; '
+        + 'TT = ' + FORMAT(TOTAL_VL_BEM, 'N2', 'pt-BR') + ' ; '
+        + 'Fórmula = (VF * VB) / TT = ' 
+            + FORMAT(CAST(ROUND(ValorRaw,2) AS DECIMAL(18,2)), 'N2', 'pt-BR') + ' ; '
+        + 'SR (soma arredondada) = ' + FORMAT(SumRounded, 'N2', 'pt-BR') + ' ; '
+        + 'AJ = ' + FORMAT(${valorFixo} - SumRounded, 'N2', 'pt-BR') + ' ; '
+        + 'Valor final = ' + FORMAT(
+            CAST(ROUND(ValorRaw,2) AS DECIMAL(18,2)) + (${valorFixo} - SumRounded)
+          , 'N2', 'pt-BR')
+      ELSE
+        -- linhas normais: mostra VF, VB, TT, fórmula e resultado desta linha
+        'VF = ' + FORMAT(${valorFixo}, 'N2', 'pt-BR') + '; '
+        + 'VB = ' + FORMAT(VL_BEM, 'N2', 'pt-BR') + '; '
+        + 'TT = ' + FORMAT(TOTAL_VL_BEM, 'N2', 'pt-BR') + ' ; '
+        + 'Fórmula = (VF * VB) / TT = ' 
+            + FORMAT(CAST(ROUND(ValorRaw,2) AS DECIMAL(18,2)), 'N2', 'pt-BR')
+    END AS Calculo
+
 FROM rounded
 ORDER BY Represent;`);
   return result;
@@ -2708,10 +2748,13 @@ ConsultasDAO.prototype.relatorioValoresDevolver = async function (req) {
   let grupos = req.query.grupos;
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
+  let versao = req.query.versao;
   const codigosGrupos = grupos?.split(",").filter((e) => e);
   const gruposSql = codigosGrupos.map((cod) => `${cod}`).join(",");
-  let result = await this._connection(
-    `
+
+  if (versao == "detalhado") {
+    let result = await this._connection(
+      `
     select 
       ct.CODIGO_GRUPO as grupo,
       ct.CODIGO_COTA as cota,
@@ -2740,8 +2783,45 @@ ConsultasDAO.prototype.relatorioValoresDevolver = async function (req) {
         and ct.DATA_ADESAO between '${data_inicial}' and '${data_final}'
       
 `
-  );
-  return result;
+    );
+    return result;
+  } else if (versao == "agrupado") {
+    let resultAgrupado = await this._connection(
+      `
+    SELECT
+  YEAR(ct.DATA_ADESAO) AS ano,
+  ct.CODIGO_GRUPO AS grupo,
+  COUNT(*) AS 'Qt. Cotas',
+  FORMAT(
+    SUM((ct.PERCENTUAL_IDEAL_DEVIDO / 100.0) * ValorBem.PRECO_TABELA * 0.90),
+    'C', 'pt-BR'
+  ) AS 'valor devolução'
+
+FROM cotas ct
+OUTER APPLY (
+    SELECT TOP 1 preco_tabela
+    FROM REAJUSTES_BENS rb
+    WHERE ct.codigo_bem = rb.CODIGO_BEM
+    ORDER BY DATA_REAJUSTE DESC
+) AS ValorBem
+LEFT JOIN clientes cl ON ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE
+LEFT JOIN COTAS_CONTEMPLADAS_CANCELADAS ccc ON ct.ID_COTA = ccc.ID_COTA
+WHERE
+  ccc.DATA_CONTEMPLACAO IS NULL
+  AND ct.CODIGO_SITUACAO NOT LIKE 'E01'
+  AND ct.VERSAO BETWEEN 1 AND 39
+  AND ct.CODIGO_GRUPO IN (${gruposSql})
+  AND ct.DATA_ADESAO BETWEEN '${data_inicial}' AND '${data_final}'
+GROUP BY
+  YEAR(ct.DATA_ADESAO),
+  ct.CODIGO_GRUPO
+ORDER BY
+  YEAR(ct.DATA_ADESAO),
+  ct.CODIGO_GRUPO;
+`
+    );
+    return resultAgrupado;
+  }
 };
 
 ConsultasDAO.prototype.cotasPagasAtrasoSemMultaJuros = async function (req) {
