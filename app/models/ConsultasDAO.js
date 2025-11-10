@@ -888,9 +888,9 @@ ConsultasDAO.prototype.ComissaoExtraManual = async function (req) {
   const valor = req.query.valor
     ? Number(String(req.query.valor).replace(",", "."))
     : 0;
-  const representante = req.query.representante
-    ? Number(req.query.representante)
-    : null;
+  const representante = req.query.representante;
+
+  console.log("Rep.: ", representante);
 
   let result = await this._connection(`select 
 0 as ID_Sequencia,
@@ -899,7 +899,7 @@ ConsultasDAO.prototype.ComissaoExtraManual = async function (req) {
 FORMAT(ValorBem.PRECO_TABELA, 'N2', 'pt-BR') AS Bem,
 ct.ID_COTA as ID_Cota,
 ${parcela} as Parcela,
-${representante} as Represent,
+RIGHT(REPLICATE('0', 6) + CAST(${representante} AS VARCHAR(6)), 6) AS Represent,
 0 as Categoria,
 0 as Período,
 CONVERT(CHAR(8), ${dataPag}, 112) AS Data_Com,
@@ -917,6 +917,8 @@ OUTER APPLY (
     ORDER BY DATA_REAJUSTE DESC
 ) as ValorBem
 where ct.CODIGO_GRUPO = ${grupo} and ct.CODIGO_COTA = ${cota} and ct.VERSAO = ${versao}`);
+
+  console.log("result: ", result);
   return result;
 };
 
