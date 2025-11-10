@@ -890,8 +890,6 @@ ConsultasDAO.prototype.ComissaoExtraManual = async function (req) {
     : 0;
   const representante = req.query.representante;
 
-  console.log("Rep.: ", representante);
-
   let result = await this._connection(`select 
 0 as ID_Sequencia,
 1 as ID_Empresa,
@@ -918,7 +916,6 @@ OUTER APPLY (
 ) as ValorBem
 where ct.CODIGO_GRUPO = ${grupo} and ct.CODIGO_COTA = ${cota} and ct.VERSAO = ${versao}`);
 
-  console.log("result: ", result);
   return result;
 };
 
