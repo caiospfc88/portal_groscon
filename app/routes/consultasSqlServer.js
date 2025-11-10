@@ -175,6 +175,14 @@ module.exports = function (application) {
     );
   });
 
+  application.get("/ComissaoExtraManual", function (req, res) {
+    application.app.controllers.consultasSqlServer.ComissaoExtraManual(
+      application,
+      req,
+      res
+    );
+  });
+
   application.get("/selecionaEstados", function (req, res) {
     application.app.controllers.consultasSqlServer.selecionaEstados(
       application,

@@ -50,6 +50,13 @@ module.exports.rateioComissaoFixa = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.ComissaoExtraManual = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.ComissaoExtraManual(req);
+  res.send(resConsulta);
+};
+
 module.exports.quitados = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);

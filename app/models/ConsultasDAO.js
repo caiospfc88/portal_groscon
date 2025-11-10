@@ -879,6 +879,47 @@ ORDER BY
   return result;
 };
 
+ConsultasDAO.prototype.ComissaoExtraManual = async function (req) {
+  const parcela = req.query.parcela ? Number(req.query.parcela) : null;
+  const grupo = req.query.grupo ?? null;
+  const cota = req.query.cota ?? null;
+  const versao = req.query.versao ?? null;
+  const dataPag = req.query.data_pag_comissao ?? null; // string 'yyyymmdd' ou null
+  const valor = req.query.valor
+    ? Number(String(req.query.valor).replace(",", "."))
+    : 0;
+  const representante = req.query.representante
+    ? Number(req.query.representante)
+    : null;
+
+  let result = await this._connection(`select 
+0 as ID_Sequencia,
+1 as ID_Empresa,
+(concat(ct.codigo_grupo,' - ',ct.CODIGO_COTA,' / ',ct.VERSAO)) as Cota,
+FORMAT(ValorBem.PRECO_TABELA, 'N2', 'pt-BR') AS Bem,
+ct.ID_COTA as ID_Cota,
+${parcela} as Parcela,
+${representante} as Represent,
+0 as Categoria,
+0 as Período,
+CONVERT(CHAR(8), ${dataPag}, 112) AS Data_Com,
+CONVERT(CHAR(8), ${dataPag}, 112) AS DT_Geracao,
+REPLACE(LTRIM(STR(CAST(${valor} AS DECIMAL(18,2))
+    ,18,2)),'.',',') AS Valor,
+'N' as SN_Bonus,
+'J' as Tipo_Favorecido,
+'Inserido Manualmente ou por importação' as Calculo
+from cotas ct
+OUTER APPLY (
+    SELECT TOP 1 preco_tabela 
+    FROM REAJUSTES_BENS rb
+    WHERE ct.codigo_bem = rb.CODIGO_BEM 
+    ORDER BY DATA_REAJUSTE DESC
+) as ValorBem
+where ct.CODIGO_GRUPO = ${grupo} and ct.CODIGO_COTA = ${cota} and ct.VERSAO = ${versao}`);
+  return result;
+};
+
 ConsultasDAO.prototype.rateioComissaoFixa = async function (req) {
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
