@@ -2821,6 +2821,7 @@ ConsultasDAO.prototype.relatorioValoresDevolver = async function (req) {
         and ct.VERSAO between 1 and 39  
         and ct.CODIGO_GRUPO in (${gruposSql})
         and ct.DATA_ADESAO between '${data_inicial}' and '${data_final}'
+        AND ((ct.PERCENTUAL_IDEAL_DEVIDO / 100.0) * ValorBem.PRECO_TABELA * 0.90) > 0
       
 `
     );
@@ -2852,6 +2853,7 @@ WHERE
   AND ct.VERSAO BETWEEN 1 AND 39
   AND ct.CODIGO_GRUPO IN (${gruposSql})
   AND ct.DATA_ADESAO BETWEEN '${data_inicial}' AND '${data_final}'
+  AND ((ct.PERCENTUAL_IDEAL_DEVIDO / 100.0) * ValorBem.PRECO_TABELA * 0.90) > 0
 GROUP BY
   YEAR(ct.DATA_ADESAO),
   ct.CODIGO_GRUPO
