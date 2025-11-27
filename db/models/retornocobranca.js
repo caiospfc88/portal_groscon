@@ -25,6 +25,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'RetornoCobranca',
+    tableName: 'retornocobrancas', // força o nome exato no DB
+  freezeTableName: true
   });
   return RetornoCobranca;
 };
