@@ -6,6 +6,10 @@ module.exports = function (application) {
     application.app.controllers.retornoCobranca.listarRetornos(req, res);
   });
 
+  application.get("/relatorioRetornos", verifyJWT, function (req, res) {
+    application.app.controllers.retornoCobranca.relatorioPorPeriodo(req, res);
+  });
+
   // Consulta um por id -> /consultarRetorno?id=#
   application.get("/consultarRetorno", verifyJWT, function (req, res) {
     application.app.controllers.retornoCobranca.consultarRetorno(req, res);

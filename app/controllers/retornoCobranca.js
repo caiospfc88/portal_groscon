@@ -1,4 +1,5 @@
 const models = require("../../db/models");
+const { Op } = require("sequelize");
 
 // tenta resolver o nome do model nos dois formatos comuns
 const RetornoModel =
@@ -36,6 +37,79 @@ module.exports.consultarRetorno = async function (req, res) {
   } catch (err) {
     console.error("consultarRetorno erro:", err);
     res.status(500).json({ Msg: "Erro interno", detail: err.message });
+  }
+};
+
+module.exports.relatorioPorPeriodo = async function (req, res) {
+  try {
+    // aceitar tanto GET query quanto POST body
+    const params = req.method === "GET" ? req.query : req.body;
+    const { start, end } = params;
+
+    // opcional: parâmetro para filtrar apenas autorizadas
+    // aceita "true", "1" ou boolean true
+    const authorizedParam =
+      params.authorized ?? params.onlyAuthorized ?? params.authorizada;
+    const onlyAuthorized =
+      authorizedParam === true ||
+      authorizedParam === "true" ||
+      authorizedParam === "1" ||
+      authorizedParam === 1;
+
+    if (!start || !end) {
+      return res
+        .status(400)
+        .json({
+          ok: false,
+          Msg: "Parâmetros start e end obrigatórios (YYYY-MM-DD)",
+        });
+    }
+
+    // interpreta datas no timezone do servidor; ajusta fim do dia para incluir tudo até 23:59:59.999
+    const startDt = new Date(`${String(start)}T00:00:00`);
+    const endDt = new Date(`${String(end)}T23:59:59.999`);
+    if (isNaN(startDt.getTime()) || isNaN(endDt.getTime())) {
+      return res.status(400).json({ ok: false, Msg: "Datas inválidas" });
+    }
+
+    const where = {
+      createdAt: { [Op.between]: [startDt, endDt] },
+    };
+
+    // se pediu apenas autorizadas, adiciona filtro por Status
+    if (onlyAuthorized) {
+      // Ajuste o valor exato se no seu DB o texto for diferente (ex.: 'AUTORIZADA', 'Autorizada')
+      where.Status = "Autorizada";
+      // Se preferir usar StatusID (por exemplo StatusID === 2), use: where.StatusID = 2;
+    }
+
+    // buscar apenas os campos necessários
+    const results = await RetornoModel.findAll({
+      where,
+      attributes: ["CodigoERP", "Valor", "Status", "createdAt"],
+      order: [["createdAt", "DESC"]],
+    });
+
+    // mapear/normalizar nomes se necessário (ex.: Sequelize retorna DECIMAL como string)
+    const data = results.map((r) => {
+      const rec = r.get ? r.get({ plain: true }) : r;
+      return {
+        CodigoERP: rec.CodigoERP ?? null,
+        Valor:
+          rec.Valor !== undefined && rec.Valor !== null
+            ? Number(rec.Valor)
+            : null,
+        Status: rec.Status ?? null,
+        createdAt: rec.createdAt ?? null,
+      };
+    });
+
+    return res.status(200).json({ ok: true, count: data.length, data });
+  } catch (err) {
+    console.error("relatorioPorPeriodo erro:", err);
+    return res
+      .status(500)
+      .json({ ok: false, Msg: "Erro interno", detail: err.message });
   }
 };
 
