@@ -1760,6 +1760,7 @@ from
       mg.CODIGO_GRUPO = ct.CODIGO_GRUPO
       and mg.CODIGO_COTA = ct.CODIGO_COTA
       and mg.VERSAO = ct.VERSAO
+      and mg.AVISO_ESTORNO = 0
 	  and mg.CODIGO_SEGURADORA = 40 -- in (40,39) -- 39 - Bradesco   40 - HDI
       and mg.DATA_CONTABILIZACAO between '${data_inicial}' and '${data_final}'
       and mg.CODIGO_MOVIMENTO in ('010','030','040','200')
@@ -1773,6 +1774,7 @@ from
         mg.CODIGO_GRUPO = ct.CODIGO_GRUPO
         and mg.CODIGO_COTA = ct.CODIGO_COTA
         and mg.VERSAO = ct.VERSAO
+        and mg.AVISO_ESTORNO = 0
         and mg.CODIGO_SEGURADORA = 40 -- in (40,39) -- 39 - Bradesco   40 - HDI
         and mg.CODIGO_MOVIMENTO in ('010','030','040','200')
 	) as ADS
@@ -1785,6 +1787,7 @@ from
       mg.CODIGO_GRUPO = ct.CODIGO_GRUPO
       and mg.CODIGO_COTA = ct.CODIGO_COTA
       and mg.VERSAO = ct.VERSAO
+      and mg.AVISO_ESTORNO = 0
       and mg.DATA_CONTABILIZACAO between '${data_inicial}' and '${data_final}'
       and mg.CODIGO_MOVIMENTO in ('010','030','040','200')
   ) as MES_ANO      
