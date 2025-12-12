@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class RetornoCobranca extends Model {
     /**
@@ -13,20 +11,23 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  RetornoCobranca.init({
-    Contrato: DataTypes.STRING,
-    Valor: DataTypes.DECIMAL,
-    StatusID: DataTypes.INTEGER,
-    Status: DataTypes.STRING,
-    EnviaEmail: DataTypes.BOOLEAN,
-    UrlPagamento: DataTypes.STRING,
-    Hash: DataTypes.STRING,
-    CodigoERP: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'RetornoCobranca',
-    tableName: 'retornocobrancas', // força o nome exato no DB
-  freezeTableName: true
-  });
+  RetornoCobranca.init(
+    {
+      Contrato: DataTypes.STRING,
+      Valor: DataTypes.DECIMAL,
+      StatusID: DataTypes.INTEGER,
+      Status: DataTypes.STRING,
+      EnviaEmail: DataTypes.BOOLEAN,
+      UrlPagamento: DataTypes.STRING,
+      Hash: DataTypes.STRING,
+      CodigoERP: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      modelName: "RetornoCobranca",
+      tableName: "retornocobrancas", // força o nome exato no DB
+      freezeTableName: true,
+    }
+  );
   return RetornoCobranca;
 };
