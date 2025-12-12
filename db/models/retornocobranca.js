@@ -1,14 +1,18 @@
+// db/models/RetornoCobranca.js (atualize arquivo existente)
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class RetornoCobranca extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      // associações
+      // tabela usuarios no seu projeto provavelmente se chama 'usuarios'
+      RetornoCobranca.belongsTo(
+        models.usuarios || models.Usuarios || models.usuarios,
+        {
+          foreignKey: "id_usuario",
+          as: "usuario",
+        }
+      );
     }
   }
   RetornoCobranca.init(
@@ -21,11 +25,15 @@ module.exports = (sequelize, DataTypes) => {
       UrlPagamento: DataTypes.STRING,
       Hash: DataTypes.STRING,
       CodigoERP: DataTypes.STRING,
+      // novos campos
+      taxa: DataTypes.FLOAT,
+      nome: DataTypes.STRING,
+      id_usuario: DataTypes.INTEGER,
     },
     {
       sequelize,
       modelName: "RetornoCobranca",
-      tableName: "retornocobrancas", // força o nome exato no DB
+      tableName: "retornocobrancas",
       freezeTableName: true,
     }
   );

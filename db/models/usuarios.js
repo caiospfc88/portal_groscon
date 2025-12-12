@@ -36,6 +36,10 @@ module.exports = (sequelize, DataTypes) => {
 
   Usuarios.associate = (models) => {
     models.usuarios.hasMany(models.mural_descricao);
+    models.usuarios.hasMany(models.retornoCobranca || models.RetornoCobranca, {
+      foreignKey: "id_usuario",
+      as: "retornos",
+    });
     models.usuarios.belongsToMany(models.paginas_portal, {
       through: models.paginas_usuario,
       foreignKey: "id_usuario", // chave definida no pivot que aponta para usuarios

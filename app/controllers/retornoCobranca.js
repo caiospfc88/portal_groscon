@@ -57,12 +57,10 @@ module.exports.relatorioPorPeriodo = async function (req, res) {
       authorizedParam === 1;
 
     if (!start || !end) {
-      return res
-        .status(400)
-        .json({
-          ok: false,
-          Msg: "Parâmetros start e end obrigatórios (YYYY-MM-DD)",
-        });
+      return res.status(400).json({
+        ok: false,
+        Msg: "Parâmetros start e end obrigatórios (YYYY-MM-DD)",
+      });
     }
 
     // interpreta datas no timezone do servidor; ajusta fim do dia para incluir tudo até 23:59:59.999
@@ -86,7 +84,7 @@ module.exports.relatorioPorPeriodo = async function (req, res) {
     // buscar apenas os campos necessários
     const results = await RetornoModel.findAll({
       where,
-      attributes: ["CodigoERP", "Valor", "Status", "createdAt"],
+      attributes: ["CodigoERP", "Nome", "valor", "taxa", "Status", "createdAt"],
       order: [["createdAt", "DESC"]],
     });
 
@@ -167,6 +165,9 @@ module.exports.cadastrarRetorno = async function (req, res) {
       UrlPagamento: data.UrlPagamento ?? null,
       Hash: data.Hash ?? null,
       CodigoERP: data.CodigoERP ?? null,
+      taxa: data.taxa ?? 0,
+      nome: data.nome ?? null,
+      id_usuario: data.id_usuario ?? null,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -200,6 +201,9 @@ module.exports.alterarRetorno = async function (req, res) {
       UrlPagamento: req.body.UrlPagamento ?? retorno.UrlPagamento,
       Hash: req.body.Hash ?? retorno.Hash,
       CodigoERP: req.body.CodigoERP ?? retorno.CodigoERP,
+      taxa: req.body.taxa ?? retorno.taxa,
+      nome: req.body.nome ?? retorno.nome,
+      id_usuario: req.body.id_usuario ?? retorno.id_usuario,
       updatedAt: new Date(),
     });
 
