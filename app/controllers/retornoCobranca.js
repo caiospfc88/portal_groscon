@@ -8,12 +8,11 @@ const RetornoModel =
 
 const UsuarioModel = models.usuarios || models.Usuarios || null;
 
-module.exports.listarRetornos = async function (req, res) {
+async function listarRetornos(req, res) {
   try {
     const limit = parseInt(req.query.limit, 10) || 100;
     const offset = parseInt(req.query.offset, 10) || 0;
 
-    // campos que queremos expor
     const attributes = [
       "id",
       "Contrato",
@@ -31,7 +30,6 @@ module.exports.listarRetornos = async function (req, res) {
       "updatedAt",
     ];
 
-    // se o model tiver associação definida com usuarios, usar include
     if (
       UsuarioModel &&
       typeof RetornoModel.associations !== "undefined" &&
@@ -42,7 +40,7 @@ module.exports.listarRetornos = async function (req, res) {
         include: [
           {
             model: UsuarioModel,
-            as: "usuario", // exige que o alias na associação seja 'usuario'
+            as: "usuario",
             attributes: ["id", "nome"],
             required: false,
           },
@@ -52,20 +50,14 @@ module.exports.listarRetornos = async function (req, res) {
         order: [["createdAt", "DESC"]],
       });
 
-      // normaliza para plain objects e adiciona usuarioNome para facilitar frontend
       const plain = retornos.map((r) => {
         const rec = r.get ? r.get({ plain: true }) : r;
-        return {
-          ...rec,
-          usuarioNome: rec.usuario ? rec.usuario.nome : null,
-        };
+        return { ...rec, usuarioNome: rec.usuario ? rec.usuario.nome : null };
       });
 
       return res.json(plain);
     }
 
-    // Fallback: se associação não existir, fazer JOIN manual via raw query (mais robusto)
-    // Observação: ajusta os nomes de tabela se seus nomes forem diferentes.
     const tableRet =
       typeof RetornoModel.getTableName === "function"
         ? RetornoModel.getTableName()
@@ -90,28 +82,25 @@ module.exports.listarRetornos = async function (req, res) {
       return res.json(rows);
     }
 
-    // último fallback: sem usuario
     const retornos = await RetornoModel.findAll({
       attributes,
       limit,
       offset,
       order: [["createdAt", "DESC"]],
     });
-
     const plain = retornos.map((r) => (r.get ? r.get({ plain: true }) : r));
     return res.json(plain);
   } catch (err) {
     console.error("listarRetornos erro:", err);
     res.status(500).json({ Msg: "Erro interno", detail: err.message });
   }
-};
+}
 
-module.exports.consultarRetorno = async function (req, res) {
+async function consultarRetorno(req, res) {
   try {
     const id = req.query.id;
     if (!id) return res.status(400).json({ Msg: "Parâmetro id é obrigatório" });
 
-    // busca com include se possível
     if (
       UsuarioModel &&
       RetornoModel.associations &&
@@ -128,14 +117,12 @@ module.exports.consultarRetorno = async function (req, res) {
           },
         ],
       });
-
       if (!retorno) return res.status(404).json({ Msg: "Não encontrado" });
       const rec = retorno.get ? retorno.get({ plain: true }) : retorno;
       rec.usuarioNome = rec.usuario ? rec.usuario.nome : null;
       return res.json(rec);
     }
 
-    // fallback raw join
     if (UsuarioModel) {
       const tableRet =
         typeof RetornoModel.getTableName === "function"
@@ -161,7 +148,6 @@ module.exports.consultarRetorno = async function (req, res) {
       return res.json(rows[0]);
     }
 
-    // simples findOne sem usuario
     const retorno = await RetornoModel.findOne({ where: { id: id } });
     if (!retorno) return res.status(404).json({ Msg: "Não encontrado" });
     return res.json(retorno.get ? retorno.get({ plain: true }) : retorno);
@@ -169,9 +155,9 @@ module.exports.consultarRetorno = async function (req, res) {
     console.error("consultarRetorno erro:", err);
     res.status(500).json({ Msg: "Erro interno", detail: err.message });
   }
-};
+}
 
-module.exports.relatorioPorPeriodo = async function (req, res) {
+async function relatorioPorPeriodo(req, res) {
   try {
     const params = req.method === "GET" ? req.query : req.body;
     const { start, end } = params;
@@ -185,28 +171,22 @@ module.exports.relatorioPorPeriodo = async function (req, res) {
       authorizedParam === 1;
 
     if (!start || !end) {
-      return res.status(400).json({
-        ok: false,
-        Msg: "Parâmetros start e end obrigatórios (YYYY-MM-DD)",
-      });
+      return res
+        .status(400)
+        .json({
+          ok: false,
+          Msg: "Parâmetros start e end obrigatórios (YYYY-MM-DD)",
+        });
     }
 
     const startDt = new Date(`${String(start)}T00:00:00`);
     const endDt = new Date(`${String(end)}T23:59:59.999`);
-    if (isNaN(startDt.getTime()) || isNaN(endDt.getTime())) {
+    if (isNaN(startDt.getTime()) || isNaN(endDt.getTime()))
       return res.status(400).json({ ok: false, Msg: "Datas inválidas" });
-    }
 
-    const where = {
-      createdAt: { [Op.between]: [startDt, endDt] },
-    };
+    const where = { createdAt: { [Op.between]: [startDt, endDt] } };
+    if (onlyAuthorized) where.Status = "Autorizada";
 
-    if (onlyAuthorized) {
-      where.Status = "Autorizada";
-    }
-
-    // incluir campos importantes: CodigoERP, nome, Valor, taxa, Status, createdAt
-    // e incluir usuarioNome via include quando possível
     if (
       UsuarioModel &&
       RetornoModel.associations &&
@@ -255,7 +235,6 @@ module.exports.relatorioPorPeriodo = async function (req, res) {
       return res.status(200).json({ ok: true, count: data.length, data });
     }
 
-    // fallback raw SQL that returns usuarioNome via join (se usuarios existir)
     if (UsuarioModel) {
       const tableRet =
         typeof RetornoModel.getTableName === "function"
@@ -295,7 +274,6 @@ module.exports.relatorioPorPeriodo = async function (req, res) {
       return res.status(200).json({ ok: true, count: data.length, data });
     }
 
-    // último fallback: sem usuário
     const results = await RetornoModel.findAll({
       where,
       attributes: ["CodigoERP", "nome", "Valor", "taxa", "Status", "createdAt"],
@@ -326,4 +304,131 @@ module.exports.relatorioPorPeriodo = async function (req, res) {
       .status(500)
       .json({ ok: false, Msg: "Erro interno", detail: err.message });
   }
+}
+
+// --- funções de create/update/delete (adicionadas) ---
+async function cadastrarRetorno(req, res) {
+  try {
+    const data = req.body;
+    if (!data || Object.keys(data).length === 0) {
+      return res.status(400).json({ Msg: "Payload vazio" });
+    }
+
+    const where = data.Hash
+      ? { Hash: data.Hash }
+      : data.CodigoERP
+      ? { CodigoERP: data.CodigoERP }
+      : null;
+
+    if (where) {
+      const existente = await RetornoModel.findOne({ where });
+      if (existente) {
+        await existente.update({
+          Contrato: data.Contrato ?? existente.Contrato,
+          Valor: data.Valor ?? existente.Valor,
+          StatusID: data.StatusID ?? existente.StatusID,
+          Status: data.Status ?? existente.Status,
+          EnviaEmail:
+            typeof data.EnviaEmail === "boolean"
+              ? data.EnviaEmail
+              : existente.EnviaEmail,
+          UrlPagamento: data.UrlPagamento ?? existente.UrlPagamento,
+          Hash: data.Hash ?? existente.Hash,
+          CodigoERP: data.CodigoERP ?? existente.CodigoERP,
+          taxa: data.taxa ?? existente.taxa,
+          nome: data.nome ?? existente.nome,
+          id_usuario: data.id_usuario ?? existente.id_usuario,
+          updatedAt: new Date(),
+        });
+
+        return res.json({
+          Retorno: existente,
+          Msg: "Registro atualizado (hash/erp encontrado)",
+        });
+      }
+    }
+
+    const criado = await RetornoModel.create({
+      Contrato: data.Contrato ?? null,
+      Valor: data.Valor ?? null,
+      StatusID: data.StatusID ?? null,
+      Status: data.Status ?? null,
+      EnviaEmail: typeof data.EnviaEmail === "boolean" ? data.EnviaEmail : null,
+      UrlPagamento: data.UrlPagamento ?? null,
+      Hash: data.Hash ?? null,
+      CodigoERP: data.CodigoERP ?? null,
+      taxa: data.taxa ?? 0,
+      nome: data.nome ?? null,
+      id_usuario: data.id_usuario ?? null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    res.status(201).json({ Retorno: criado, Msg: "Cadastrado com sucesso!" });
+  } catch (err) {
+    console.error("cadastrarRetorno erro:", err);
+    res.status(500).json({ Msg: "Erro interno", detail: err.message });
+  }
+}
+
+async function alterarRetorno(req, res) {
+  try {
+    const id = req.body.id;
+    if (!id) return res.status(400).json({ Msg: "body.id é obrigatório" });
+
+    const retorno = await RetornoModel.findOne({ where: { id: id } });
+    if (!retorno)
+      return res.status(404).json({ Msg: "Registro não encontrado" });
+
+    await retorno.update({
+      Contrato: req.body.Contrato ?? retorno.Contrato,
+      Valor: req.body.Valor ?? retorno.Valor,
+      StatusID: req.body.StatusID ?? retorno.StatusID,
+      Status: req.body.Status ?? retorno.Status,
+      EnviaEmail:
+        typeof req.body.EnviaEmail === "boolean"
+          ? req.body.EnviaEmail
+          : retorno.EnviaEmail,
+      UrlPagamento: req.body.UrlPagamento ?? retorno.UrlPagamento,
+      Hash: req.body.Hash ?? retorno.Hash,
+      CodigoERP: req.body.CodigoERP ?? retorno.CodigoERP,
+      taxa: req.body.taxa ?? retorno.taxa,
+      nome: req.body.nome ?? retorno.nome,
+      id_usuario: req.body.id_usuario ?? retorno.id_usuario,
+      updatedAt: new Date(),
+    });
+
+    const updatedPlain = retorno.get ? retorno.get({ plain: true }) : retorno;
+    return res.json({ Retorno: updatedPlain, Msg: "Atualizado com sucesso!" });
+  } catch (err) {
+    console.error("alterarRetorno erro:", err);
+    res.status(500).json({ Msg: "Erro interno", detail: err.message });
+  }
+}
+
+async function excluirRetorno(req, res) {
+  try {
+    const id = req.body.id;
+    if (!id) return res.status(400).json({ Msg: "body.id é obrigatório" });
+
+    const retorno = await RetornoModel.findOne({ where: { id: id } });
+    if (!retorno)
+      return res.status(404).json({ Msg: "Registro não encontrado" });
+
+    await retorno.destroy();
+    res.json({ Retorno: retorno, Msg: "Excluído com sucesso!" });
+  } catch (err) {
+    console.error("excluirRetorno erro:", err);
+    res.status(500).json({ Msg: "Erro interno", detail: err.message });
+  }
+}
+
+// exporta todas as funções explicitamente
+module.exports = {
+  listarRetornos,
+  consultarRetorno,
+  relatorioPorPeriodo,
+  cadastrarRetorno,
+  alterarRetorno,
+  excluirRetorno,
 };
