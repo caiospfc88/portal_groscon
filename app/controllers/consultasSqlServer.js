@@ -248,7 +248,6 @@ module.exports.listaCotasContempladasComRedutor = async function (
   req,
   res
 ) {
-  console.log("chegou no controller");
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
   var resConsulta = await consultaModel.listaCotasContempladasComRedutor(req);

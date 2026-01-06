@@ -192,7 +192,6 @@ module.exports = function (application) {
   });
 
   application.get("/listaCotasContempladasComRedutor", function (req, res) {
-    console.log("chegou na rota");
     application.app.controllers.consultasSqlServer.listaCotasContempladasComRedutor(
       application,
       req,
