@@ -2869,6 +2869,54 @@ ORDER BY
   }
 };
 
+ConsultasDAO.prototype.listaCotasContempladasComRedutor = async function (req) {
+  let grupos = req.query.grupos;
+  const codigosGrupos = grupos?.split(",").filter((e) => e);
+  const gruposSql = codigosGrupos.map((cod) => `${cod}`).join(",");
+
+  let result = await this._connection(
+    `
+    select 
+concat(ct.CODIGO_GRUPO,' - ',ct.CODIGO_COTA,'/',ct.VERSAO) as Cota,
+pce.Parcela as 'Última Parcela',
+round(pce.Percentual,4) as Percentual,
+round(pce.[Perc. Pago],4) as 'Perc. Pago',
+round(pce.Percentual - pce.[Perc. Pago],4) as 'Perc. Aberto',
+pagBem.[Pagamentos de bem]
+from cotas ct inner join GRUPOS gp
+on ct.codigo_grupo = gp.codigo_grupo
+outer apply (
+		select 
+			top 1 pce.PERCENTUAL_NORMAL as Percentual,
+			ce.PARCELA as Parcela,
+			pce.PERCENTUAL_PAGO as 'Perc. Pago'
+		from COBRANCAS_ESPECIAIS ce inner join PERC_COBRANCAS_ESPECIAIS pce
+		on ce.CODIGO_COBRANCA_ESPECIAL = pce.CODIGO_COBRANCA_ESPECIAL
+		where pce.PERCENTUAL_NORMAL > 5 
+		and ct.CODIGO_GRUPO = ce.CODIGO_GRUPO 
+		and ct.CODIGO_COTA = ce.CODIGO_COTA
+		and ct.VERSAO = ce.VERSAO
+) as pce
+outer apply (
+		select count(*) as 'Pagamentos de bem'
+		from MOVIMENTOS_GRUPOS mg 
+		where ct.CODIGO_GRUPO = mg.CODIGO_GRUPO 
+		and ct.CODIGO_COTA = mg.CODIGO_COTA 
+		and ct.VERSAO = mg.VERSAO
+		and CODIGO_MOVIMENTO = 350
+) as pagBem
+where DATA_CONTEMPLACAO is not null 
+	and ct.CODIGO_SITUACAO like 'N%'
+	and gp.CODIGO_SITUACAO not like 'Y'
+	and pce.Percentual is not null
+	and pce.Percentual - pce.[Perc. Pago] > 0
+	and ct.CODIGO_GRUPO in (${gruposSql})
+      
+`
+  );
+  return result;
+};
+
 ConsultasDAO.prototype.cotasPagasAtrasoSemMultaJuros = async function (req) {
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;

@@ -191,6 +191,15 @@ module.exports = function (application) {
     );
   });
 
+  application.get("/listaCotasContempladasComRedutor", function (req, res) {
+    console.log("chegou na rota");
+    application.app.controllers.consultasSqlServer.listaCotasContempladasComRedutor(
+      application,
+      req,
+      res
+    );
+  });
+
   application.get("/situacaoCotasEstado", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.situacaoCotasEstado(
       application,

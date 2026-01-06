@@ -243,6 +243,18 @@ module.exports.selecionaEstados = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.listaCotasContempladasComRedutor = async function (
+  application,
+  req,
+  res
+) {
+  console.log("chegou no controller");
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.listaCotasContempladasComRedutor(req);
+  res.send(resConsulta);
+};
+
 module.exports.situacaoCotasEstado = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
