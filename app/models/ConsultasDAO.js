@@ -2881,7 +2881,26 @@ concat(ct.CODIGO_GRUPO,' - ',ct.CODIGO_COTA,'/',ct.VERSAO) as Cota,
 pce.Parcela as 'Última Parcela',
 round(pce.Percentual,4) as Percentual,
 round(pce.[Perc. Pago],4) as 'Perc. Pago',
-round(pce.Percentual - pce.[Perc. Pago],4) as 'Perc. Aberto',
+CONCAT(
+        cast(round(pce.Percentual - pce.[Perc. Pago], 4) as varchar(20)), -- O valor numérico
+        ' - (',
+        cast(round(
+            ABS( -- Pega o valor absoluto (sem sinal de menos) para a exibição
+                ((pce.Percentual - pce.[Perc. Pago]) - penultimaParcela.PERCENTUAL_NORMAL) 
+                / NULLIF(penultimaParcela.PERCENTUAL_NORMAL, 0) -- Evita divisão por zero
+            ) * 100
+        , 2) as varchar(20)),
+        '% ',
+        CASE 
+            WHEN (pce.Percentual - pce.[Perc. Pago]) >= penultimaParcela.PERCENTUAL_NORMAL THEN 'MAIOR'
+            ELSE 'MENOR'
+        END,
+        ' que a parcela ',
+		penultimaParcela.parcela,
+		' - ',
+		round(penultimaParcela.PERCENTUAL_NORMAL,4),
+		')'
+    ) as 'Perc. Aberto + % de diferença com a parcela anterior',
 pagBem.[Pagamentos de bem]
 from cotas ct inner join GRUPOS gp
 on ct.codigo_grupo = gp.codigo_grupo
@@ -2896,6 +2915,7 @@ outer apply (
 		and ct.CODIGO_GRUPO = ce.CODIGO_GRUPO 
 		and ct.CODIGO_COTA = ce.CODIGO_COTA
 		and ct.VERSAO = ce.VERSAO
+		and pce.TIPO = 'FC'
 ) as pce
 outer apply (
 		select count(*) as 'Pagamentos de bem'
@@ -2904,13 +2924,26 @@ outer apply (
 		and ct.CODIGO_COTA = mg.CODIGO_COTA 
 		and ct.VERSAO = mg.VERSAO
 		and CODIGO_MOVIMENTO = 350
+		and AVISO_ESTORNO = 0
 ) as pagBem
+outer apply (
+		select pce2.percentual_normal,
+				ce2.PARCELA
+		from COBRANCAS_ESPECIAIS ce2 inner join PERC_COBRANCAS_ESPECIAIS pce2
+		on ce2.CODIGO_COBRANCA_ESPECIAL = pce2.CODIGO_COBRANCA_ESPECIAL
+		where ce2.parcela = pce.Parcela -1
+		and ct.CODIGO_GRUPO = ce2.CODIGO_GRUPO 
+		and ct.CODIGO_COTA = ce2.CODIGO_COTA
+		and ct.VERSAO = ce2.VERSAO
+		and pce2.TIPO = 'FC'
+) as penultimaParcela
 where DATA_CONTEMPLACAO is not null 
 	and ct.CODIGO_SITUACAO like 'N%'
 	and gp.CODIGO_SITUACAO not like 'Y'
 	and pce.Percentual is not null
 	and pce.Percentual - pce.[Perc. Pago] > 0
 	and ct.CODIGO_GRUPO in (${gruposSql})
+order by Cota
       
 `
   );
