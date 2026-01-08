@@ -2870,6 +2870,8 @@ ORDER BY
 };
 
 ConsultasDAO.prototype.listaCotasContempladasComRedutor = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
   let grupos = req.query.grupos;
   const codigosGrupos = grupos?.split(",").filter((e) => e);
   const gruposSql = codigosGrupos.map((cod) => `${cod}`).join(",");
@@ -2925,6 +2927,7 @@ outer apply (
 		and ct.VERSAO = mg.VERSAO
 		and CODIGO_MOVIMENTO = 350
 		and AVISO_ESTORNO = 0
+		AND mg.DATA_PAGAMENTO BETWEEN '${data_inicial}' AND '${data_final}'
 ) as pagBem
 outer apply (
 		select pce2.percentual_normal,
@@ -2943,6 +2946,15 @@ where DATA_CONTEMPLACAO is not null
 	and pce.Percentual is not null
 	and pce.Percentual - pce.[Perc. Pago] > 0
 	and ct.CODIGO_GRUPO in (${gruposSql})
+	AND EXISTS (
+        SELECT 1 
+        FROM MOVIMENTOS_GRUPOS mg_filtro
+        WHERE mg_filtro.CODIGO_GRUPO = ct.CODIGO_GRUPO
+          AND mg_filtro.CODIGO_COTA = ct.CODIGO_COTA
+          AND mg_filtro.VERSAO = ct.VERSAO
+          AND mg_filtro.DATA_PAGAMENTO BETWEEN '${data_inicial}' AND '${data_final}'
+          AND mg_filtro.CODIGO_MOVIMENTO = 350
+    )
 order by Cota
       
 `
