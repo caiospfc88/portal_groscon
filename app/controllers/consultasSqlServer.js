@@ -24,7 +24,7 @@ module.exports.comissoesSemReducao = async function (application, req, res) {
 module.exports.comissoesPagasAnalitico = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -35,7 +35,7 @@ module.exports.comissoesPagasAnalitico = async function (
 module.exports.comissoesPagasSintetico = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -74,7 +74,7 @@ module.exports.aniversariantesMes = async function (application, req, res) {
 module.exports.getAniversariantesPeriodo = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -92,7 +92,7 @@ module.exports.relatorioRenegociacoes = async function (application, req, res) {
 module.exports.relatorioAproveitamento = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -102,7 +102,7 @@ module.exports.relatorioAproveitamento = async function (
 module.exports.relatorioSeguroBradesco = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -170,7 +170,7 @@ module.exports.gerarPdfGenerico = async function (application, req, res) {
       usuario,
       complemento,
       total,
-      representantes
+      representantes,
     );
 
     res.setHeader("Content-Type", "application/pdf");
@@ -185,7 +185,7 @@ module.exports.gerarPdfGenerico = async function (application, req, res) {
 module.exports.selecionaPeriodoComissao = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -196,7 +196,7 @@ module.exports.selecionaPeriodoComissao = async function (
 module.exports.selecionaRepresentantes = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -221,7 +221,7 @@ module.exports.selecionaCliente = async function (application, req, res) {
 module.exports.selecionaContatosCliente = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -246,7 +246,7 @@ module.exports.selecionaEstados = async function (application, req, res) {
 module.exports.listaCotasContempladasComRedutor = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -264,7 +264,7 @@ module.exports.situacaoCotasEstado = async function (application, req, res) {
 module.exports.selecionaCotasAtivasComEmail = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -275,7 +275,7 @@ module.exports.selecionaCotasAtivasComEmail = async function (
 module.exports.selecionaCotasAtivasComEmailEx = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -290,10 +290,17 @@ module.exports.relatorioPerfilVendas = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.relatorioTipoVendas = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.relatorioTipoVendas(req);
+  res.send(resConsulta);
+};
+
 module.exports.relatorioVendasTabelaComissao = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -304,7 +311,7 @@ module.exports.relatorioVendasTabelaComissao = async function (
 module.exports.verificacaoNacionalidade = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -329,7 +336,7 @@ module.exports.verificacaoFiliacao = async function (application, req, res) {
 module.exports.verificacaoDtNascimento = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -340,7 +347,7 @@ module.exports.verificacaoDtNascimento = async function (
 module.exports.verificacaoLocalNascimento = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -365,7 +372,7 @@ module.exports.verificacaoDtEmissaoRg = async function (application, req, res) {
 module.exports.verificacaoOrgaoExpedicaoRg = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -383,7 +390,7 @@ module.exports.verificacaoSemRendaPf = async function (application, req, res) {
 module.exports.verificacaoFirmaDenominacaoSocial = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -394,7 +401,7 @@ module.exports.verificacaoFirmaDenominacaoSocial = async function (
 module.exports.verificacaoAtivoPrincipal = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -405,7 +412,7 @@ module.exports.verificacaoAtivoPrincipal = async function (
 module.exports.verificacaoDataConstituicao = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -423,7 +430,7 @@ module.exports.verificacaoSemRendaPj = async function (application, req, res) {
 module.exports.cotasNaoContempParQuitacao = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -455,7 +462,7 @@ module.exports.docPorPlaca = async function (application, req, res) {
 module.exports.cotasPagasAtrasoSemMultaJuros = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -508,7 +515,7 @@ module.exports.telefonesCota = async function (application, req, res) {
 module.exports.relatorioValoresDevolver = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -519,7 +526,7 @@ module.exports.relatorioValoresDevolver = async function (
 module.exports.movimentosFinanceirosCota = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
@@ -537,7 +544,7 @@ module.exports.proximasAssembleias = async function (application, req, res) {
 module.exports.codigosMovimentosFinanceirosCota = async function (
   application,
   req,
-  res
+  res,
 ) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);

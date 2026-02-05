@@ -5,63 +5,63 @@ module.exports = function (application) {
     application.app.controllers.consultasSqlServer.comissoesSemReducao(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/comissoesComReducao", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.comissoesComReducao(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/quitados", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.quitados(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/aniversariantesMes", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.aniversariantesMes(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/aniversariantesPeriodo", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.getAniversariantesPeriodo(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/relatorioRenegociacoes", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.relatorioRenegociacoes(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/relatorioAproveitamento", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.relatorioAproveitamento(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/relatorioSeguroBradesco", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.relatorioSeguroBradesco(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/relatorioSeguroHdi", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.relatorioSeguroHdi(
       application,
       req,
-      res
+      res,
     );
   });
   application.get(
@@ -70,9 +70,9 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.gerarPlanilhasBradesco(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
 
   application.get(
@@ -81,9 +81,9 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.gerarPlanilhasHdi(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
 
   application.patch(
@@ -91,9 +91,9 @@ module.exports = function (application) {
     /*verifyJWT,*/ function (req, res) {
       application.app.controllers.consultasSqlServer.gerarPlanilhasRelatorios(
         req,
-        res
+        res,
       );
-    }
+    },
   );
   application.get(
     "/gerarPdfComissao",
@@ -101,9 +101,9 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.gerarPdfComissao(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
   application.get(
     "/gerarPdfComissaoDados",
@@ -111,15 +111,15 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.gerarPdfComissaoDados(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
   application.patch("/gerarPdfGenerico", function (req, res) {
     application.app.controllers.consultasSqlServer.gerarPdfGenerico(
       application,
       req,
-      res
+      res,
     );
   });
   application.get(
@@ -128,9 +128,9 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.selecionaPeriodoComissao(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
   application.get(
     "/selecionaRepresentantes",
@@ -138,16 +138,16 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.selecionaRepresentantes(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
 
   application.get("/selecionaEquipes", function (req, res) {
     application.app.controllers.consultasSqlServer.selecionaEquipes(
       application,
       req,
-      res
+      res,
     );
   });
 
@@ -155,7 +155,7 @@ module.exports = function (application) {
     application.app.controllers.consultasSqlServer.comissoesPagasAnalitico(
       application,
       req,
-      res
+      res,
     );
   });
 
@@ -163,7 +163,7 @@ module.exports = function (application) {
     application.app.controllers.consultasSqlServer.comissoesPagasSintetico(
       application,
       req,
-      res
+      res,
     );
   });
 
@@ -171,7 +171,7 @@ module.exports = function (application) {
     application.app.controllers.consultasSqlServer.rateioComissaoFixa(
       application,
       req,
-      res
+      res,
     );
   });
 
@@ -179,7 +179,7 @@ module.exports = function (application) {
     application.app.controllers.consultasSqlServer.ComissaoExtraManual(
       application,
       req,
-      res
+      res,
     );
   });
 
@@ -187,7 +187,7 @@ module.exports = function (application) {
     application.app.controllers.consultasSqlServer.selecionaEstados(
       application,
       req,
-      res
+      res,
     );
   });
 
@@ -195,7 +195,7 @@ module.exports = function (application) {
     application.app.controllers.consultasSqlServer.listaCotasContempladasComRedutor(
       application,
       req,
-      res
+      res,
     );
   });
 
@@ -203,7 +203,7 @@ module.exports = function (application) {
     application.app.controllers.consultasSqlServer.situacaoCotasEstado(
       application,
       req,
-      res
+      res,
     );
   });
 
@@ -214,9 +214,9 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.selecionaCotasAtivasComEmail(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
 
   application.get(
@@ -226,16 +226,24 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.selecionaCotasAtivasComEmailEx(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
 
   application.get("/relatorioPerfilVendas", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.relatorioPerfilVendas(
       application,
       req,
-      res
+      res,
+    );
+  });
+
+  application.get("/relatorioTipoVendas", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.relatorioTipoVendas(
+      application,
+      req,
+      res,
     );
   });
 
@@ -246,36 +254,36 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.relatorioVendasTabelaComissao(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
   application.get("/verificacaoNacionalidade", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.verificacaoNacionalidade(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/verificacaoNome", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.verificacaoNome(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/verificacaoFiliacao", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.verificacaoFiliacao(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/verificacaoDtNascimento", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.verificacaoDtNascimento(
       application,
       req,
-      res
+      res,
     );
   });
   application.get(
@@ -285,22 +293,22 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.verificacaoLocalNascimento(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
   application.get("/verificacaoNumeroRg", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.verificacaoNumeroRg(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/verificacaoDtEmissaoRg", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.verificacaoDtEmissaoRg(
       application,
       req,
-      res
+      res,
     );
   });
   application.get(
@@ -310,15 +318,15 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.verificacaoOrgaoExpedicaoRg(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
   application.get("/verificacaoSemRendaPf", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.verificacaoSemRendaPf(
       application,
       req,
-      res
+      res,
     );
   });
   application.get(
@@ -328,15 +336,15 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.verificacaoFirmaDenominacaoSocial(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
   application.get("/verificacaoAtivoPrincipal", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.verificacaoAtivoPrincipal(
       application,
       req,
-      res
+      res,
     );
   });
   application.get(
@@ -346,36 +354,36 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.verificacaoDataConstituicao(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
   application.get("/verificacaoSemRendaPj", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.verificacaoSemRendaPj(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/selecionaCliente", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.selecionaCliente(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/selecionaContatosCliente", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.selecionaContatosCliente(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/selecionaTabTel", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.selecionaTabTel(
       application,
       req,
-      res
+      res,
     );
   });
   application.get(
@@ -385,29 +393,29 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.cotasNaoContempParQuitacao(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
   application.get("/dadosCliente", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.dadosCliente(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/docPorCota", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.docPorCota(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/docPorPlaca", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.docPorPlaca(
       application,
       req,
-      res
+      res,
     );
   });
   application.get(
@@ -417,16 +425,16 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.cotasPagasAtrasoSemMultaJuros(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
 
   application.get("/proximasAssembleias", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.proximasAssembleias(
       application,
       req,
-      res
+      res,
     );
   });
 
@@ -434,7 +442,7 @@ module.exports = function (application) {
     application.app.controllers.consultasSqlServer.cotasCliente(
       application,
       req,
-      res
+      res,
     );
   });
 
@@ -442,28 +450,28 @@ module.exports = function (application) {
     application.app.controllers.consultasSqlServer.historicoCota(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/alienacao", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.alienacao(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/fasesProcessoAlienacao", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.fasesProcessoAlienacao(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/movimentosFinanceirosCota", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.movimentosFinanceirosCota(
       application,
       req,
-      res
+      res,
     );
   });
   application.get(
@@ -473,29 +481,29 @@ module.exports = function (application) {
       application.app.controllers.consultasSqlServer.codigosMovimentosFinanceirosCota(
         application,
         req,
-        res
+        res,
       );
-    }
+    },
   );
   application.get("/relatorioValoresDevolver", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.relatorioValoresDevolver(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/gruposAtivos", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.gruposAtivos(
       application,
       req,
-      res
+      res,
     );
   });
   application.get("/telefonesCota", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.telefonesCota(
       application,
       req,
-      res
+      res,
     );
   });
 };

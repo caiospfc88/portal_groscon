@@ -296,7 +296,7 @@ ConsultasDAO.prototype.getComissoesSemReducao = async function (req) {
   order by
     ct.CODIGO_GRUPO
     ,ct.CODIGO_COTA
-    ,ct.VERSAO`
+    ,ct.VERSAO`,
   );
 
   let dadosRepresentante;
@@ -708,7 +708,7 @@ ConsultasDAO.prototype.getComissoesComReducao = async function (req) {
                                         order by
                                             ct.CODIGO_GRUPO
                                             ,ct.CODIGO_COTA
-                                            ,ct.VERSAO`
+                                            ,ct.VERSAO`,
   );
 
   let dadosRepresentante;
@@ -1871,7 +1871,7 @@ ConsultasDAO.prototype.selecionaTabTel = async function (req) {
   let doc = req.query.documento;
 
   let result = await this._connection(
-    `select DDD, FONE_FAX as 'FONE' from TELEFONES_COTAS where CGC_CPF_CLIENTE = '${doc}'`
+    `select DDD, FONE_FAX as 'FONE' from TELEFONES_COTAS where CGC_CPF_CLIENTE = '${doc}'`,
   );
 
   return result;
@@ -1907,6 +1907,35 @@ ConsultasDAO.prototype.relatorioPerfilVendas = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.relatorioTipoVendas = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+  let versao_inicial = req.query.versao_inicial;
+  let versao_final = req.query.versao_final;
+
+  let result = await this._connection(`select
+ct.CODIGO_GRUPO as 'GRUPO',
+ct.CODIGO_COTA AS 'COTA',
+ct.VERSAO,
+ct.NUMERO_CONTRATO as 'CONTRATO',
+format (cT.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA VENDA',
+ct.PRAZO_ORIGINAL_VENDA as 'PLANO COTA',
+ct.CODIGO_TIPO_GRUPO as 'TIPO GRUPO',
+format(pp.VALOR_BEM,'C', 'pt-br') as 'VALOR BEM',
+ct.CODIGO_EQUIPE as 'EQUIPE',
+ct.CODIGO_REPRESENTANTE as 'REPRESENTANTE',
+CT.CODIGO_PLANO_ESPECIAL AS 'PLANO VENDA',
+CT.CODIGO_TIPO_VENDA AS 'TIPO VENDA',
+tv.DESCRICAO as 'DESCRIÇÃO TIPO DE VENDA'
+from COTAS CT inner join PROPOSTAS pp
+on ct.CODIGO_GRUPO = pp.CODIGO_GRUPO and ct.CODIGO_COTA = pp.CODIGO_COTA and ct.VERSAO = pp.VERSAO and ct.TIPO = pp.TIPO
+INNER JOIN TIPOS_VENDAS tv
+on ct.CODIGO_TIPO_VENDA = tv.CODIGO_TIPO_VENDA
+where ct.DATA_VENDA between '${data_inicial}' and '${data_final}' and ct.VERSAO BETWEEN ${versao_inicial} AND ${versao_final}
+ORDER BY CT.DATA_VENDA`);
+  return result;
+};
+
 ConsultasDAO.prototype.relatorioVendasTabelaComissao = async function (req) {
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
@@ -1933,7 +1962,7 @@ ConsultasDAO.prototype.relatorioVendasTabelaComissao = async function (req) {
 
 ConsultasDAO.prototype.selecionaEstados = async function (req) {
   let result = await this._connection(
-    `select distinct Estado from CIDADES order by estado`
+    `select distinct Estado from CIDADES order by estado`,
   );
   return result;
 };
@@ -1961,7 +1990,7 @@ ConsultasDAO.prototype.selecionaCotasAtivasComEmail = async function (req) {
       where gp.CODIGO_SITUACAO = 'A' 
         and ct.VERSAO = 00 and ct.CODIGO_SITUACAO not like 'Q%'
         and cl.E_MAIL is not null and cl.E_MAIL like '%@%'
-      order by ct.CODIGO_GRUPO, ct.CODIGO_COTA, ct.VERSAO`
+      order by ct.CODIGO_GRUPO, ct.CODIGO_COTA, ct.VERSAO`,
   );
   return result;
 };
@@ -1999,7 +2028,7 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
                 WHEN ct.DATA_CONTEMPLACAO is not null or ccc.DATA_CONTEMPLACAO is not NULL
                   THEN 'CONTEMPLADO'
                 END
-          order by cid.estado,ct.CODIGO_SITUACAO, [CONTEMPLAÇÃO]`
+          order by cid.estado,ct.CODIGO_SITUACAO, [CONTEMPLAÇÃO]`,
     );
   } else if (req.query.detalhado == 1) {
     result = await this._connection(
@@ -2029,7 +2058,7 @@ ConsultasDAO.prototype.situacaoCotasEstado = async function (req) {
         left join COTAS_CONTEMPLADAS_CANCELADAS ccc
         on ccc.ID_COTA = ct.ID_COTA
         where cid.ESTADO in (${estadosSql}) and gp.CODIGO_SITUACAO = 'A' ${filtroContemplacao}
-        order by cid.estado,ct.CODIGO_SITUACAO, [CONTEMPLAÇÃO]`
+        order by cid.estado,ct.CODIGO_SITUACAO, [CONTEMPLAÇÃO]`,
     );
   }
   return result;
@@ -2058,7 +2087,7 @@ ConsultasDAO.prototype.verificacaoNacionalidade = async function (req) {
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and (cl.NACIONALIDADE is null or LEN(cl.NACIONALIDADE) < 2 )/*Filtro campo sem nacionalidade*/
       ${filtro}
-    `
+    `,
   );
   return result;
 };
@@ -2086,7 +2115,7 @@ ConsultasDAO.prototype.verificacaoNome = async function (req) {
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and len(cl.nome) < 10 /*Nomes com menos de 10 caracteres*/
       ${filtro}
-    `
+    `,
   );
   return result;
 };
@@ -2115,7 +2144,7 @@ ConsultasDAO.prototype.verificacaoFiliacao = async function (req) {
       and len(cl.NOME_MAE) < 10 /*Sem Filiação*/
 	    and len(cl.NOME_PAI) < 10
       ${filtro}
-    `
+    `,
   );
   return result;
 };
@@ -2143,7 +2172,7 @@ ConsultasDAO.prototype.verificacaoDtNascimento = async function (req) {
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and cl.DATA_NASCIMENTO is null
       ${filtro}
-    `
+    `,
   );
   return result;
 };
@@ -2171,7 +2200,7 @@ ConsultasDAO.prototype.verificacaoLocalNascimento = async function (req) {
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and cl.NATURALIDADE is null
       ${filtro}
-    `
+    `,
   );
   return result;
 };
@@ -2199,7 +2228,7 @@ ConsultasDAO.prototype.verificacaoNumeroRg = async function (req) {
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and cl.DOCUMENTO is null
       ${filtro}
-    `
+    `,
   );
   return result;
 };
@@ -2227,7 +2256,7 @@ ConsultasDAO.prototype.verificacaoDtEmissaoRg = async function (req) {
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and cl.DATA_EXP_DOC is null
       ${filtro}
-    `
+    `,
   );
   return result;
 };
@@ -2255,7 +2284,7 @@ ConsultasDAO.prototype.verificacaoOrgaoExpedicaoRg = async function (req) {
       and cl.PESSOA = 'F' /*Filtro Somente Pessoa Fisica*/
       and cl.ORGAO_EMISSOR is null
       ${filtro}
-    `
+    `,
   );
   return result;
 };
@@ -2282,13 +2311,13 @@ ConsultasDAO.prototype.verificacaoSemRendaPf = async function (req) {
       and cl.PESSOA = 'F'
       ${filtro}
     order by ct.CODIGO_GRUPO,CODIGO_COTA,VERSAO
-    `
+    `,
   );
   return result;
 };
 
 ConsultasDAO.prototype.verificacaoFirmaDenominacaoSocial = async function (
-  req
+  req,
 ) {
   let filtroCotasAtivas = req.query.apenasCotasAtivas;
   let filtroQuitados = req.query.quitados;
@@ -2312,7 +2341,7 @@ ConsultasDAO.prototype.verificacaoFirmaDenominacaoSocial = async function (
       and cl.PESSOA = 'J' /*Filtro Somente Pessoa Juridica*/
       and LEN(cl.NOME) < 10
       ${filtro}
-    `
+    `,
   );
   return result;
 };
@@ -2340,7 +2369,7 @@ ConsultasDAO.prototype.verificacaoAtivoPrincipal = async function (req) {
       and cl.PESSOA = 'J' /*Filtro Somente Pessoa Juridica*/
       and cl.RENDA < 100
       ${filtro}
-    `
+    `,
   );
   return result;
 };
@@ -2368,7 +2397,7 @@ ConsultasDAO.prototype.verificacaoDataConstituicao = async function (req) {
       and cl.PESSOA = 'J' /*Filtro Somente Pessoa Juridica*/
       and cl.DATA_NASCIMENTO is null
       ${filtro}
-    `
+    `,
   );
   return result;
 };
@@ -2395,7 +2424,7 @@ ConsultasDAO.prototype.verificacaoSemRendaPj = async function (req) {
       and cl.PESSOA = 'J' /*Filtro Somente Pessoa Juridica*/
       ${filtro}
     order by ct.CODIGO_GRUPO,CODIGO_COTA,VERSAO
-    `
+    `,
   );
   return result;
 };
@@ -2475,7 +2504,7 @@ HAVING
           AND cob.CODIGO_MOVIMENTO = 270
           AND cob.ORIGEM_LANCAMENTO = 'TA'
     )) <=  ${qtdParcelas};
-`
+`,
   );
   return result;
 };
@@ -2568,7 +2597,7 @@ ConsultasDAO.prototype.dadosCliente = async function (req) {
       LEFT JOIN TIPOS_DOC_IDENTIFICACAO DOC on C.CODIGO_TIPO_DOC_IDENT = DOC.CODIGO_TIPO_DOC_IDENT
       left join CIDADES cid on c.CODIGO_CIDADE = cid.CODIGO_CIDADE
       where CGC_CPF_CLIENTE = '${doc}'
-`
+`,
   );
   return result;
 };
@@ -2582,7 +2611,7 @@ ConsultasDAO.prototype.docPorCota = async function (req) {
     `
     select CGC_CPF_CLIENTE as 'DOC' from cotas 
     where codigo_grupo = ${grupo} and CODIGO_COTA = ${cota} and versao = ${versao}
-`
+`,
   );
   return result;
 };
@@ -2596,7 +2625,7 @@ ConsultasDAO.prototype.docPorPlaca = async function (req) {
     from CONTROLES_OPCOES co inner join cotas ct
     on co.codigo_grupo = ct.codigo_grupo and co.CODIGO_COTA = ct.CODIGO_COTA and co.VERSAO = ct.VERSAO
     where placa = '${placa}'
-`
+`,
   );
   return result;
 };
@@ -2620,7 +2649,7 @@ ConsultasDAO.prototype.historicoCota = async function (req) {
     on hc.CODIGO_FASE = df.CODIGO_FASE
     where hc.codigo_grupo = ${grupo} and hc.CODIGO_COTA = ${cota} and hc.versao = ${versao}
     order by hc.DATA_OCORRENCIA
-`
+`,
   );
   return result;
 };
@@ -2695,7 +2724,7 @@ from MOVIMENTOS_GRUPOS mg
 where 
 	mg.codigo_grupo = ${grupo} and mg.CODIGO_COTA = ${cota} and mg.versao = ${versao}
   and mg.CODIGO_MOVIMENTO in (${codigosSql})
-`
+`,
   );
   return result;
 };
@@ -2720,7 +2749,7 @@ ConsultasDAO.prototype.codigosMovimentosFinanceirosCota = async function (req) {
     where mg.codigo_grupo = ${grupo} and mg.CODIGO_COTA = ${cota} and mg.versao = ${versao} 
       ${modeloExtrato}
     group by mg.CODIGO_MOVIMENTO,cm.DESCRICAO      
-`
+`,
   );
   return result;
 };
@@ -2731,7 +2760,7 @@ ConsultasDAO.prototype.gruposAtivos = async function (req) {
     select CODIGO_GRUPO as grupo
     from grupos 
     where CODIGO_SITUACAO = 'A'      
-`
+`,
   );
   return result;
 };
@@ -2748,7 +2777,7 @@ ConsultasDAO.prototype.telefonesCota = async function (req) {
     from TELEFONES_COTAS tc
     left join TIPOS_TELEFONES tt on tc.CODIGO_TIPO_TELEFONE = tt.DESCRICAO
     where tc.CGC_CPF_CLIENTE = '${doc}'      
-`
+`,
   );
   return result;
 };
@@ -2782,7 +2811,7 @@ ConsultasDAO.prototype.proximasAssembleias = async function (req) {
       data_assembleia
     FROM ProximaAssembleia
     WHERE rn = ${num};     
-`
+`,
   );
   return result;
 };
@@ -2826,7 +2855,7 @@ ConsultasDAO.prototype.relatorioValoresDevolver = async function (req) {
         and ct.DATA_ADESAO between '${data_inicial}' and '${data_final}'
         AND ((ct.PERCENTUAL_IDEAL_DEVIDO / 100.0) * ValorBem.PRECO_TABELA * 0.90) > 0
       
-`
+`,
     );
     return result;
   } else if (versao == "agrupado") {
@@ -2863,7 +2892,7 @@ GROUP BY
 ORDER BY
   YEAR(ct.DATA_ADESAO),
   ct.CODIGO_GRUPO;
-`
+`,
     );
     return resultAgrupado;
   }
@@ -2957,7 +2986,7 @@ where DATA_CONTEMPLACAO is not null
     )
 order by Cota
       
-`
+`,
   );
   return result;
 };
@@ -3065,7 +3094,7 @@ GROUP BY
 	sc.DESCRICAO
 ORDER BY 
     ct.CODIGO_GRUPO, ct.CODIGO_COTA, ct.VERSAO
-`
+`,
   );
   return result;
 };
@@ -3215,7 +3244,7 @@ from CONTROLES_OPCOES co left join cotas ct
   left join CIDADES cide
 	on cide.CODIGO_CIDADE = co.IMOVEL_ESCRITURA_COMARCA
 where ct.CODIGO_GRUPO = ${grupo} and ct.codigo_cota = ${cota}	and ct.VERSAO = ${versao}
-`
+`,
   );
   return result;
 };
@@ -3238,7 +3267,7 @@ ConsultasDAO.prototype.fasesProcessoAlienacao = async function (req) {
       on fp.CODIGO_USUARIO = us.CODIGO_USUARIO
     WHERE codigo_grupo = ${grupo} and CODIGO_COTA = ${cota} and VERSAO = ${versao}
     order by FP.DATA_OCORRENCIA desc
-`
+`,
   );
   return result;
 };
