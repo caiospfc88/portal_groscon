@@ -1914,25 +1914,26 @@ ConsultasDAO.prototype.relatorioTipoVendas = async function (req) {
   let versao_final = req.query.versao_final;
 
   let result = await this._connection(`select
-ct.CODIGO_GRUPO as 'GRUPO',
-ct.CODIGO_COTA AS 'COTA',
-ct.VERSAO,
-ct.NUMERO_CONTRATO as 'CONTRATO',
-format (cT.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA VENDA',
-ct.PRAZO_ORIGINAL_VENDA as 'PLANO COTA',
-ct.CODIGO_TIPO_GRUPO as 'TIPO GRUPO',
-format(pp.VALOR_BEM,'C', 'pt-br') as 'VALOR BEM',
-ct.CODIGO_EQUIPE as 'EQUIPE',
-ct.CODIGO_REPRESENTANTE as 'REPRESENTANTE',
-CT.CODIGO_PLANO_ESPECIAL AS 'PLANO VENDA',
-CT.CODIGO_TIPO_VENDA AS 'TIPO VENDA',
-tv.DESCRICAO as 'DESCRIÇÃO TIPO DE VENDA'
-from COTAS CT inner join PROPOSTAS pp
-on ct.CODIGO_GRUPO = pp.CODIGO_GRUPO and ct.CODIGO_COTA = pp.CODIGO_COTA and ct.VERSAO = pp.VERSAO and ct.TIPO = pp.TIPO
-INNER JOIN TIPOS_VENDAS tv
-on ct.CODIGO_TIPO_VENDA = tv.CODIGO_TIPO_VENDA
-where ct.DATA_VENDA between '${data_inicial}' and '${data_final}' and ct.VERSAO BETWEEN ${versao_inicial} AND ${versao_final}
-ORDER BY CT.DATA_VENDA`);
+      ct.CODIGO_GRUPO as 'GRUPO',
+      ct.CODIGO_COTA AS 'COTA',
+      ct.VERSAO,
+      ct.NUMERO_CONTRATO as 'CONTRATO',
+      format (cT.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA VENDA',
+      ct.PRAZO_ORIGINAL_VENDA as 'PLANO COTA',
+      ct.CODIGO_TIPO_GRUPO as 'TIPO GRUPO',
+      format(pp.VALOR_BEM,'C', 'pt-br') as 'VALOR BEM',
+      ct.CODIGO_EQUIPE as 'EQUIPE',
+      ct.CODIGO_REPRESENTANTE as 'REPRESENTANTE',
+      CT.CODIGO_PLANO_ESPECIAL AS 'PLANO VENDA',
+      CT.CODIGO_TIPO_VENDA AS 'TIPO VENDA',
+      tv.DESCRICAO as 'DESCRIÇÃO TIPO DE VENDA',
+      ct.CODIGO_SEGURADORA as 'SEGURADORA'
+      from COTAS CT inner join PROPOSTAS pp
+      on ct.CODIGO_GRUPO = pp.CODIGO_GRUPO and ct.CODIGO_COTA = pp.CODIGO_COTA and ct.VERSAO = pp.VERSAO and ct.TIPO = pp.TIPO
+      INNER JOIN TIPOS_VENDAS tv
+      on ct.CODIGO_TIPO_VENDA = tv.CODIGO_TIPO_VENDA
+      where ct.DATA_VENDA between '${data_inicial}' and '${data_final}' and ct.VERSAO BETWEEN ${versao_inicial} AND ${versao_final}
+      ORDER BY CT.DATA_VENDA`);
   return result;
 };
 
@@ -2988,6 +2989,51 @@ order by Cota
       
 `,
   );
+  return result;
+};
+
+ConsultasDAO.prototype.cotasContempladasSemEntregaParcAtraso = async function (
+  req,
+) {
+  let grupos = req.query.grupos;
+  const codigosGrupos = grupos?.split(",").filter((e) => e);
+  const gruposSql = codigosGrupos.map((cod) => `${cod}`).join(",");
+  const filtroAtrasadas =
+    req.query.atrasadas == "apenasAtrasadas"
+      ? "and parcelasAtraso.qtd_parcelas_atraso > 0"
+      : "";
+
+  let result = await this._connection(`SELECT 
+    ct.CODIGO_GRUPO AS Grupo,
+    ct.CODIGO_COTA  AS Cota,
+    ct.VERSAO       AS [Versão],
+    cl.NOME         AS Nome,
+    ct.CODIGO_SITUACAO as [Situação],
+    parcelasAtraso.qtd_parcelas_atraso as [Parcelas em atraso]
+FROM cotas ct
+INNER JOIN clientes cl
+    ON ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE
+   AND ct.tipo = cl.tipo
+OUTER APPLY (
+    SELECT COUNT(*) AS qtd_parcelas_atraso
+    FROM NewconPlus.dbo.LZ_vw_Consorciado_Financeiro vw
+    WHERE vw.Grupo  = ct.CODIGO_GRUPO
+      AND vw.Cota   = ct.CODIGO_COTA
+      AND vw.Versao = ct.VERSAO
+      AND CAST(vw.Data_Vencimento AS DATE) < CAST(GETDATE() AS DATE)
+      AND vw.Data_Pagamento IS NULL
+) parcelasAtraso
+WHERE ct.codigo_grupo IN (${gruposSql})
+  AND ct.VERSAO = 0
+  AND ct.DATA_CONTEMPLACAO IS NOT NULL
+  AND ct.CODIGO_SITUACAO NOT LIKE '%Q%'
+  AND ct.DATA_ENTREGA_BEM IS NULL
+  ${filtroAtrasadas}
+ORDER BY 
+    ct.CODIGO_GRUPO,
+    ct.CODIGO_COTA,
+    ct.VERSAO;
+`);
   return result;
 };
 

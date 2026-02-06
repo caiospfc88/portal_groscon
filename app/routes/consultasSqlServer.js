@@ -199,6 +199,17 @@ module.exports = function (application) {
     );
   });
 
+  application.get(
+    "/cotasContempladasSemEntregaParcAtraso",
+    function (req, res) {
+      application.app.controllers.consultasSqlServer.cotasContempladasSemEntregaParcAtraso(
+        application,
+        req,
+        res,
+      );
+    },
+  );
+
   application.get("/situacaoCotasEstado", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.situacaoCotasEstado(
       application,
