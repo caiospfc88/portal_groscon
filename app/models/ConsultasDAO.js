@@ -1914,24 +1914,29 @@ ConsultasDAO.prototype.relatorioTipoVendas = async function (req) {
   let versao_final = req.query.versao_final;
 
   let result = await this._connection(`select
-      ct.CODIGO_GRUPO as 'GRUPO',
-      ct.CODIGO_COTA AS 'COTA',
-      ct.VERSAO,
-      ct.NUMERO_CONTRATO as 'CONTRATO',
-      format (cT.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA VENDA',
-      ct.PRAZO_ORIGINAL_VENDA as 'PLANO COTA',
-      ct.CODIGO_TIPO_GRUPO as 'TIPO GRUPO',
-      format(pp.VALOR_BEM,'C', 'pt-br') as 'VALOR BEM',
-      ct.CODIGO_EQUIPE as 'EQUIPE',
-      ct.CODIGO_REPRESENTANTE as 'REPRESENTANTE',
-      CT.CODIGO_PLANO_ESPECIAL AS 'PLANO VENDA',
-      CT.CODIGO_TIPO_VENDA AS 'TIPO VENDA',
-      tv.DESCRICAO as 'DESCRIÇÃO TIPO DE VENDA',
-      ct.CODIGO_SEGURADORA as 'SEGURADORA'
-      from COTAS CT inner join PROPOSTAS pp
-      on ct.CODIGO_GRUPO = pp.CODIGO_GRUPO and ct.CODIGO_COTA = pp.CODIGO_COTA and ct.VERSAO = pp.VERSAO
-      INNER JOIN TIPOS_VENDAS tv
-      on ct.CODIGO_TIPO_VENDA = tv.CODIGO_TIPO_VENDA
+ct.CODIGO_GRUPO as 'GRUPO',
+ct.CODIGO_COTA AS 'COTA',
+ct.VERSAO,
+ct.NUMERO_CONTRATO as 'CONTRATO',
+format (cT.DATA_VENDA,'dd/MM/yyyy', 'en-US') AS 'DATA VENDA',
+ct.PRAZO_ORIGINAL_VENDA as 'PLANO COTA',
+ct.CODIGO_TIPO_GRUPO as 'TIPO GRUPO',
+format(pp.VALOR_BEM,'C', 'pt-br') as 'VALOR BEM',
+ct.CODIGO_EQUIPE as 'EQUIPE',
+ct.CODIGO_REPRESENTANTE as 'REPRESENTANTE',
+CT.CODIGO_PLANO_ESPECIAL AS 'PLANO VENDA',
+CT.CODIGO_TIPO_VENDA AS 'TIPO VENDA',
+tv.DESCRICAO as 'DESCRIÇÃO TIPO DE VENDA',
+case
+when ct.CODIGO_SEGURADORA is null then 'Sem seguro'
+ELSE concat(ct.CODIGO_SEGURADORA,' - ',seg.NOME) 
+END as 'SEGURO'
+from COTAS CT inner join PROPOSTAS pp
+on ct.CODIGO_GRUPO = pp.CODIGO_GRUPO and ct.CODIGO_COTA = pp.CODIGO_COTA and ct.VERSAO = pp.VERSAO --and ct.TIPO = pp.TIPO
+INNER JOIN TIPOS_VENDAS tv
+on ct.CODIGO_TIPO_VENDA = tv.CODIGO_TIPO_VENDA
+left join SEGURADORAS seg
+on ct.CODIGO_SEGURADORA = seg.CODIGO_SEGURADORA
       where ct.DATA_VENDA between '${data_inicial}' and '${data_final}' and ct.VERSAO BETWEEN ${versao_inicial} AND ${versao_final}
       ORDER BY CT.DATA_VENDA`);
   return result;
