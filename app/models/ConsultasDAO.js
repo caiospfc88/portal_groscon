@@ -1929,7 +1929,7 @@ ConsultasDAO.prototype.relatorioTipoVendas = async function (req) {
       tv.DESCRICAO as 'DESCRIÇÃO TIPO DE VENDA',
       ct.CODIGO_SEGURADORA as 'SEGURADORA'
       from COTAS CT inner join PROPOSTAS pp
-      on ct.CODIGO_GRUPO = pp.CODIGO_GRUPO and ct.CODIGO_COTA = pp.CODIGO_COTA and ct.VERSAO = pp.VERSAO and ct.TIPO = pp.TIPO
+      on ct.CODIGO_GRUPO = pp.CODIGO_GRUPO and ct.CODIGO_COTA = pp.CODIGO_COTA and ct.VERSAO = pp.VERSAO
       INNER JOIN TIPOS_VENDAS tv
       on ct.CODIGO_TIPO_VENDA = tv.CODIGO_TIPO_VENDA
       where ct.DATA_VENDA between '${data_inicial}' and '${data_final}' and ct.VERSAO BETWEEN ${versao_inicial} AND ${versao_final}
