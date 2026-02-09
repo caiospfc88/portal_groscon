@@ -3031,7 +3031,6 @@ OUTER APPLY (
 WHERE ct.codigo_grupo IN (${gruposSql})
   AND ct.VERSAO = 0
   AND ct.DATA_CONTEMPLACAO IS NOT NULL
-  AND ct.CODIGO_SITUACAO NOT LIKE '%Q%'
   AND ct.DATA_ENTREGA_BEM IS NULL
   ${filtroAtrasadas}
 ORDER BY 
