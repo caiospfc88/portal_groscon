@@ -1,5 +1,5 @@
 const xl = require("excel4node");
-const { fillPattern } = require("excel4node/distribution/lib/types");
+// const { fillPattern } = require("excel4node/distribution/lib/types"); // Mantido se você usa em outro lugar
 
 const EXCEL_TYPE =
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
@@ -21,7 +21,22 @@ function isValidDateBR(str) {
 
 function parseDateBR(str) {
   const [day, month, year] = str.split("/");
-  return new Date(Number(year), Number(month) - 1, Number(day)); // <-- nota o uso de argumentos numéricos
+  return new Date(Number(year), Number(month) - 1, Number(day));
+}
+
+// NOVA FUNÇÃO: Verifica se é um número monetário ou decimal em formato texto (Ex: "R$ 1.234,56", "R$853,24", "123,45")
+function isMonetaryOrDecimalBR(str) {
+  // Aceita strings com ou sem "R$", espaços, números com separador de milhar (.) e decimal (,)
+  const regex = /^(?:R\$\s*)?-?(\d{1,3}(?:\.\d{3})*|\d+),\d{1,2}$/;
+  return regex.test(str.trim());
+}
+
+// NOVA FUNÇÃO: Converte a string formatada em Real para um tipo Number nativo do Javascript
+function parseMonetaryBR(str) {
+  let cleaned = str.replace(/R\$/g, "").trim(); // Remove o R$
+  cleaned = cleaned.replace(/\./g, ""); // Remove os pontos de separação de milhar
+  cleaned = cleaned.replace(",", "."); // Troca a vírgula decimal por ponto (para o parseFloat)
+  return parseFloat(cleaned);
 }
 
 function geraPlanilhaRelatorios(req, res, obj) {
@@ -40,7 +55,12 @@ function geraPlanilhaRelatorios(req, res, obj) {
     defaultColWidth: 30,
   };
   const wb = new xl.Workbook({ workbookView: { visibility: "visible" } });
-  const ws = wb.addWorksheet(req.body.nomeArquivo, options);
+
+  // Alteração de segurança: se req.body.nomeArquivo não for passado, ele pega nomeArquivo (para não dar erro de undefined no nome da sheet)
+  const ws = wb.addWorksheet(
+    req.body.nomeArquivo || nomeArquivo || "Planilha 1",
+    options,
+  );
 
   const dateStyle = wb.createStyle({
     numberFormat: "dd/mm/yyyy",
@@ -55,6 +75,32 @@ function geraPlanilhaRelatorios(req, res, obj) {
   });
 
   const myStyle = wb.createStyle({
+    font: { size: 10, name: "Calibri" },
+    alignment: { shrinkToFit: false, horizontal: "center", wrapText: false },
+    border: {
+      left: { style: "thin", color: "#000000" },
+      right: { style: "thin", color: "#000000" },
+      top: { style: "thin", color: "#000000" },
+      bottom: { style: "thin", color: "#000000" },
+    },
+  });
+
+  // NOVO ESTILO: Estilo de número para a formatação de Moeda no Excel
+  const currencyStyle = wb.createStyle({
+    numberFormat: '"R$" #,##0.00;-"R$" #,##0.00',
+    font: { size: 10, name: "Calibri" },
+    alignment: { shrinkToFit: false, horizontal: "center", wrapText: false },
+    border: {
+      left: { style: "thin", color: "#000000" },
+      right: { style: "thin", color: "#000000" },
+      top: { style: "thin", color: "#000000" },
+      bottom: { style: "thin", color: "#000000" },
+    },
+  });
+
+  // NOVO ESTILO: Estilo para decimais que não vieram com "R$" (caso tenha algum outro valor)
+  const numberDecimalStyle = wb.createStyle({
+    numberFormat: "#,##0.00;-#,##0.00",
     font: { size: 10, name: "Calibri" },
     alignment: { shrinkToFit: false, horizontal: "center", wrapText: false },
     border: {
@@ -90,7 +136,7 @@ function geraPlanilhaRelatorios(req, res, obj) {
 
   // Cabeçalhos
   const colunas = Object.keys(obj[0]);
-  const largurasColunas = colunas.map((col) => col.length); // Inicializa com o tamanho do cabeçalho
+  const largurasColunas = colunas.map((col) => col.length);
 
   let colunaIndex = 2;
   colunas.forEach((heading) => {
@@ -106,17 +152,43 @@ function geraPlanilhaRelatorios(req, res, obj) {
       const valor = record[colunaNome];
       let texto = "";
 
-      if (typeof valor === "string" && isValidDateBR(valor)) {
-        const data = parseDateBR(valor);
-        if (!isNaN(data.getTime())) {
-          ws.cell(linhaIndex, colunaIndex).date(data).style(dateStyle);
-          texto = valor;
+      if (valor == null) {
+        texto = "";
+        ws.cell(linhaIndex, colunaIndex).string(texto).style(myStyle);
+      } else if (typeof valor === "number") {
+        // CORREÇÃO 1: Trata os números que já chegam nativos corretamente (ex: grupo, cota, % fc Pago)
+        ws.cell(linhaIndex, colunaIndex).number(valor).style(myStyle);
+        texto = valor.toString();
+      } else if (typeof valor === "string") {
+        // Valida se a string é data ou monetário
+        if (isValidDateBR(valor)) {
+          const data = parseDateBR(valor);
+          if (!isNaN(data.getTime())) {
+            ws.cell(linhaIndex, colunaIndex).date(data).style(dateStyle);
+            texto = valor;
+          } else {
+            ws.cell(linhaIndex, colunaIndex).string(valor).style(myStyle);
+            texto = valor;
+          }
+        } else if (isMonetaryOrDecimalBR(valor)) {
+          // CORREÇÃO 2: Se for identificada uma string de moeda
+          const numVal = parseMonetaryBR(valor);
+          const isCurrency = valor.toUpperCase().includes("R$");
+
+          // Insere o número real na célula aplicando o estilo visual baseado no formato Excel
+          ws.cell(linhaIndex, colunaIndex)
+            .number(numVal)
+            .style(isCurrency ? currencyStyle : numberDecimalStyle);
+
+          texto = valor; // Mantemos a string original na variavel texto apenas para o cálculo da largura das colunas
         } else {
+          // Se for string comum
           ws.cell(linhaIndex, colunaIndex).string(valor).style(myStyle);
           texto = valor;
         }
       } else {
-        texto = valor == null ? "" : valor.toString();
+        // Outros tipos (bools, objetos, etc)
+        texto = valor.toString();
         ws.cell(linhaIndex, colunaIndex).string(texto).style(myStyle);
       }
 
@@ -133,7 +205,7 @@ function geraPlanilhaRelatorios(req, res, obj) {
   // Aplicar largura das colunas com limite (mínimo 10, máximo 50)
   largurasColunas.forEach((largura, i) => {
     const colWidth = Math.min(Math.max(largura, 10), 50);
-    ws.column(i + 2).setWidth(colWidth + 5); // +2 pois começa na coluna 2
+    ws.column(i + 2).setWidth(colWidth + 5);
   });
 
   ws.row(6).filter();
