@@ -517,4 +517,11 @@ module.exports = function (application) {
       res,
     );
   });
+  application.get("/emailCliente", function (req, res) {
+    application.app.controllers.consultasSqlServer.emailCliente(
+      application,
+      req,
+      res,
+    );
+  });
 };

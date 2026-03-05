@@ -2788,6 +2788,19 @@ ConsultasDAO.prototype.telefonesCota = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.emailCliente = async function (req) {
+  let doc = req.query.doc;
+  let result = await this._connection(
+    `
+    select 
+      cl.E_MAIL as email
+    from CLIENTES cl
+    where cl.CGC_CPF_CLIENTE = '${doc}'      
+`,
+  );
+  return result;
+};
+
 ConsultasDAO.prototype.proximasAssembleias = async function (req) {
   let num = req.query.num;
   let result = await this._connection(
