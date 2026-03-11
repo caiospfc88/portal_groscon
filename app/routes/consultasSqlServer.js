@@ -210,6 +210,17 @@ module.exports = function (application) {
     },
   );
 
+  application.get(
+    "/cotasContempladasComEntregaParcAtraso",
+    function (req, res) {
+      application.app.controllers.consultasSqlServer.cotasContempladasComEntregaParcAtraso(
+        application,
+        req,
+        res,
+      );
+    },
+  );
+
   application.get("/situacaoCotasEstado", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.situacaoCotasEstado(
       application,

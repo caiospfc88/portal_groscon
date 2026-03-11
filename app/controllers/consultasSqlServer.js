@@ -266,6 +266,18 @@ module.exports.cotasContempladasSemEntregaParcAtraso = async function (
   res.send(resConsulta);
 };
 
+module.exports.cotasContempladasComEntregaParcAtraso = async function (
+  application,
+  req,
+  res,
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta =
+    await consultaModel.cotasContempladasComEntregaParcAtraso(req);
+  res.send(resConsulta);
+};
+
 module.exports.situacaoCotasEstado = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);

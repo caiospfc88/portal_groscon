@@ -3054,6 +3054,68 @@ ORDER BY
   return result;
 };
 
+ConsultasDAO.prototype.cotasContempladasComEntregaParcAtraso = async function (
+  req,
+) {
+  let grupos = req.query.grupos;
+  const codigosGrupos = grupos?.split(",").filter((e) => e);
+  const gruposSql = codigosGrupos.map((cod) => `${cod}`).join(",");
+
+  let result = await this._connection(`
+    SELECT 
+    concat(ct.CODIGO_GRUPO,' - ',ct.CODIGO_COTA,' \ ',ct.VERSAO) AS Cota,
+	ct.CODIGO_SITUACAO as [Situação],
+    cl.NOME AS Nome,
+	concat(cid.NOME,' - ',cid.ESTADO) as Cidade,
+	rep.NOME as Vendedor,
+	format(((((100 - ct.PERCENTUAL_IDEAL_DEVIDO) + (ct.PERCENTUAL_TAXA_ADMINISTRACAO - ct.TAXA_ADMINISTRACAO_PAGA)) * ValorBem.PRECO_TABELA) / 100),
+	'C','pt-br') as 'Saldo Devedor FC + TX',
+    parcelasAtraso.qtd_parcelas_atraso as [Parcelas em atraso],
+	pagamentoDeBem.qtd_mov_350 as [Pag. Mov. 350]	
+FROM cotas ct
+INNER JOIN clientes cl
+    ON ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE
+   AND ct.tipo = cl.tipo
+left join REPRESENTANTES as rep
+	on rep.CODIGO_REPRESENTANTE = ct.CODIGO_REPRESENTANTE
+left join CIDADES cid
+	on cl.CODIGO_CIDADE = cid.CODIGO_CIDADE
+OUTER APPLY (
+    SELECT COUNT(*) AS qtd_parcelas_atraso
+    FROM NewconPlus.dbo.LZ_vw_Consorciado_Financeiro vw
+    WHERE vw.Grupo  = ct.CODIGO_GRUPO
+      AND vw.Cota   = ct.CODIGO_COTA
+      AND vw.Versao = ct.VERSAO
+      AND CAST(vw.Data_Vencimento AS DATE) < CAST(GETDATE() AS DATE)
+      AND vw.Data_Pagamento IS NULL
+) parcelasAtraso
+OUTER APPLY (
+    SELECT TOP 1 preco_tabela 
+    FROM REAJUSTES_BENS rb
+    WHERE ct.codigo_bem = rb.CODIGO_BEM 
+    ORDER BY DATA_REAJUSTE DESC
+) as ValorBem
+OUTER APPLY (
+    SELECT COUNT(*) AS qtd_mov_350
+    FROM MOVIMENTOS_GRUPOS mg
+    WHERE mg.CODIGO_GRUPO  = ct.CODIGO_GRUPO
+      AND mg.CODIGO_COTA   = ct.CODIGO_COTA
+      AND mg.VERSAO = ct.VERSAO
+      AND mg.CODIGO_MOVIMENTO = 350
+	  and mg.AVISO_ESTORNO = 0
+) pagamentoDeBem
+WHERE ct.codigo_grupo IN (${gruposSql})
+  AND ct.VERSAO = 0
+  AND ct.DATA_CONTEMPLACAO IS NOT NULL
+ORDER BY 
+    ct.CODIGO_GRUPO,
+    ct.CODIGO_COTA,
+    ct.VERSAO;
+
+`);
+  return result;
+};
+
 ConsultasDAO.prototype.cotasPagasAtrasoSemMultaJuros = async function (req) {
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
