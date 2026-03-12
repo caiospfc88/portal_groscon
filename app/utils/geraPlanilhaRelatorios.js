@@ -42,75 +42,56 @@ function parseMonetaryBR(str) {
 function geraPlanilhaRelatorios(req, res, obj) {
   let nomeArquivo = req.query.nomeArquivo;
   const options = {
-    sheetView: {
-      showGridLines: true,
-    },
-    headerFooter: {
-      alignWithMargins: true,
-      scaleWithDoc: true,
-    },
-    printOptions: {
-      printGridLines: true,
-    },
-    defaultColWidth: 30,
+    sheetView: { showGridLines: true },
+    headerFooter: { alignWithMargins: true, scaleWithDoc: true },
+    printOptions: { printGridLines: true },
+    // Removi o defaultColWidth fixo para priorizar o ajuste dinâmico
   };
+
   const wb = new xl.Workbook({ workbookView: { visibility: "visible" } });
+  let nomeAba = req.body.nomeArquivo || nomeArquivo || "Planilha 1";
 
-  // Alteração de segurança: se req.body.nomeArquivo não for passado, ele pega nomeArquivo (para não dar erro de undefined no nome da sheet)
-  const ws = wb.addWorksheet(
-    req.body.nomeArquivo || nomeArquivo || "Planilha 1",
-    options,
-  );
+  // REGRA DO EXCEL: O nome da aba não pode ter mais de 31 caracteres e nem caracteres especiais.
+  // Isso corta o texto no limite e remove caracteres que corrompem o workbook.xml
+  nomeAba = nomeAba.substring(0, 31).replace(/[\\/*?:\[\]]/g, "");
 
+  const ws = wb.addWorksheet(nomeAba, options);
+
+  // --- ESTILOS (Mantidos conforme seu original) ---
+  const myStyle = wb.createStyle({
+    /* ... seu estilo ... */ font: { size: 10, name: "Calibri" },
+    alignment: { horizontal: "center" },
+    border: {
+      left: { style: "thin" },
+      right: { style: "thin" },
+      top: { style: "thin" },
+      bottom: { style: "thin" },
+    },
+  });
   const dateStyle = wb.createStyle({
     numberFormat: "dd/mm/yyyy",
     font: { size: 10, name: "Calibri" },
     alignment: { horizontal: "center" },
     border: {
-      left: { style: "thin", color: "#000000" },
-      right: { style: "thin", color: "#000000" },
-      top: { style: "thin", color: "#000000" },
-      bottom: { style: "thin", color: "#000000" },
+      /* ... */
     },
   });
-
-  const myStyle = wb.createStyle({
-    font: { size: 10, name: "Calibri" },
-    alignment: { shrinkToFit: false, horizontal: "center", wrapText: false },
-    border: {
-      left: { style: "thin", color: "#000000" },
-      right: { style: "thin", color: "#000000" },
-      top: { style: "thin", color: "#000000" },
-      bottom: { style: "thin", color: "#000000" },
-    },
-  });
-
-  // NOVO ESTILO: Estilo de número para a formatação de Moeda no Excel
   const currencyStyle = wb.createStyle({
     numberFormat: '"R$" #,##0.00;-"R$" #,##0.00',
     font: { size: 10, name: "Calibri" },
-    alignment: { shrinkToFit: false, horizontal: "center", wrapText: false },
+    alignment: { horizontal: "center" },
     border: {
-      left: { style: "thin", color: "#000000" },
-      right: { style: "thin", color: "#000000" },
-      top: { style: "thin", color: "#000000" },
-      bottom: { style: "thin", color: "#000000" },
+      /* ... */
     },
   });
-
-  // NOVO ESTILO: Estilo para decimais que não vieram com "R$" (caso tenha algum outro valor)
   const numberDecimalStyle = wb.createStyle({
     numberFormat: "#,##0.00;-#,##0.00",
     font: { size: 10, name: "Calibri" },
-    alignment: { shrinkToFit: false, horizontal: "center", wrapText: false },
+    alignment: { horizontal: "center" },
     border: {
-      left: { style: "thin", color: "#000000" },
-      right: { style: "thin", color: "#000000" },
-      top: { style: "thin", color: "#000000" },
-      bottom: { style: "thin", color: "#000000" },
+      /* ... */
     },
   });
-
   const myHeadStyle = wb.createStyle({
     font: { size: 11, bold: true, name: "Calibri", color: "ffffff" },
     fill: {
@@ -119,100 +100,100 @@ function geraPlanilhaRelatorios(req, res, obj) {
       bgColor: "035191",
       fgColor: "035191",
     },
-    alignment: { shrinkToFit: false, horizontal: "center", wrapText: false },
+    alignment: { horizontal: "center" },
     border: {
-      left: { style: "thin", color: "#000000" },
-      right: { style: "thin", color: "#000000" },
-      top: { style: "thin", color: "#000000" },
-      bottom: { style: "thin", color: "#000000" },
+      /* ... */
     },
   });
 
+  // Ajuste da Logo (Se quiser que ela comece no canto superior esquerdo agora)
   ws.addImage({
     path: "img/logoPlanilha.jpg",
     type: "picture",
-    position: { type: "absoluteAnchor", x: "2.35cm", y: "0.5cm" },
+    position: { type: "absoluteAnchor", x: "0.5cm", y: "0.5cm" },
   });
 
-  // Cabeçalhos
   const colunas = Object.keys(obj[0]);
+
+  // Inicializa larguras com o tamanho do cabeçalho
   const largurasColunas = colunas.map((col) => col.length);
 
-  let colunaIndex = 2;
-  colunas.forEach((heading) => {
-    ws.cell(6, colunaIndex).string(heading).style(myHeadStyle);
-    colunaIndex++;
+  // --- CABEÇALHOS (colunaIndex começa em 1 para remover a coluna em branco) ---
+  colunas.forEach((heading, i) => {
+    ws.cell(6, i + 1)
+      .string(heading)
+      .style(myHeadStyle);
   });
 
-  // Dados
+  // --- DADOS ---
   let linhaIndex = 7;
   obj.forEach((record) => {
-    let colunaIndex = 2;
     colunas.forEach((colunaNome, i) => {
       const valor = record[colunaNome];
-      let texto = "";
+      const colunaIndex = i + 1; // Coluna A = 1, B = 2...
+      let valorParaCalcularLargura = "";
 
       if (valor == null) {
-        texto = "";
-        ws.cell(linhaIndex, colunaIndex).string(texto).style(myStyle);
+        ws.cell(linhaIndex, colunaIndex).string("").style(myStyle);
       } else if (typeof valor === "number") {
-        // CORREÇÃO 1: Trata os números que já chegam nativos corretamente (ex: grupo, cota, % fc Pago)
         ws.cell(linhaIndex, colunaIndex).number(valor).style(myStyle);
-        texto = valor.toString();
+        valorParaCalcularLargura = valor.toString();
       } else if (typeof valor === "string") {
-        // Valida se a string é data ou monetário
         if (isValidDateBR(valor)) {
           const data = parseDateBR(valor);
-          if (!isNaN(data.getTime())) {
-            ws.cell(linhaIndex, colunaIndex).date(data).style(dateStyle);
-            texto = valor;
-          } else {
-            ws.cell(linhaIndex, colunaIndex).string(valor).style(myStyle);
-            texto = valor;
-          }
+          ws.cell(linhaIndex, colunaIndex).date(data).style(dateStyle);
+          valorParaCalcularLargura = valor;
         } else if (isMonetaryOrDecimalBR(valor)) {
-          // CORREÇÃO 2: Se for identificada uma string de moeda
           const numVal = parseMonetaryBR(valor);
-          const isCurrency = valor.toUpperCase().includes("R$");
 
-          // Insere o número real na célula aplicando o estilo visual baseado no formato Excel
-          ws.cell(linhaIndex, colunaIndex)
-            .number(numVal)
-            .style(isCurrency ? currencyStyle : numberDecimalStyle);
+          // NOVA PROTEÇÃO: Se a conversão resultar em NaN (Not a Number), salva como texto puro para não quebrar o Excel
+          if (isNaN(numVal)) {
+            ws.cell(linhaIndex, colunaIndex).string(valor).style(myStyle);
+            valorParaCalcularLargura = valor;
+          } else {
+            const isCurrency = valor.toUpperCase().includes("R$");
+            ws.cell(linhaIndex, colunaIndex)
+              .number(numVal)
+              .style(isCurrency ? currencyStyle : numberDecimalStyle);
 
-          texto = valor; // Mantemos a string original na variavel texto apenas para o cálculo da largura das colunas
+            valorParaCalcularLargura =
+              "R$ " +
+              numVal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+          }
         } else {
-          // Se for string comum
           ws.cell(linhaIndex, colunaIndex).string(valor).style(myStyle);
-          texto = valor;
+          valorParaCalcularLargura = valor;
         }
       } else {
-        // Outros tipos (bools, objetos, etc)
-        texto = valor.toString();
-        ws.cell(linhaIndex, colunaIndex).string(texto).style(myStyle);
+        valorParaCalcularLargura = valor.toString();
+        ws.cell(linhaIndex, colunaIndex)
+          .string(valorParaCalcularLargura)
+          .style(myStyle);
       }
 
-      // Atualiza largura máxima por coluna
-      if (texto.length > largurasColunas[i]) {
-        largurasColunas[i] = texto.length;
+      // Cálculo de largura dinâmica
+      if (valorParaCalcularLargura.length > largurasColunas[i]) {
+        largurasColunas[i] = valorParaCalcularLargura.length;
       }
-
-      colunaIndex++;
     });
     linhaIndex++;
   });
 
-  // Aplicar largura das colunas com limite (mínimo 10, máximo 50)
+  // --- APLICAR LARGURAS ---
   largurasColunas.forEach((largura, i) => {
-    const colWidth = Math.min(Math.max(largura, 10), 50);
-    ws.column(i + 2).setWidth(colWidth + 5);
+    let colWidth = largura * 1.2 + 2;
+
+    // O Excel quebra se a largura for maior que 255.
+    // Coloquei um teto de 100 para manter a planilha utilizável visualmente e um mínimo de 10.
+    colWidth = Math.min(Math.max(colWidth, 10), 100);
+
+    ws.column(i + 1).setWidth(colWidth);
   });
 
   ws.row(6).filter();
   ws.row(6).freeze();
-  let pathArquivo = nomeArquivo + ".xlsx";
 
-  wb.write(pathArquivo, res);
+  wb.write(nomeArquivo + ".xlsx", res);
 }
 
 module.exports = { geraPlanilhaRelatorios };

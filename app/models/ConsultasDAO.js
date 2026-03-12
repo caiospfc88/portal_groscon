@@ -3063,7 +3063,9 @@ ConsultasDAO.prototype.cotasContempladasComEntregaParcAtraso = async function (
 
   let result = await this._connection(`
     SELECT 
-    concat(ct.CODIGO_GRUPO,' - ',ct.CODIGO_COTA,' \ ',ct.VERSAO) AS Cota,
+    ct.CODIGO_GRUPO as Grupo,
+	ct.CODIGO_COTA as Cota,
+	ct.VERSAO AS 'Versão',
 	ct.CODIGO_SITUACAO as [Situação],
     cl.NOME AS Nome,
 	concat(cid.NOME,' - ',cid.ESTADO) as Cidade,
@@ -3106,6 +3108,7 @@ OUTER APPLY (
 ) pagamentoDeBem
 WHERE ct.codigo_grupo IN (${gruposSql})
   AND ct.VERSAO = 0
+  AND ct.CODIGO_SITUACAO not like 'Q%'
   AND ct.DATA_CONTEMPLACAO IS NOT NULL
 ORDER BY 
     ct.CODIGO_GRUPO,
