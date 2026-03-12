@@ -3110,6 +3110,7 @@ WHERE ct.codigo_grupo IN (${gruposSql})
   AND ct.VERSAO = 0
   AND ct.CODIGO_SITUACAO not like 'Q%'
   AND ct.DATA_CONTEMPLACAO IS NOT NULL
+  AND parcelasAtraso.qtd_parcelas_atraso > 0
 ORDER BY 
     ct.CODIGO_GRUPO,
     ct.CODIGO_COTA,
