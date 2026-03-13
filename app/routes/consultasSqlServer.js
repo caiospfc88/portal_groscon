@@ -535,4 +535,11 @@ module.exports = function (application) {
       res,
     );
   });
+  application.get("/statusParcela", function (req, res) {
+    application.app.controllers.consultasSqlServer.statusParcela(
+      application,
+      req,
+      res,
+    );
+  });
 };

@@ -2801,6 +2801,26 @@ ConsultasDAO.prototype.emailCliente = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.statusParcela = async function (req) {
+  let grupo = req.query.grupo;
+  let cota = req.query.cota;
+  let versao = req.query.versao;
+  let parcela = req.query.parcela;
+  let result = await this._connection(
+    `
+    SELECT       
+      [Numero_Parcela]     
+      ,[Data_Pagamento]
+    FROM [NewconPlus].[dbo].[LZ_vw_Consorciado_Financeiro]
+    where GRUPO = ${grupo}
+    and COTA = ${cota}
+    and VERSAO = ${versao}
+    and Numero_Parcela = ${parcela}        
+  `,
+  );
+  return result;
+};
+
 ConsultasDAO.prototype.proximasAssembleias = async function (req) {
   let num = req.query.num;
   let result = await this._connection(
