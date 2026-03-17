@@ -589,3 +589,25 @@ module.exports.codigosMovimentosFinanceirosCota = async function (
   var resConsulta = await consultaModel.codigosMovimentosFinanceirosCota(req);
   res.send(resConsulta);
 };
+
+module.exports.ultimasVinteQuatroAssembleias = async function (
+  application,
+  req,
+  res,
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.ultimasVinteQuatroAssembleias(req);
+  res.send(resConsulta);
+};
+
+module.exports.contempladosPorAssembleia = async function (
+  application,
+  req,
+  res,
+) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.contempladosPorAssembleia(req);
+  res.send(resConsulta);
+};

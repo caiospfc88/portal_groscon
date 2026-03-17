@@ -3088,7 +3088,8 @@ ConsultasDAO.prototype.cotasContempladasComEntregaParcAtraso = async function (
 	ct.VERSAO AS 'Versão',
 	ct.CODIGO_SITUACAO as [Situação],
     cl.NOME AS Nome,
-	concat(cid.NOME,' - ',cid.ESTADO) as Cidade,
+	cid.NOME as Cidade,
+	cid.ESTADO as Estado,
 	rep.NOME as Vendedor,
 	format(((((100 - ct.PERCENTUAL_IDEAL_DEVIDO) + (ct.PERCENTUAL_TAXA_ADMINISTRACAO - ct.TAXA_ADMINISTRACAO_PAGA)) * ValorBem.PRECO_TABELA) / 100),
 	'C','pt-br') as 'Saldo Devedor FC + TX',
@@ -3418,6 +3419,66 @@ ConsultasDAO.prototype.fasesProcessoAlienacao = async function (req) {
     order by FP.DATA_OCORRENCIA desc
 `,
   );
+  return result;
+};
+
+ConsultasDAO.prototype.ultimasVinteQuatroAssembleias = async function (req) {
+  let result = await this._connection(
+    `
+      select top 24
+          format(DATA,'dd/MM/yyyy','en-US') as Assembleia,
+          convert(varchar(8), DATA, 112) as dataValor
+      from (
+          select distinct cast(DATA_ASSEMBLEIA as date) as DATA
+          from ASSEMBLEIAS
+          where cast(DATA_ASSEMBLEIA as date) < cast(getdate() as date)
+      ) A
+      order by DATA desc
+`,
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.contempladosPorAssembleia = async function (req) {
+  let data_assembleia = req.query.data_assembleia;
+  let result = await this._connection(`
+    select cont.CODIGO_GRUPO as Grupo,
+        cont.CODIGO_COTA as Cota,
+        cont.VERSAO as 'Versão',
+        cl.NOME as Nome,
+        case
+          when cont.TIPO_CONTEMPLACAO = 'S' then 'SORTEIO'
+          when cdl.TIPO_ENTRADA_LANCE = 'Q' then 'QUITAÇÃO'
+          when cont.TIPO_CONTEMPLACAO = 'L' and cont.PERCENTUAL_LANCE = 30 then 'LANCE FIXO'
+          when cont.TIPO_CONTEMPLACAO = 'L' and cont.PERCENTUAL_LANCE <> 30 then 'LANCE LIVRE'
+        else ''
+        end as 'Contemplação',
+        concat(cont.PERCENTUAL_LANCE,'%') as '% Lance',
+        format(cont.VALOR_CREDITO,'c','pt-BR') as 'Vlr. Crédito',
+        rep.NOME as Vendedor,
+        format(ct.DATA_ADESAO,'dd/MM/yyyy','en-US') as 'Data Adesão'
+    from CONTEMPLACOES cont
+    left join ASSEMBLEIAS assemb
+    on assemb.DATA_ASSEMBLEIA = cont.DATA_CONTEMPLACAO
+      and assemb.CODIGO_GRUPO = cont.CODIGO_GRUPO
+    left join Cotas ct
+    on ct.CODIGO_GRUPO = cont.CODIGO_GRUPO 
+      and ct.CODIGO_COTA = cont.CODIGO_COTA 
+      and ct.VERSAO = cont.VERSAO
+    left join REPRESENTANTES rep
+    on rep.CODIGO_REPRESENTANTE = ct.CODIGO_REPRESENTANTE
+    left join CLIENTES cl
+    on ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE 
+      and ct.TIPO = cl.TIPO
+    left join CREDENCIAMENTOS_LANCES cdl
+    on cont.CODIGO_GRUPO = cdl.CODIGO_GRUPO 
+      and cont.CODIGO_COTA = cdl.CODIGO_COTA 
+      and cont.VERSAO = cdl.VERSAO 
+      and assemb.NUMERO_ASSEMBLEIA = cdl.NUMERO_ASSEMBLEIA
+    where cont.DATA_CONTEMPLACAO = '${data_assembleia}' and cont.OPERACAO <> 'E' and cont.VERSAO = 0
+    order by cont.CODIGO_GRUPO,cont.CODIGO_COTA,cont.VERSAO
+    `);
+
   return result;
 };
 

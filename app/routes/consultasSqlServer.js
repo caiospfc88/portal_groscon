@@ -542,4 +542,22 @@ module.exports = function (application) {
       res,
     );
   });
+  application.get(
+    "/ultimasVinteQuatroAssembleias",
+    verifyJWT,
+    function (req, res) {
+      application.app.controllers.consultasSqlServer.ultimasVinteQuatroAssembleias(
+        application,
+        req,
+        res,
+      );
+    },
+  );
+  application.get("/contempladosPorAssembleia", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.contempladosPorAssembleia(
+      application,
+      req,
+      res,
+    );
+  });
 };
