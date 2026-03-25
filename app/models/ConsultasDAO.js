@@ -3050,13 +3050,6 @@ ConsultasDAO.prototype.cotasPorSituacao = async function (req) {
   // Adiciona aspas simples ao redor de cada string de situação
   const situacoesSql = situacoesArray.map((cod) => `'${cod.trim()}'`).join(",");
 
-  console.log(
-    "Param cotasPorSituacao: ",
-    situacoesArray,
-    situacoes,
-    situacoesSql,
-  );
-
   let result = await this._connection(`select
 	ct.CODIGO_GRUPO as Grupo,
 	ct.CODIGO_COTA as Cota,
@@ -3115,8 +3108,6 @@ on c.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
 LEFT JOIN SITUACOES_COBRANCAS sc
 ON ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
 where ct.CODIGO_SITUACAO in (${situacoesSql}) and ct.CODIGO_GRUPO in (${gruposSql})`);
-
-  console.log("result", result);
   return result;
 };
 
