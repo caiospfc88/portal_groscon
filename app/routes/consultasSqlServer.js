@@ -521,6 +521,20 @@ module.exports = function (application) {
       res,
     );
   });
+  application.get("/situacoes", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.situacoes(
+      application,
+      req,
+      res,
+    );
+  });
+  application.get("/cotasPorSituacao", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.cotasPorSituacao(
+      application,
+      req,
+      res,
+    );
+  });
   application.get("/telefonesCota", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.telefonesCota(
       application,

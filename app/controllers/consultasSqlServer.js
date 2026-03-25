@@ -529,6 +529,20 @@ module.exports.gruposAtivos = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.situacoes = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.situacoes(req);
+  res.send(resConsulta);
+};
+
+module.exports.cotasPorSituacao = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.cotasPorSituacao(req);
+  res.send(resConsulta);
+};
+
 module.exports.telefonesCota = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);

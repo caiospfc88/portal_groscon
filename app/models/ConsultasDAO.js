@@ -2771,6 +2771,17 @@ ConsultasDAO.prototype.gruposAtivos = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.situacoes = async function (req) {
+  let result = await this._connection(
+    `
+    select CODIGO_SITUACAO as cod,
+    NOMENCLATURA as descricao
+    from SITUACOES_COBRANCAS      
+`,
+  );
+  return result;
+};
+
 ConsultasDAO.prototype.telefonesCota = async function (req) {
   let doc = req.query.doc;
   let result = await this._connection(
@@ -3027,6 +3038,85 @@ order by Cota
       
 `,
   );
+  return result;
+};
+
+ConsultasDAO.prototype.cotasPorSituacao = async function (req) {
+  let grupos = req.query.grupos;
+  let situacoes = req.query.situacoes;
+  const codigosGrupos = grupos?.split(",").filter((e) => e);
+  const gruposSql = codigosGrupos.map((cod) => `${cod}`).join(",");
+  const situacoesArray = situacoes?.split(",").filter((e) => e);
+  // Adiciona aspas simples ao redor de cada string de situação
+  const situacoesSql = situacoesArray.map((cod) => `'${cod.trim()}'`).join(",");
+
+  console.log(
+    "Param cotasPorSituacao: ",
+    situacoesArray,
+    situacoes,
+    situacoesSql,
+  );
+
+  let result = await this._connection(`select
+	ct.CODIGO_GRUPO as Grupo,
+	ct.CODIGO_COTA as Cota,
+	ct.VERSAO as 'Ver.',
+	ct.CODIGO_SITUACAO as 'Situação',
+	sc.NOMENCLATURA as 'Descrição Situação',
+	c.NOME as Nome,
+	c.E_MAIL AS 'Email',
+	CASE 
+        WHEN NULLIF(LTRIM(RTRIM(c.CELULAR)), '') IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.DDD_RESIDENCIAL)), '') IS NOT NULL 
+        THEN CONCAT('+55', CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
+             CASE 
+                 -- Se começa com 0 e tem DDD embutido (ex: 035998487041), tira os 3 primeiros caracteres
+                 WHEN LTRIM(RTRIM(c.CELULAR)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.CELULAR, '-', ''), ' ', '')) >= 10 
+                     THEN SUBSTRING(LTRIM(RTRIM(c.CELULAR)), 4, LEN(c.CELULAR))
+                 -- Se começa direto com o DDD (ex: 35998487041), tira os 2 primeiros caracteres
+                 WHEN LTRIM(RTRIM(c.CELULAR)) LIKE '[1-9][1-9]%' AND LEN(REPLACE(REPLACE(c.CELULAR, '-', ''), ' ', '')) >= 10 
+                     THEN SUBSTRING(LTRIM(RTRIM(c.CELULAR)), 3, LEN(c.CELULAR))
+                 -- Se já está certinho, mantém como está
+                 ELSE LTRIM(RTRIM(REPLACE(c.CELULAR, '-', '')))
+             END)
+        ELSE '' 
+    END AS 'Tel. 1',
+
+    -- PHONE 2: Telefone Residencial
+    CASE 
+        WHEN NULLIF(LTRIM(RTRIM(c.FONE_FAX)), '') IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.DDD_RESIDENCIAL)), '') IS NOT NULL 
+        THEN CONCAT('+55', CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
+             CASE 
+                 WHEN LTRIM(RTRIM(c.FONE_FAX)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX, '-', ''), ' ', '')) >= 10 
+                     THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX)), 4, LEN(c.FONE_FAX))
+                 WHEN LTRIM(RTRIM(c.FONE_FAX)) LIKE '[1-9][1-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX, '-', ''), ' ', '')) >= 10 
+                     THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX)), 3, LEN(c.FONE_FAX))
+                 ELSE LTRIM(RTRIM(REPLACE(c.FONE_FAX, '-', '')))
+             END)
+        ELSE '' 
+    END AS 'Tel. 2',
+
+    -- PHONE 3: Telefone Comercial
+    CASE 
+        WHEN NULLIF(LTRIM(RTRIM(c.FONE_FAX_COMERCIAL)), '') IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.DDD_COMERCIAL)), '') IS NOT NULL 
+        THEN CONCAT('+55', CAST(TRY_CAST(c.DDD_COMERCIAL AS INT) AS VARCHAR),
+             CASE 
+                 WHEN LTRIM(RTRIM(c.FONE_FAX_COMERCIAL)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX_COMERCIAL, '-', ''), ' ', '')) >= 10 
+                     THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX_COMERCIAL)), 4, LEN(c.FONE_FAX_COMERCIAL))
+                 WHEN LTRIM(RTRIM(c.FONE_FAX_COMERCIAL)) LIKE '[1-9][1-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX_COMERCIAL, '-', ''), ' ', '')) >= 10 
+                     THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX_COMERCIAL)), 3, LEN(REPLACE(c.FONE_FAX_COMERCIAL, '-', '')))
+                 ELSE LTRIM(RTRIM(REPLACE(c.FONE_FAX_COMERCIAL, '-', '')))
+             END)
+        ELSE '' 
+    END AS 'Tel. 3'
+
+from cotas ct
+left join CLIENTES c
+on c.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+LEFT JOIN SITUACOES_COBRANCAS sc
+ON ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
+where ct.CODIGO_SITUACAO in (${situacoesSql}) and ct.CODIGO_GRUPO in (${gruposSql})`);
+
+  console.log("result", result);
   return result;
 };
 
