@@ -543,6 +543,13 @@ module.exports.cotasPorSituacao = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.relatorioEficiencia = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.relatorioEficiencia(req);
+  res.send(resConsulta);
+};
+
 module.exports.telefonesCota = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);

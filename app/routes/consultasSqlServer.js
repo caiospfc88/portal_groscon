@@ -535,6 +535,13 @@ module.exports = function (application) {
       res,
     );
   });
+  application.get("/relatorioEficiencia", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.relatorioEficiencia(
+      application,
+      req,
+      res,
+    );
+  });
   application.get("/telefonesCota", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.telefonesCota(
       application,
