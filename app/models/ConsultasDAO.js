@@ -3045,38 +3045,48 @@ ConsultasDAO.prototype.relatorioEficiencia = async function (req) {
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
 
-  console.log("datas", data_inicial, data_final);
-
   let result = await this._connection(
-    `WITH FinanceiroPivot AS (
+    `WITH RankedFinanceiro AS (
+    -- Essa nova CTE cria um ranking de parcelas para cada cota.
+    -- A parcela de menor número receberá Parcela_Rank = 1, a segunda menor = 2, etc.
     SELECT 
         Grupo,
         Cota,
         Versao,
-        -- 1ª Parcela
-        MAX(CASE WHEN Numero_Parcela = 1 THEN format(Data_Vencimento,'dd/MM/yyyy','en-US') END) AS [1ª Parc. Vencimento],
-        MAX(CASE WHEN Numero_Parcela = 1 THEN format(Data_Pagamento,'dd/MM/yyyy','en-US') END) AS [1ª Parc. Pagamento],
-        -- 2ª Parcela
-        MAX(CASE WHEN Numero_Parcela = 2 THEN format(Data_Vencimento,'dd/MM/yyyy','en-US') END) AS [2ª Parc. Vencimento],
-        MAX(CASE WHEN Numero_Parcela = 2 THEN format(Data_Pagamento,'dd/MM/yyyy','en-US') END) AS [2ª Parc. Pagamento],
-        -- 3ª Parcela
-        MAX(CASE WHEN Numero_Parcela = 3 THEN format(Data_Vencimento,'dd/MM/yyyy','en-US') END) AS [3ª Parc. Vencimento],
-        MAX(CASE WHEN Numero_Parcela = 3 THEN format(Data_Pagamento,'dd/MM/yyyy','en-US') END) AS [3ª Parc. Pagamento],
-        -- 4ª Parcela
-        MAX(CASE WHEN Numero_Parcela = 4 THEN format(Data_Vencimento,'dd/MM/yyyy','en-US') END) AS [4ª Parc. Vencimento],
-        MAX(CASE WHEN Numero_Parcela = 4 THEN format(Data_Pagamento,'dd/MM/yyyy','en-US') END) AS [4ª Parc. Pagamento],
-        -- 5ª Parcela
-        MAX(CASE WHEN Numero_Parcela = 5 THEN format(Data_Vencimento,'dd/MM/yyyy','en-US') END) AS [5ª Parc. Vencimento],
-        MAX(CASE WHEN Numero_Parcela = 5 THEN format(Data_Pagamento,'dd/MM/yyyy','en-US') END) AS [5ª Parc. Pagamento],
-        -- 6ª Parcela
-        MAX(CASE WHEN Numero_Parcela = 6 THEN format(Data_Vencimento,'dd/MM/yyyy','en-US') END) AS [6ª Parc. Vencimento],
-        MAX(CASE WHEN Numero_Parcela = 6 THEN format(Data_Pagamento,'dd/MM/yyyy','en-US') END) AS [6ª Parc. Pagamento]
+        Data_Vencimento,
+        Data_Pagamento,
+        ROW_NUMBER() OVER(PARTITION BY Grupo, Cota, Versao ORDER BY Numero_Parcela ASC) as Parcela_Rank
     FROM [NewconPlus].[dbo].[LZ_vw_Consorciado_Financeiro]
     WHERE Codigo_Movimento = 10
+),
+FinanceiroPivot AS (
+    -- Agora fazemos o Pivot usando o Parcela_Rank gerado acima, e não mais o Numero_Parcela
+    SELECT 
+        Grupo,
+        Cota,
+        Versao,
+        -- 1ª Parcela (A menor existente para a cota)
+        MAX(CASE WHEN Parcela_Rank = 1 THEN format(Data_Vencimento,'dd/MM/yyyy','en-US') END) AS [1ª Parc. Vencimento],
+        MAX(CASE WHEN Parcela_Rank = 1 THEN format(Data_Pagamento,'dd/MM/yyyy','en-US') END) AS [1ª Parc. Pagamento],
+        -- 2ª Parcela
+        MAX(CASE WHEN Parcela_Rank = 2 THEN format(Data_Vencimento,'dd/MM/yyyy','en-US') END) AS [2ª Parc. Vencimento],
+        MAX(CASE WHEN Parcela_Rank = 2 THEN format(Data_Pagamento,'dd/MM/yyyy','en-US') END) AS [2ª Parc. Pagamento],
+        -- 3ª Parcela
+        MAX(CASE WHEN Parcela_Rank = 3 THEN format(Data_Vencimento,'dd/MM/yyyy','en-US') END) AS [3ª Parc. Vencimento],
+        MAX(CASE WHEN Parcela_Rank = 3 THEN format(Data_Pagamento,'dd/MM/yyyy','en-US') END) AS [3ª Parc. Pagamento],
+        -- 4ª Parcela
+        MAX(CASE WHEN Parcela_Rank = 4 THEN format(Data_Vencimento,'dd/MM/yyyy','en-US') END) AS [4ª Parc. Vencimento],
+        MAX(CASE WHEN Parcela_Rank = 4 THEN format(Data_Pagamento,'dd/MM/yyyy','en-US') END) AS [4ª Parc. Pagamento],
+        -- 5ª Parcela
+        MAX(CASE WHEN Parcela_Rank = 5 THEN format(Data_Vencimento,'dd/MM/yyyy','en-US') END) AS [5ª Parc. Vencimento],
+        MAX(CASE WHEN Parcela_Rank = 5 THEN format(Data_Pagamento,'dd/MM/yyyy','en-US') END) AS [5ª Parc. Pagamento],
+        -- 6ª Parcela
+        MAX(CASE WHEN Parcela_Rank = 6 THEN format(Data_Vencimento,'dd/MM/yyyy','en-US') END) AS [6ª Parc. Vencimento],
+        MAX(CASE WHEN Parcela_Rank = 6 THEN format(Data_Pagamento,'dd/MM/yyyy','en-US') END) AS [6ª Parc. Pagamento]
+    FROM RankedFinanceiro
     GROUP BY Grupo, Cota, Versao
 ),
 UltimaSituacao AS (
-    -- Essa query numera os históricos, onde 1 é o mais recente
     SELECT 
         CODIGO_GRUPO, 
         CODIGO_COTA, 
@@ -3099,7 +3109,7 @@ SELECT
     FORMAT(ct.DATA_ADESAO,'dd/MM/yyyy','en-US') as 'Adesão',
     ct.CODIGO_REPRESENTANTE as [Cod. Repre.],
     rep.NOME as Representante,
-    -- Colunas do financeiro intercaladas
+    round(pp.VALOR_BEM,2) as [Valor do Bem],
     fp.[1ª Parc. Vencimento], fp.[1ª Parc. Pagamento],
     fp.[2ª Parc. Vencimento], fp.[2ª Parc. Pagamento],
     fp.[3ª Parc. Vencimento], fp.[3ª Parc. Pagamento],
@@ -3107,7 +3117,6 @@ SELECT
     fp.[5ª Parc. Vencimento], fp.[5ª Parc. Pagamento],
     fp.[6ª Parc. Vencimento], fp.[6ª Parc. Pagamento]
 FROM cotas ct
--- Agora fazemos o JOIN filtrando apenas o status mais recente (rn = 1)
 LEFT JOIN UltimaSituacao cts 
     ON ct.CODIGO_GRUPO = cts.CODIGO_GRUPO 
     AND ct.CODIGO_COTA = cts.CODIGO_COTA 
@@ -3121,6 +3130,8 @@ LEFT JOIN FinanceiroPivot fp
     ON ct.CODIGO_GRUPO = fp.Grupo 
     AND ct.CODIGO_COTA = fp.Cota 
     AND ct.VERSAO = fp.Versao
+left join PROPOSTAS pp
+	on ct.NUMERO_CONTRATO = pp.NUMERO_CONTRATO
 WHERE 
     ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}'
 ORDER BY 
