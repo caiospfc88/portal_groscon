@@ -3133,7 +3133,7 @@ LEFT JOIN FinanceiroPivot fp
 left join PROPOSTAS pp
 	on ct.NUMERO_CONTRATO = pp.NUMERO_CONTRATO
 WHERE 
-    ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}'
+    ct.DATA_VENDA BETWEEN '${data_inicial}' AND '${data_final}' AND ct.CODIGO_SITUACAO not like 'T%'
 ORDER BY 
     ct.CODIGO_GRUPO, ct.CODIGO_COTA, ct.VERSAO;`,
   );
