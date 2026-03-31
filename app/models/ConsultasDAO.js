@@ -3115,7 +3115,7 @@ on c.CODIGO_CIDADE = cc.CODIGO_CIDADE
 where 
 	ccc.DATA_CONTEMPLACAO is not null
 	and vcc.DATA_DEVOLUCAO is null
-	and ct.VERSAO between 1 and 40 
+	and ct.VERSAO between 1 and 39 
 	and ct.CODIGO_GRUPO in (${gruposSql})
 	and ccc.DATA_CONTEMPLACAO between '${data_inicial}' and '${data_final}'
 	
