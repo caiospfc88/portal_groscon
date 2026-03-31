@@ -3041,6 +3041,89 @@ order by Cota
   return result;
 };
 
+ConsultasDAO.prototype.excluidosContempladosADevolver = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
+  let grupos = req.query.grupos;
+  const codigosGrupos = grupos?.split(",").filter((e) => e);
+  const gruposSql = codigosGrupos.map((cod) => `${cod}`).join(",");
+
+  let result = await this._connection(
+    `select 
+ct.CODIGO_GRUPO as grupo,
+ct.CODIGO_COTA as cota,
+ct.VERSAO as 'versão',
+ct.CODIGO_SITUACAO as 'situação',
+format(ccc.DATA_CONTEMPLACAO,'dd/MM/yyyy','en-US') as 'contemplação',
+c.nome as nome,
+concat(ct.CODIGO_EQUIPE,' - ',ev.DESCRICAO) as equipe,
+concat(ct.CODIGO_REPRESENTANTE,' - ', rep.NOME) as representante,
+format(ValorBem.PRECO_TABELA,'C','pt-BR') as 'crédito Atual',
+vpa.PE_FC_Normal as '% FC pago',
+CASE 
+        WHEN NULLIF(LTRIM(RTRIM(c.CELULAR)), '') IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.DDD_RESIDENCIAL)), '') IS NOT NULL 
+        THEN CONCAT('+55', CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
+             CASE 
+                 -- Se começa com 0 e tem DDD embutido (ex: 035998487041), tira os 3 primeiros caracteres
+                 WHEN LTRIM(RTRIM(c.CELULAR)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.CELULAR, '-', ''), ' ', '')) >= 10 
+                     THEN SUBSTRING(LTRIM(RTRIM(c.CELULAR)), 4, LEN(c.CELULAR))
+                 -- Se começa direto com o DDD (ex: 35998487041), tira os 2 primeiros caracteres
+                 WHEN LTRIM(RTRIM(c.CELULAR)) LIKE '[1-9][1-9]%' AND LEN(REPLACE(REPLACE(c.CELULAR, '-', ''), ' ', '')) >= 10 
+                     THEN SUBSTRING(LTRIM(RTRIM(c.CELULAR)), 3, LEN(c.CELULAR))
+                 -- Se já está certinho, mantém como está
+                 ELSE LTRIM(RTRIM(REPLACE(c.CELULAR, '-', '')))
+             END)
+        ELSE '' 
+    END AS 'telefone 1',
+
+    -- PHONE 2: Telefone Residencial
+    CASE 
+        WHEN NULLIF(LTRIM(RTRIM(c.FONE_FAX)), '') IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.DDD_RESIDENCIAL)), '') IS NOT NULL 
+        THEN CONCAT('+55', CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
+             CASE 
+                 WHEN LTRIM(RTRIM(c.FONE_FAX)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX, '-', ''), ' ', '')) >= 10 
+                     THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX)), 4, LEN(c.FONE_FAX))
+                 WHEN LTRIM(RTRIM(c.FONE_FAX)) LIKE '[1-9][1-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX, '-', ''), ' ', '')) >= 10 
+                     THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX)), 3, LEN(c.FONE_FAX))
+                 ELSE LTRIM(RTRIM(REPLACE(c.FONE_FAX, '-', '')))
+             END)
+        ELSE '' 
+    END AS 'telefone 2',
+c.E_MAIL AS 'email',
+cc.NOME as cidade,
+cc.ESTADO as estado,
+format(vcc.VALOR_DEVOLVER_ATUALIZADO, 'C', 'pt-BR') AS [valor devolução]
+from cotas ct
+OUTER APPLY (
+    SELECT TOP 1 preco_tabela 
+    FROM REAJUSTES_BENS rb
+    WHERE ct.codigo_bem = rb.CODIGO_BEM 
+    ORDER BY DATA_REAJUSTE DESC
+) as ValorBem
+left join clientes c on ct.CGC_CPF_CLIENTE = c.CGC_CPF_CLIENTE
+left join COTAS_CONTEMPLADAS_CANCELADAS ccc on ct.ID_COTA = ccc.ID_COTA
+left join [NewconPlus].[dbo].[VIEW_COTAS_CANCS] vcc 
+on ct.CODIGO_GRUPO = vcc.CODIGO_GRUPO and ct.CODIGO_COTA = vcc.CODIGO_COTA and ct.VERSAO = vcc.VERSAO
+left join EQUIPES_VENDAS ev
+on ct.CODIGO_EQUIPE = ev.CODIGO_EQUIPE
+left join REPRESENTANTES rep
+on ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
+left join [NewconPlus].[dbo].[vw_VePEAmortizado] vpa
+on ct.ID_COTA = vpa.ID_Cota
+left join CIDADES cc
+on c.CODIGO_CIDADE = cc.CODIGO_CIDADE
+where 
+	ccc.DATA_CONTEMPLACAO is not null
+	and vcc.DATA_DEVOLUCAO is null
+	and ct.VERSAO between 1 and 40 
+	and ct.CODIGO_GRUPO in (${gruposSql})
+	and ct.DATA_ADESAO between '${data_inicial}' and '${data_final}'
+	
+`,
+  );
+  return result;
+};
+
 ConsultasDAO.prototype.relatorioEficiencia = async function (req) {
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
