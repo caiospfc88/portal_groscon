@@ -3117,7 +3117,7 @@ where
 	and vcc.DATA_DEVOLUCAO is null
 	and ct.VERSAO between 1 and 40 
 	and ct.CODIGO_GRUPO in (${gruposSql})
-	and ct.DATA_ADESAO between '${data_inicial}' and '${data_final}'
+	and ccc.DATA_CONTEMPLACAO between '${data_inicial}' and '${data_final}'
 	
 `,
   );
