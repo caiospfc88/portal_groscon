@@ -3100,7 +3100,7 @@ OUTER APPLY (
     WHERE ct.codigo_bem = rb.CODIGO_BEM 
     ORDER BY DATA_REAJUSTE DESC
 ) as ValorBem
-left join clientes c on ct.CGC_CPF_CLIENTE = c.CGC_CPF_CLIENTE
+left join clientes c on ct.CGC_CPF_CLIENTE = c.CGC_CPF_CLIENTE and ct.tipo = c.tipo
 left join COTAS_CONTEMPLADAS_CANCELADAS ccc on ct.ID_COTA = ccc.ID_COTA
 left join [NewconPlus].[dbo].[VIEW_COTAS_CANCS] vcc 
 on ct.CODIGO_GRUPO = vcc.CODIGO_GRUPO and ct.CODIGO_COTA = vcc.CODIGO_COTA and ct.VERSAO = vcc.VERSAO
