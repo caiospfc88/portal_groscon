@@ -3239,6 +3239,7 @@ ConsultasDAO.prototype.cotasPorSituacao = async function (req) {
 	ct.CODIGO_GRUPO as Grupo,
 	ct.CODIGO_COTA as Cota,
 	ct.VERSAO as 'Ver.',
+  format(round(valorBemVenda.PRECO_TABELA,2),'c','pt-BR') as 'Valor Bem',
 	ct.CODIGO_SITUACAO as 'Situação',
 	sc.NOMENCLATURA as 'Descrição Situação',
   format(data_situacao.[DT. Situação],'dd/MM/yyyy','en-US') as 'Dt. Situação',
@@ -3278,6 +3279,12 @@ left join CLIENTES c
 on c.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
 LEFT JOIN SITUACOES_COBRANCAS sc
 ON ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
+outer apply (
+select top 1 rb.PRECO_TABELA 
+from REAJUSTES_BENS rb
+where rb.codigo_bem = ct.CODIGO_BEM and DATA_REAJUSTE <= ct.DATA_ADESAO
+order by DATA_REAJUSTE desc
+) as valorBemVenda
 outer apply (
 	select top 1 cs.data_alteracao as 'DT. Situação' 
 from COTAS_SITUACOES cs 
