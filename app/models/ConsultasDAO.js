@@ -3225,6 +3225,8 @@ ORDER BY
 };
 
 ConsultasDAO.prototype.cotasPorSituacao = async function (req) {
+  let data_inicial = req.query.data_inicial;
+  let data_final = req.query.data_final;
   let grupos = req.query.grupos;
   let situacoes = req.query.situacoes;
   const codigosGrupos = grupos?.split(",").filter((e) => e);
@@ -3239,6 +3241,7 @@ ConsultasDAO.prototype.cotasPorSituacao = async function (req) {
 	ct.VERSAO as 'Ver.',
 	ct.CODIGO_SITUACAO as 'Situação',
 	sc.NOMENCLATURA as 'Descrição Situação',
+  format(data_situacao.[DT. Situação],'dd/MM/yyyy','en-US') as 'Dt. Situação',
 	c.NOME as Nome,
 	c.E_MAIL AS 'Email',
 	CASE 
@@ -3269,28 +3272,21 @@ ConsultasDAO.prototype.cotasPorSituacao = async function (req) {
                  ELSE LTRIM(RTRIM(REPLACE(c.FONE_FAX, '-', '')))
              END)
         ELSE '' 
-    END AS 'Tel. 2',
-
-    -- PHONE 3: Telefone Comercial
-    CASE 
-        WHEN NULLIF(LTRIM(RTRIM(c.FONE_FAX_COMERCIAL)), '') IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.DDD_COMERCIAL)), '') IS NOT NULL 
-        THEN CONCAT('+55', CAST(TRY_CAST(c.DDD_COMERCIAL AS INT) AS VARCHAR),
-             CASE 
-                 WHEN LTRIM(RTRIM(c.FONE_FAX_COMERCIAL)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX_COMERCIAL, '-', ''), ' ', '')) >= 10 
-                     THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX_COMERCIAL)), 4, LEN(c.FONE_FAX_COMERCIAL))
-                 WHEN LTRIM(RTRIM(c.FONE_FAX_COMERCIAL)) LIKE '[1-9][1-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX_COMERCIAL, '-', ''), ' ', '')) >= 10 
-                     THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX_COMERCIAL)), 3, LEN(REPLACE(c.FONE_FAX_COMERCIAL, '-', '')))
-                 ELSE LTRIM(RTRIM(REPLACE(c.FONE_FAX_COMERCIAL, '-', '')))
-             END)
-        ELSE '' 
-    END AS 'Tel. 3'
-
+    END AS 'Tel. 2'
 from cotas ct
 left join CLIENTES c
 on c.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
 LEFT JOIN SITUACOES_COBRANCAS sc
 ON ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
-where ct.CODIGO_SITUACAO in (${situacoesSql}) and ct.CODIGO_GRUPO in (${gruposSql})`);
+outer apply (
+	select top 1 cs.data_alteracao as 'DT. Situação' 
+from COTAS_SITUACOES cs 
+where CODIGO_GRUPO = ct.CODIGO_GRUPO 
+	and CODIGO_COTA = ct.CODIGO_COTA 
+	and VERSAO = ct.VERSAO
+order by cs.DATA_ALTERACAO desc
+) as data_situacao
+where ct.CODIGO_SITUACAO in (${situacoesSql}) and ct.CODIGO_GRUPO in (${gruposSql}) and data_situacao.[DT. Situação] between '${data_inicial}' and '${data_final}'`);
   return result;
 };
 
