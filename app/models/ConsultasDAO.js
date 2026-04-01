@@ -3062,7 +3062,7 @@ format(ValorBem.PRECO_TABELA,'C','pt-BR') as 'crédito Atual',
 vpa.PE_FC_Normal as '% FC pago',
 CASE 
         WHEN NULLIF(LTRIM(RTRIM(c.CELULAR)), '') IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.DDD_RESIDENCIAL)), '') IS NOT NULL 
-        THEN CONCAT('+55', CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
+        THEN CONCAT(CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
              CASE 
                  -- Se começa com 0 e tem DDD embutido (ex: 035998487041), tira os 3 primeiros caracteres
                  WHEN LTRIM(RTRIM(c.CELULAR)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.CELULAR, '-', ''), ' ', '')) >= 10 
@@ -3079,7 +3079,7 @@ CASE
     -- PHONE 2: Telefone Residencial
     CASE 
         WHEN NULLIF(LTRIM(RTRIM(c.FONE_FAX)), '') IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.DDD_RESIDENCIAL)), '') IS NOT NULL 
-        THEN CONCAT('+55', CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
+        THEN CONCAT(CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
              CASE 
                  WHEN LTRIM(RTRIM(c.FONE_FAX)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX, '-', ''), ' ', '')) >= 10 
                      THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX)), 4, LEN(c.FONE_FAX))
@@ -3247,7 +3247,7 @@ ConsultasDAO.prototype.cotasPorSituacao = async function (req) {
 	c.E_MAIL AS 'Email',
 	CASE 
         WHEN NULLIF(LTRIM(RTRIM(c.CELULAR)), '') IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.DDD_RESIDENCIAL)), '') IS NOT NULL 
-        THEN CONCAT('+55', CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
+        THEN CONCAT(CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
              CASE 
                  -- Se começa com 0 e tem DDD embutido (ex: 035998487041), tira os 3 primeiros caracteres
                  WHEN LTRIM(RTRIM(c.CELULAR)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.CELULAR, '-', ''), ' ', '')) >= 10 
@@ -3264,7 +3264,7 @@ ConsultasDAO.prototype.cotasPorSituacao = async function (req) {
     -- PHONE 2: Telefone Residencial
     CASE 
         WHEN NULLIF(LTRIM(RTRIM(c.FONE_FAX)), '') IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.DDD_RESIDENCIAL)), '') IS NOT NULL 
-        THEN CONCAT('+55', CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
+        THEN CONCAT(CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
              CASE 
                  WHEN LTRIM(RTRIM(c.FONE_FAX)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX, '-', ''), ' ', '')) >= 10 
                      THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX)), 4, LEN(c.FONE_FAX))
