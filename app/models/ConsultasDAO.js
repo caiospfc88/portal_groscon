@@ -3049,69 +3049,92 @@ ConsultasDAO.prototype.excluidosContempladosADevolver = async function (req) {
   const gruposSql = codigosGrupos.map((cod) => `${cod}`).join(",");
 
   let result = await this._connection(
-    `select 
-ct.CODIGO_GRUPO as grupo,
-ct.CODIGO_COTA as cota,
-ct.VERSAO as 'versão',
-ct.CODIGO_SITUACAO as 'situação',
-format(ccc.DATA_CONTEMPLACAO,'dd/MM/yyyy','en-US') as 'contemplação',
-c.nome as nome,
-concat(ct.CODIGO_EQUIPE,' - ',ev.DESCRICAO) as equipe,
-concat(ct.CODIGO_REPRESENTANTE,' - ', rep.NOME) as representante,
-format(ValorBem.PRECO_TABELA,'C','pt-BR') as 'crédito Atual',
-vpa.PE_FC_Normal as '% FC pago',
-CASE 
-        WHEN NULLIF(LTRIM(RTRIM(c.CELULAR)), '') IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.DDD_RESIDENCIAL)), '') IS NOT NULL 
-        THEN CONCAT(CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
-             CASE 
-                 -- Se começa com 0 e tem DDD embutido (ex: 035998487041), tira os 3 primeiros caracteres
-                 WHEN LTRIM(RTRIM(c.CELULAR)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.CELULAR, '-', ''), ' ', '')) >= 10 
-                     THEN SUBSTRING(LTRIM(RTRIM(c.CELULAR)), 4, LEN(c.CELULAR))
-                 -- Se começa direto com o DDD (ex: 35998487041), tira os 2 primeiros caracteres
-                 WHEN LTRIM(RTRIM(c.CELULAR)) LIKE '[1-9][1-9]%' AND LEN(REPLACE(REPLACE(c.CELULAR, '-', ''), ' ', '')) >= 10 
-                     THEN SUBSTRING(LTRIM(RTRIM(c.CELULAR)), 3, LEN(c.CELULAR))
-                 -- Se já está certinho, mantém como está
-                 ELSE LTRIM(RTRIM(REPLACE(c.CELULAR, '-', '')))
-             END)
-        ELSE '' 
-    END AS 'telefone 1',
+    `SELECT 
+    ct.CODIGO_GRUPO AS grupo,
+    ct.CODIGO_COTA AS cota,
+    ct.VERSAO AS [versão],
+    ct.CODIGO_SITUACAO AS [situação],
+    FORMAT(ccc.DATA_CONTEMPLACAO, 'dd/MM/yyyy', 'en-US') AS [contemplação],
+    c.nome AS nome,
+    c.CGC_CPF_CLIENTE,
+    c.TIPO,
+    CONCAT(ct.CODIGO_EQUIPE, ' - ', ev.DESCRICAO) AS equipe,
+    CONCAT(ct.CODIGO_REPRESENTANTE, ' - ', rep.NOME) AS representante,
+    FORMAT(ValorBem.PRECO_TABELA, 'C', 'pt-BR') AS [crédito Atual],
+    vpa.PE_FC_Normal AS [% FC pago],
 
-    -- PHONE 2: Telefone Residencial
+    -- TELEFONE 1: Baseado em c.CELULAR (com fallback caso DDD_RESIDENCIAL seja nulo)
     CASE 
-        WHEN NULLIF(LTRIM(RTRIM(c.FONE_FAX)), '') IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.DDD_RESIDENCIAL)), '') IS NOT NULL 
-        THEN CONCAT(CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
-             CASE 
-                 WHEN LTRIM(RTRIM(c.FONE_FAX)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX, '-', ''), ' ', '')) >= 10 
-                     THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX)), 4, LEN(c.FONE_FAX))
-                 WHEN LTRIM(RTRIM(c.FONE_FAX)) LIKE '[1-9][1-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX, '-', ''), ' ', '')) >= 10 
-                     THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX)), 3, LEN(c.FONE_FAX))
-                 ELSE LTRIM(RTRIM(REPLACE(c.FONE_FAX, '-', '')))
-             END)
+        WHEN NULLIF(LTRIM(RTRIM(c.CELULAR)), '') IS NOT NULL 
+        THEN 
+            CASE 
+                WHEN NULLIF(LTRIM(RTRIM(c.DDD_RESIDENCIAL)), '') IS NOT NULL 
+                THEN CONCAT(CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
+                     CASE 
+                         WHEN LTRIM(RTRIM(c.CELULAR)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.CELULAR, '-', ''), ' ', '')) >= 10 
+                             THEN SUBSTRING(LTRIM(RTRIM(c.CELULAR)), 4, LEN(c.CELULAR))
+                         WHEN LTRIM(RTRIM(c.CELULAR)) LIKE '[1-9][1-9]%' AND LEN(REPLACE(REPLACE(c.CELULAR, '-', ''), ' ', '')) >= 10 
+                             THEN SUBSTRING(LTRIM(RTRIM(c.CELULAR)), 3, LEN(c.CELULAR))
+                         ELSE LTRIM(RTRIM(REPLACE(c.CELULAR, '-', '')))
+                     END)
+                WHEN LTRIM(RTRIM(c.CELULAR)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.CELULAR, '-', ''), ' ', '')) >= 10 
+                THEN SUBSTRING(LTRIM(RTRIM(REPLACE(REPLACE(c.CELULAR, '-', ''), ' ', ''))), 2, LEN(c.CELULAR))
+                ELSE LTRIM(RTRIM(REPLACE(REPLACE(c.CELULAR, '-', ''), ' ', '')))
+            END
         ELSE '' 
-    END AS 'telefone 2',
-c.E_MAIL AS 'email',
-cc.NOME as cidade,
-cc.ESTADO as estado,
-format(vcc.VALOR_DEVOLVER_ATUALIZADO, 'C', 'pt-BR') AS [valor devolução]
-from cotas ct
+    END AS [telefone 1],
+
+    -- TELEFONE 2: Baseado em c.FONE_FAX (com fallback caso DDD_RESIDENCIAL seja nulo)
+    CASE 
+        WHEN NULLIF(LTRIM(RTRIM(c.FONE_FAX)), '') IS NOT NULL 
+        THEN 
+            CASE 
+                WHEN NULLIF(LTRIM(RTRIM(c.DDD_RESIDENCIAL)), '') IS NOT NULL 
+                THEN CONCAT(CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
+                     CASE 
+                         WHEN LTRIM(RTRIM(c.FONE_FAX)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX, '-', ''), ' ', '')) >= 10 
+                             THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX)), 4, LEN(c.FONE_FAX))
+                         WHEN LTRIM(RTRIM(c.FONE_FAX)) LIKE '[1-9][1-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX, '-', ''), ' ', '')) >= 10 
+                             THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX)), 3, LEN(c.FONE_FAX))
+                         ELSE LTRIM(RTRIM(REPLACE(c.FONE_FAX, '-', '')))
+                     END)
+                WHEN LTRIM(RTRIM(c.FONE_FAX)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX, '-', ''), ' ', '')) >= 10 
+                THEN SUBSTRING(LTRIM(RTRIM(REPLACE(REPLACE(c.FONE_FAX, '-', ''), ' ', ''))), 2, LEN(c.FONE_FAX))
+                ELSE LTRIM(RTRIM(REPLACE(REPLACE(c.FONE_FAX, '-', ''), ' ', '')))
+            END
+        ELSE '' 
+    END AS [telefone 2],
+
+    -- OUTROS CONTATOS: Busca na tabela TELEFONES_COTAS e concatena
+    ISNULL(OutrosTels.ListaFones, '') AS [outros contatos],
+
+    c.E_MAIL AS [email],
+    cc.NOME AS cidade,
+    cc.ESTADO AS estado,
+    FORMAT(vcc.VALOR_DEVOLVER_ATUALIZADO, 'C', 'pt-BR') AS [valor devolução]
+
+FROM cotas ct
 OUTER APPLY (
     SELECT TOP 1 preco_tabela 
     FROM REAJUSTES_BENS rb
     WHERE ct.codigo_bem = rb.CODIGO_BEM 
     ORDER BY DATA_REAJUSTE DESC
-) as ValorBem
-left join clientes c on ct.CGC_CPF_CLIENTE = c.CGC_CPF_CLIENTE and ct.tipo = c.tipo
-left join COTAS_CONTEMPLADAS_CANCELADAS ccc on ct.ID_COTA = ccc.ID_COTA
-left join [NewconPlus].[dbo].[VIEW_COTAS_CANCS] vcc 
-on ct.CODIGO_GRUPO = vcc.CODIGO_GRUPO and ct.CODIGO_COTA = vcc.CODIGO_COTA and ct.VERSAO = vcc.VERSAO
-left join EQUIPES_VENDAS ev
-on ct.CODIGO_EQUIPE = ev.CODIGO_EQUIPE
-left join REPRESENTANTES rep
-on ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
-left join [NewconPlus].[dbo].[vw_VePEAmortizado] vpa
-on ct.ID_COTA = vpa.ID_Cota
-left join CIDADES cc
-on c.CODIGO_CIDADE = cc.CODIGO_CIDADE
+) AS ValorBem
+
+OUTER APPLY (
+    SELECT STRING_AGG(CONCAT(ISNULL(tc.DDD, ''), REPLACE(REPLACE(tc.FONE_FAX, ' ', ''), '-', '')), ', ') AS ListaFones
+    FROM TELEFONES_COTAS tc
+    WHERE tc.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE AND tc.TIPO = ct.TIPO
+) AS OutrosTels
+
+LEFT JOIN clientes c ON ct.CGC_CPF_CLIENTE = c.CGC_CPF_CLIENTE AND ct.TIPO = c.TIPO
+LEFT JOIN COTAS_CONTEMPLADAS_CANCELADAS ccc ON ct.ID_COTA = ccc.ID_COTA
+LEFT JOIN [NewconPlus].[dbo].[VIEW_COTAS_CANCS] vcc 
+    ON ct.CODIGO_GRUPO = vcc.CODIGO_GRUPO AND ct.CODIGO_COTA = vcc.CODIGO_COTA AND ct.VERSAO = vcc.VERSAO
+LEFT JOIN EQUIPES_VENDAS ev ON ct.CODIGO_EQUIPE = ev.CODIGO_EQUIPE
+LEFT JOIN REPRESENTANTES rep ON ct.CODIGO_REPRESENTANTE = rep.CODIGO_REPRESENTANTE
+LEFT JOIN [NewconPlus].[dbo].[vw_VePEAmortizado] vpa ON ct.ID_COTA = vpa.ID_Cota
+LEFT JOIN CIDADES cc ON c.CODIGO_CIDADE = cc.CODIGO_CIDADE
 where 
 	ccc.DATA_CONTEMPLACAO is not null
 	and vcc.DATA_DEVOLUCAO is null
