@@ -3056,8 +3056,6 @@ ConsultasDAO.prototype.excluidosContempladosADevolver = async function (req) {
     ct.CODIGO_SITUACAO AS [situação],
     FORMAT(ccc.DATA_CONTEMPLACAO, 'dd/MM/yyyy', 'en-US') AS [contemplação],
     c.nome AS nome,
-    c.CGC_CPF_CLIENTE,
-    c.TIPO,
     CONCAT(ct.CODIGO_EQUIPE, ' - ', ev.DESCRICAO) AS equipe,
     CONCAT(ct.CODIGO_REPRESENTANTE, ' - ', rep.NOME) AS representante,
     FORMAT(ValorBem.PRECO_TABELA, 'C', 'pt-BR') AS [crédito Atual],
