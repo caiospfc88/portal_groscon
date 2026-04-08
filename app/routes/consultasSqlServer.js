@@ -535,6 +535,20 @@ module.exports = function (application) {
       res,
     );
   });
+  application.get("/historicoSituacaoCota", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.historicoSituacaoCota(
+      application,
+      req,
+      res,
+    );
+  });
+  application.get("/nomeEmailPorCota", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.nomeEmailPorCota(
+      application,
+      req,
+      res,
+    );
+  });
   application.get("/relatorioEficiencia", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.relatorioEficiencia(
       application,

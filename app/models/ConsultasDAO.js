@@ -2866,6 +2866,25 @@ ConsultasDAO.prototype.proximasAssembleias = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.historicoSituacaoCota = async function (req) {
+  let id = req.query.id;
+  let result = await this._connection(
+    `select 
+      ct.codigo_grupo as Grupo,
+      ct.CODIGO_COTA as Cota,
+      ct.VERSAO as 'Versão',
+      cs.CODIGO_COTA_HIST as 'Cota histórico',
+      cs.VERSAO_HIST as 'Versão histórico',
+      cs.CODIGO_SITUACAO 'Situação histórico',
+      format(cs.DATA_ALTERACAO,'dd/MM/yyyy','en-US') as 'Data Situação'
+    from cotas ct
+    left join COTAS_SITUACOES cs
+    on ct.ID_COTA = cs.ID_COTA 
+    where ct.ID_COTA = ${id}`,
+  );
+  return result;
+};
+
 ConsultasDAO.prototype.relatorioValoresDevolver = async function (req) {
   let grupos = req.query.grupos;
   let data_inicial = req.query.data_inicial;
@@ -3250,13 +3269,15 @@ ConsultasDAO.prototype.cotasPorSituacao = async function (req) {
   let data_final = req.query.data_final;
   let grupos = req.query.grupos;
   let situacoes = req.query.situacoes;
+  let comId = req.query.comId;
   const codigosGrupos = grupos?.split(",").filter((e) => e);
   const gruposSql = codigosGrupos.map((cod) => `${cod}`).join(",");
   const situacoesArray = situacoes?.split(",").filter((e) => e);
   // Adiciona aspas simples ao redor de cada string de situação
   const situacoesSql = situacoesArray.map((cod) => `'${cod.trim()}'`).join(",");
 
-  let result = await this._connection(`select
+  let result = await this
+    ._connection(`select ${comId == "true" ? "ct.ID_COTA," : ""}
 	ct.CODIGO_GRUPO as Grupo,
 	ct.CODIGO_COTA as Cota,
 	ct.VERSAO as 'Ver.',
@@ -3314,7 +3335,9 @@ where CODIGO_GRUPO = ct.CODIGO_GRUPO
 	and VERSAO = ct.VERSAO
 order by cs.DATA_ALTERACAO desc
 ) as data_situacao
-where ct.CODIGO_SITUACAO in (${situacoesSql}) and ct.CODIGO_GRUPO in (${gruposSql}) and data_situacao.[DT. Situação] between '${data_inicial}' and '${data_final}'`);
+where ct.CODIGO_SITUACAO in (${situacoesSql}) and ct.CODIGO_GRUPO in (${gruposSql}) and data_situacao.[DT. Situação] between '${data_inicial}' and '${data_final}'
+order by ct.codigo_grupo,ct.codigo_cota,ct.versao
+`);
   return result;
 };
 
@@ -3682,6 +3705,28 @@ from CONTROLES_OPCOES co left join cotas ct
   left join CIDADES cide
 	on cide.CODIGO_CIDADE = co.IMOVEL_ESCRITURA_COMARCA
 where ct.CODIGO_GRUPO = ${grupo} and ct.codigo_cota = ${cota}	and ct.VERSAO = ${versao}
+`,
+  );
+  return result;
+};
+
+ConsultasDAO.prototype.nomeEmailPorCota = async function (req) {
+  let grupo = req.query.grupo;
+  let cota = req.query.cota;
+  let versao = req.query.versao;
+
+  let result = await this._connection(
+    `select
+      ct.CODIGO_GRUPO as Grupo,
+      ct.CODIGO_COTA as Cota,
+      ct.VERSAO as 'Versão',
+      c.NOME as NOME,
+      c.E_MAIL as E_MAIL
+    from cotas ct
+    left join clientes c on c.cgc_cpf_cliente = ct.CGC_CPF_CLIENTE and c.TIPO = ct.TIPO
+    where ct.CODIGO_GRUPO = ${grupo} 
+      and ct.codigo_cota = ${cota}	
+      and ct.VERSAO = ${versao}
 `,
   );
   return result;

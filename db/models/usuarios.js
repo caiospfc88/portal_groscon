@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "usuarios",
-    }
+    },
   );
 
   Usuarios.associate = (models) => {
@@ -49,6 +49,10 @@ module.exports = (sequelize, DataTypes) => {
       through: models.relatoriosNewcon_usuario,
       foreignKey: "id_usuario", // chave no pivot que aponta para usuarios
       otherKey: "relatorio_id", // chave no pivot que aponta para relatoriosNewcon
+    });
+    models.usuarios.hasMany(models.historico_recuperacao, {
+      foreignKey: "agente_id",
+      as: "historicos_recuperacao",
     });
   };
 

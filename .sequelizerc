@@ -6,5 +6,3 @@ module.exports = {
   "seeders-path": path.resolve(__dirname, "db", "seeders"),
   "migrations-path": path.resolve(__dirname, "db", "migrations"),
 };
-
-module.exports = config;

@@ -543,6 +543,20 @@ module.exports.cotasPorSituacao = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.historicoSituacaoCota = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.historicoSituacaoCota(req);
+  res.send(resConsulta);
+};
+
+module.exports.nomeEmailPorCota = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.nomeEmailPorCota(req);
+  res.send(resConsulta);
+};
+
 module.exports.relatorioEficiencia = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
