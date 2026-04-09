@@ -20,6 +20,8 @@ module.exports = (sequelize, DataTypes) => {
       situacao_cota_no_contato: DataTypes.STRING,
       status_acordo: DataTypes.STRING,
       observacao: DataTypes.TEXT,
+      id_envio_email: DataTypes.STRING,
+      caminho_audio: DataTypes.STRING,
     },
     {
       sequelize,

@@ -65,14 +65,20 @@ module.exports.consultarHistorico = async function (req, res) {
 
 module.exports.cadastrarHistorico = async function (req, res) {
   try {
+    // Se o multer salvou o arquivo, req.file existirá e teremos o caminho
+    const caminhoAudio = req.file ? req.file.path : null;
+
     var historico = await models.historico_recuperacao.create({
       id_cota: req.body.id_cota,
-      agente_id: req.body.agente_id, // Certifique-se de enviar isso do front ou pegar do req.userId do JWT
+      agente_id: req.body.agente_id,
       canal_contato: req.body.canal_contato,
       situacao_cota_no_contato: req.body.situacao_cota_no_contato,
       status_acordo: req.body.status_acordo,
       observacao: req.body.observacao,
+      id_envio_email: req.body.id_envio_email,
+      caminho_audio: caminhoAudio, // <--- Salva o caminho final no banco!
     });
+
     res.json({ Historico: historico.id, Msg: "Registrado com sucesso!" });
   } catch (error) {
     res
