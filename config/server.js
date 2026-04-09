@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const consign = require("consign");
 const session = require("express-session");
+const path = require("path");
 const cors = require("cors");
 var app = express();
 
@@ -14,7 +15,9 @@ app.set("views", "./app/views");
 
 app.use(cors({ origin: "*" }));
 
-app.use("/audios", express.static("/opt/meussistemas/audios_recuperacao"));
+const pastaAudios = path.join(process.cwd(), "uploads", "audios");
+
+app.use("/audios", express.static(pastaAudios));
 
 app.use(bodyParser.json({ limit: "10mb" })); // Ajuste o valor conforme necessário
 app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));

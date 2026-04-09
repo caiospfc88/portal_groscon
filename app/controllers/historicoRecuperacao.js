@@ -66,7 +66,7 @@ module.exports.consultarHistorico = async function (req, res) {
 module.exports.cadastrarHistorico = async function (req, res) {
   try {
     // Se o multer salvou o arquivo, req.file existirá e teremos o caminho
-    const caminhoAudio = req.file ? req.file.path : null;
+    const caminhoAudio = req.file ? req.file.filename : null;
 
     var historico = await models.historico_recuperacao.create({
       id_cota: req.body.id_cota,
