@@ -82,6 +82,17 @@ module.exports = function (application) {
       );
     },
   );
+
+  application.put(
+    "/atualizarHistoricoRecuperacao/:id",
+    verifyJWT,
+    function (req, res) {
+      application.app.controllers.historicoRecuperacao.atualizarHistorico(
+        req,
+        res,
+      );
+    },
+  );
   application.post("/statusEmLote", verifyJWT, function (req, res) {
     application.app.controllers.historicoRecuperacao.statusEmLote(req, res);
   });

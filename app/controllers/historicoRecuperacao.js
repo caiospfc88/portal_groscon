@@ -50,6 +50,22 @@ module.exports.statusEmLote = async function (req, res) {
   }
 };
 
+module.exports.atualizarHistorico = async function (req, res) {
+  try {
+    const id = req.params.id;
+    const { status_acordo, observacao } = req.body;
+
+    await models.historico_recuperacao.update(
+      { status_acordo, observacao },
+      { where: { id: id } },
+    );
+
+    res.status(200).json({ Msg: "Atualizado com sucesso" });
+  } catch (error) {
+    res.status(500).json({ Msg: "Erro ao atualizar", error: error.message });
+  }
+};
+
 module.exports.consultarHistorico = async function (req, res) {
   try {
     var historico = await models.historico_recuperacao.findOne({
