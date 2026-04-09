@@ -44,6 +44,7 @@ jspm_packages/
 planilhas/
 relatoriosPDF/
 img/
+uploads/audios
 
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/

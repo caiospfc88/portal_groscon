@@ -14,6 +14,8 @@ app.set("views", "./app/views");
 
 app.use(cors({ origin: "*" }));
 
+app.use("/audios", express.static("/opt/meussistemas/audios_recuperacao"));
+
 app.use(bodyParser.json({ limit: "10mb" })); // Ajuste o valor conforme necessário
 app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 

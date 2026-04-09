@@ -2,14 +2,21 @@
 const { verifyJWT } = require("../utils/auth");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+
+const pastaUploads = path.join(process.cwd(), "uploads", "audios");
+
+// 2. Cria a pasta automaticamente se ela não existir!
+if (!fs.existsSync(pastaUploads)) {
+  fs.mkdirSync(pastaUploads, { recursive: true });
+}
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Altere './uploads/audios' para o caminho da sua pasta de rede
-    cb(null, "./uploads/audios");
+    cb(null, pastaUploads); // Usa o caminho que garantimos que existe
   },
   filename: function (req, file, cb) {
-    // Cria um nome único: idCota-timestamp.mp3
+    // Mantém o seu padrão de nome: idCota-timestamp.mp3
     cb(
       null,
       req.body.id_cota + "-" + Date.now() + path.extname(file.originalname),
