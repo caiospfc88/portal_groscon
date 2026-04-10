@@ -3335,7 +3335,10 @@ where CODIGO_GRUPO = ct.CODIGO_GRUPO
 	and VERSAO = ct.VERSAO
 order by cs.DATA_ALTERACAO desc
 ) as data_situacao
-where ct.CODIGO_SITUACAO in (${situacoesSql}) and ct.CODIGO_GRUPO in (${gruposSql}) and data_situacao.[DT. Situação] between '${data_inicial}' and '${data_final}'
+where ct.CODIGO_SITUACAO in (${situacoesSql}) 
+      and ct.CODIGO_GRUPO in (${gruposSql}) 
+      and data_situacao.[DT. Situação] >= '${data_inicial}'
+      and data_situacao.[DT. Situação] < DATEADD(DAY, 1, '${data_final}')
 order by ct.codigo_grupo,ct.codigo_cota,ct.versao
 `);
   return result;
