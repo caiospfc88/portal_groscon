@@ -1,9 +1,22 @@
 // src/controllers/historicoRecuperacao.js
 const models = require("../../db/models");
+const { Op } = require("sequelize");
 
 module.exports.listarHistorico = async function (req, res) {
   try {
+    const { dataInicial, dataFinal } = req.query;
+    let whereClause = {};
+
+    // Se o Front-end enviou o período, aplica o filtro de datas
+    if (dataInicial && dataFinal) {
+      whereClause.createdAt = {
+        [Op.gte]: new Date(`${dataInicial}T00:00:00.000Z`), // Maior ou igual ao início do dia
+        [Op.lte]: new Date(`${dataFinal}T23:59:59.999Z`), // Menor ou igual ao fim do dia
+      };
+    }
+
     var historico = await models.historico_recuperacao.findAll({
+      where: whereClause, // <--- O filtro é injetado aqui
       include: [
         {
           model: models.usuarios,
@@ -12,6 +25,7 @@ module.exports.listarHistorico = async function (req, res) {
         },
       ],
     });
+
     res.send(historico);
   } catch (error) {
     res
