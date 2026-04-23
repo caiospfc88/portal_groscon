@@ -257,6 +257,138 @@ FormulariosGeracaoDocs.prototype.formularioContratoVendaImovelCotas =
     return result;
   };
 
+FormulariosGeracaoDocs.prototype.formularioTransferenciaCota = async function (
+  req,
+) {
+  let grupo = req.query.grupo;
+  let cota = req.query.cota;
+  let versao = req.query.versao;
+
+  let result = await this._connection(
+    `
+      select consorciado.NOME as ConsorciadoNome
+	,ct.CODIGO_GRUPO as Grupo
+	,ct.CODIGO_COTA as Cota
+	,ct.VERSAO as Versao
+	,ct.NUMERO_CONTRATO AS Contrato
+	,'GROSCON ADM. DE CONSORCIOS LTDA' as Administradora
+	,cessionario.NOME as CessionarioNome
+	,upper(cessionario.NACIONALIDADE) as CessionarioNacionalidade
+	,CASE cessionario.ESTADO_CIVIL 
+            WHEN 'C' THEN 'CASADO(A)' WHEN 'S' THEN 'SOLTEIRO(A)' WHEN 'V' THEN 'VIÚVO(A)'
+            WHEN 'D' THEN 'DIVORCIADO(A)' WHEN 'U' THEN 'UNIÃO ESTÁVEL' ELSE 'NÃO INFORMADO' 
+    END AS CessionarioEstadoCivil
+	,cessionario.DOCUMENTO as CessionarioDocumento
+	,CASE 
+        WHEN LEN(cessionario.CGC_CPF_CLIENTE) = 11 THEN 
+            STUFF(STUFF(STUFF(cessionario.CGC_CPF_CLIENTE, 10, 0, '-'), 7, 0, '.'), 4, 0, '.')
+        WHEN LEN(cessionario.CGC_CPF_CLIENTE) = 14 THEN 
+            STUFF(STUFF(STUFF(STUFF(cessionario.CGC_CPF_CLIENTE, 13, 0, '-'), 9, 0, '/'), 6, 0, '.'), 3, 0, '.')
+        ELSE cessionario.CGC_CPF_CLIENTE
+    END AS CessionarioCpfCnpj
+	,pf.DESCRICAO as CessionarioProfissao
+	,format(cessionario.DATA_NASCIMENTO,'dd/MM/yyyy','en-US') as CessionarioDataNascimento
+	,cessionario.ENDERECO as CessionarioEndereco
+	,cid.NOME as CessionarioCidade
+	,stuff(cessionario.CEP,7,0,'-') as CessionarioCep
+	,CASE 
+        WHEN NULLIF(LTRIM(RTRIM(cessionario.CELULAR)), '') IS NOT NULL 
+        THEN 
+            CASE 
+                WHEN NULLIF(LTRIM(RTRIM(cessionario.DDD_RESIDENCIAL)), '') IS NOT NULL 
+                THEN CONCAT(CAST(TRY_CAST(cessionario.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
+                     CASE 
+                         WHEN LTRIM(RTRIM(cessionario.CELULAR)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(cessionario.CELULAR, '-', ''), ' ', '')) >= 10 
+                             THEN SUBSTRING(LTRIM(RTRIM(cessionario.CELULAR)), 4, LEN(cessionario.CELULAR))
+                         WHEN LTRIM(RTRIM(cessionario.CELULAR)) LIKE '[1-9][1-9]%' AND LEN(REPLACE(REPLACE(cessionario.CELULAR, '-', ''), ' ', '')) >= 10 
+                             THEN SUBSTRING(LTRIM(RTRIM(cessionario.CELULAR)), 3, LEN(cessionario.CELULAR))
+                         ELSE LTRIM(RTRIM(REPLACE(cessionario.CELULAR, '-', '')))
+                     END)
+                WHEN LTRIM(RTRIM(cessionario.CELULAR)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(cessionario.CELULAR, '-', ''), ' ', '')) >= 10 
+                THEN SUBSTRING(LTRIM(RTRIM(REPLACE(REPLACE(cessionario.CELULAR, '-', ''), ' ', ''))), 2, LEN(cessionario.CELULAR))
+                ELSE LTRIM(RTRIM(REPLACE(REPLACE(cessionario.CELULAR, '-', ''), ' ', '')))
+            END
+        ELSE '' 
+    END AS CessionarioTelefone
+	,CASE 
+        WHEN NULLIF(LTRIM(RTRIM(cessionario.FONE_FAX)), '') IS NOT NULL 
+        THEN 
+            CASE 
+                WHEN NULLIF(LTRIM(RTRIM(cessionario.DDD_RESIDENCIAL)), '') IS NOT NULL 
+                THEN CONCAT(CAST(TRY_CAST(cessionario.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
+                     CASE 
+                         WHEN LTRIM(RTRIM(cessionario.FONE_FAX)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(cessionario.FONE_FAX, '-', ''), ' ', '')) >= 10 
+                             THEN SUBSTRING(LTRIM(RTRIM(cessionario.FONE_FAX)), 4, LEN(cessionario.FONE_FAX))
+                         WHEN LTRIM(RTRIM(cessionario.FONE_FAX)) LIKE '[1-9][1-9]%' AND LEN(REPLACE(REPLACE(cessionario.FONE_FAX, '-', ''), ' ', '')) >= 10 
+                             THEN SUBSTRING(LTRIM(RTRIM(cessionario.FONE_FAX)), 3, LEN(cessionario.FONE_FAX))
+                         ELSE LTRIM(RTRIM(REPLACE(cessionario.FONE_FAX, '-', '')))
+                     END)
+                WHEN LTRIM(RTRIM(cessionario.FONE_FAX)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(cessionario.FONE_FAX, '-', ''), ' ', '')) >= 10 
+                THEN SUBSTRING(LTRIM(RTRIM(REPLACE(REPLACE(cessionario.FONE_FAX, '-', ''), ' ', ''))), 2, LEN(cessionario.FONE_FAX))
+                ELSE LTRIM(RTRIM(REPLACE(REPLACE(cessionario.FONE_FAX, '-', ''), ' ', '')))
+            END
+        ELSE '' 
+    END AS CessionarioTelefone2
+	,cessionario.ENDERECO_COMERCIAL as CessionarioEnderecoComercial
+	,cidCom.NOME as CessionarioCidadeComercial
+	,stuff(cessionario.CEP_COMERCIAL,7,0,'-') as CessionarioCepComercial
+	,CASE 
+        WHEN NULLIF(LTRIM(RTRIM(cessionario.FONE_FAX_COMERCIAL)), '') IS NOT NULL 
+        THEN 
+            CASE 
+                WHEN NULLIF(LTRIM(RTRIM(cessionario.DDD_COMERCIAL)), '') IS NOT NULL 
+                THEN CONCAT(CAST(TRY_CAST(cessionario.DDD_COMERCIAL AS INT) AS VARCHAR), 
+                     CASE 
+                         WHEN LTRIM(RTRIM(cessionario.FONE_FAX_COMERCIAL)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(cessionario.FONE_FAX_COMERCIAL, '-', ''), ' ', '')) >= 10 
+                             THEN SUBSTRING(LTRIM(RTRIM(cessionario.FONE_FAX_COMERCIAL)), 4, LEN(cessionario.FONE_FAX_COMERCIAL))
+                         WHEN LTRIM(RTRIM(cessionario.FONE_FAX_COMERCIAL)) LIKE '[1-9][1-9]%' AND LEN(REPLACE(REPLACE(cessionario.FONE_FAX_COMERCIAL, '-', ''), ' ', '')) >= 10 
+                             THEN SUBSTRING(LTRIM(RTRIM(cessionario.FONE_FAX_COMERCIAL)), 3, LEN(cessionario.FONE_FAX_COMERCIAL))
+                         ELSE LTRIM(RTRIM(REPLACE(cessionario.FONE_FAX_COMERCIAL, '-', '')))
+                     END)
+                WHEN LTRIM(RTRIM(cessionario.FONE_FAX_COMERCIAL)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(cessionario.FONE_FAX_COMERCIAL, '-', ''), ' ', '')) >= 10 
+                THEN SUBSTRING(LTRIM(RTRIM(REPLACE(REPLACE(cessionario.FONE_FAX_COMERCIAL, '-', ''), ' ', ''))), 2, LEN(cessionario.FONE_FAX_COMERCIAL))
+                ELSE LTRIM(RTRIM(REPLACE(REPLACE(cessionario.FONE_FAX_COMERCIAL, '-', ''), ' ', '')))
+            END
+        ELSE '' 
+    END AS CessionarioTelefoneComercial
+	,FORMAT(ct.PERCENTUAL_IDEAL_DEVIDO, 'N4') + ' %' AS PercentualAmortizado
+	,format((100 - ct.PERCENTUAL_IDEAL_DEVIDO),'N4') + ' %' as PercentualAberto
+	,FORMAT(
+        (((100 - ct.PERCENTUAL_IDEAL_DEVIDO) 
+        + (ct.PERCENTUAL_TAXA_ADMINISTRACAO - ct.TAXA_ADMINISTRACAO_PAGA)) 
+        * vb.PRECO_TABELA) / 100,
+    'C', 'pt-BR') AS saldoDevedor
+	,pa.qtdParcelas AS parcelasAbertas
+from TRANSFERENCIAS_PENDENTES tp
+left join CLIENTES cessionario on cessionario.cgc_cpf_cliente = tp.cgc_cpf_cliente
+left join cotas ct on ct.codigo_grupo = tp.CODIGO_GRUPO and ct.CODIGO_COTA = tp.CODIGO_COTA and ct.VERSAO = tp.VERSAO
+left join CLIENTES consorciado on ct.CGC_CPF_CLIENTE = consorciado.CGC_CPF_CLIENTE
+left join PROFISSOES pf on cessionario.CODIGO_PROFISSAO = pf.CODIGO_PROFISSAO
+left join cidades cid on cessionario.CODIGO_CIDADE = cid.CODIGO_CIDADE
+left join cidades cidCom on cessionario.CODIGO_CIDADE_COMERCIAL = cidCom.CODIGO_CIDADE
+OUTER APPLY (
+    SELECT TOP 1 rb.preco_tabela
+    FROM REAJUSTES_BENS rb
+    WHERE rb.CODIGO_BEM = ct.codigo_bem
+    ORDER BY rb.DATA_REAJUSTE DESC
+) vb
+OUTER APPLY (
+    SELECT COUNT(*) AS qtdParcelas
+    FROM COBRANCAS_ESPECIAIS ce
+    WHERE ce.CODIGO_GRUPO = ct.CODIGO_GRUPO 
+      AND ce.CODIGO_COTA = ct.CODIGO_COTA 
+      AND ce.VERSAO = ct.VERSAO
+      AND ce.STATUS_PARCELA = 'N'
+) pa
+WHERE tp.codigo_grupo = ${grupo}
+            AND tp.CODIGO_COTA = ${cota}
+            AND tp.VERSAO = ${versao}
+
+      `,
+  );
+  return result;
+};
+
 module.exports = function () {
   return FormulariosGeracaoDocs;
 };

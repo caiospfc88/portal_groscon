@@ -26,4 +26,17 @@ module.exports = function (application) {
       );
     },
   );
+
+  application.get(
+    "/formularioTransferenciaCota",
+    verifyJWT,
+    function (req, res) {
+      // E aqui a mesma coisa para a segunda rota
+      application.app.controllers.formulariosGeracaoDocs.formularioTransferenciaCota(
+        application,
+        req,
+        res,
+      );
+    },
+  );
 };
