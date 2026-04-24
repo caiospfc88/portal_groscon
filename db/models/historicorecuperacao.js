@@ -22,6 +22,8 @@ module.exports = (sequelize, DataTypes) => {
       observacao: DataTypes.TEXT,
       id_envio_email: DataTypes.STRING,
       caminho_audio: DataTypes.STRING,
+      // NOVO CAMPO FINANCEIRO (10 dígitos no total, 2 após a vírgula)
+      valor_taxa_pendente: DataTypes.DECIMAL(10, 2),
     },
     {
       sequelize,

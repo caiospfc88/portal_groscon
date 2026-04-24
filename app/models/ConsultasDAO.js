@@ -3282,6 +3282,9 @@ ConsultasDAO.prototype.cotasPorSituacao = async function (req) {
 	ct.CODIGO_COTA as Cota,
 	ct.VERSAO as 'Ver.',
   format(round(valorBemVenda.PRECO_TABELA,2),'c','pt-BR') as 'Valor Bem',
+  ct.PERCENTUAL_TAXA_ADMINISTRACAO as 'Taxa Contratada',
+	(ct.PERCENTUAL_TAXA_ADMINISTRACAO - ct.TAXA_ADMINISTRACAO_PAGA) as 'Taxa A Receber',
+	format(((ct.PERCENTUAL_TAXA_ADMINISTRACAO - ct.TAXA_ADMINISTRACAO_PAGA) * vb.PRECO_TABELA) / 100,'c','pt-BR')  as 'Valor Taxa A Receber',
 	ct.CODIGO_SITUACAO as 'Situação',
 	sc.NOMENCLATURA as 'Descrição Situação',
   format(data_situacao.[DT. Situação],'dd/MM/yyyy','en-US') as 'Dt. Situação',
@@ -3327,6 +3330,12 @@ from REAJUSTES_BENS rb
 where rb.codigo_bem = ct.CODIGO_BEM and DATA_REAJUSTE <= ct.DATA_ADESAO
 order by DATA_REAJUSTE desc
 ) as valorBemVenda
+OUTER APPLY (
+    SELECT TOP 1 rb.preco_tabela
+    FROM REAJUSTES_BENS rb
+    WHERE rb.CODIGO_BEM = ct.codigo_bem
+    ORDER BY rb.DATA_REAJUSTE DESC
+) vb
 outer apply (
 	select top 1 cs.data_alteracao as 'DT. Situação' 
 from COTAS_SITUACOES cs 

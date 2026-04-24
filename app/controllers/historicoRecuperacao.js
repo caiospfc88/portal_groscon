@@ -7,16 +7,16 @@ module.exports.listarHistorico = async function (req, res) {
     const { dataInicial, dataFinal } = req.query;
     let whereClause = {};
 
-    // Se o Front-end enviou o período, aplica o filtro de datas
+    // Filtro de datas com segurança de fuso horário
     if (dataInicial && dataFinal) {
       whereClause.createdAt = {
-        [Op.gte]: new Date(`${dataInicial}T00:00:00.000Z`), // Maior ou igual ao início do dia
-        [Op.lte]: new Date(`${dataFinal}T23:59:59.999Z`), // Menor ou igual ao fim do dia
+        [Op.gte]: new Date(`${dataInicial.substring(0, 10)}T00:00:00.000Z`),
+        [Op.lte]: new Date(`${dataFinal.substring(0, 10)}T23:59:59.999Z`),
       };
     }
 
     var historico = await models.historico_recuperacao.findAll({
-      where: whereClause, // <--- O filtro é injetado aqui
+      where: whereClause,
       include: [
         {
           model: models.usuarios,
@@ -39,13 +39,11 @@ module.exports.statusEmLote = async function (req, res) {
     const { ids_cotas } = req.body;
     if (!ids_cotas || !ids_cotas.length) return res.send([]);
 
-    // Busca apenas a última interação de cada cota solicitada
     const historicos = await models.historico_recuperacao.findAll({
       where: { id_cota: ids_cotas },
       order: [["createdAt", "DESC"]],
     });
 
-    // Filtra para manter apenas o status mais recente de cada id_cota
     const statusRecentes = [];
     const map = new Set();
     for (let h of historicos) {
@@ -95,7 +93,6 @@ module.exports.consultarHistorico = async function (req, res) {
 
 module.exports.cadastrarHistorico = async function (req, res) {
   try {
-    // Se o multer salvou o arquivo, req.file existirá e teremos o caminho
     const caminhoAudio = req.file ? req.file.filename : null;
 
     var historico = await models.historico_recuperacao.create({
@@ -106,7 +103,11 @@ module.exports.cadastrarHistorico = async function (req, res) {
       status_acordo: req.body.status_acordo,
       observacao: req.body.observacao,
       id_envio_email: req.body.id_envio_email,
-      caminho_audio: caminhoAudio, // <--- Salva o caminho final no banco!
+      caminho_audio: caminhoAudio,
+      // NOVO CAMPO: Captura o valor financeiro enviado pelo Front-end
+      valor_taxa_pendente: req.body.valor_taxa_pendente
+        ? parseFloat(req.body.valor_taxa_pendente)
+        : 0,
     });
 
     res.json({ Historico: historico.id, Msg: "Registrado com sucesso!" });
