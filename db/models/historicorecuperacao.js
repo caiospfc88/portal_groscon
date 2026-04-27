@@ -9,6 +9,13 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "agente_id",
         as: "agente",
       });
+
+      // === ADICIONE ESTA RELAÇÃO AQUI ===
+      // Dizemos que um histórico pode ter vários pagamentos vinculados
+      this.hasMany(models.pagamentos_recuperacao, {
+        foreignKey: "id_historico_recuperacao",
+        as: "pagamentos", // O apelido "as" deve ser igual ao que você usou no Controller
+      });
     }
   }
 
