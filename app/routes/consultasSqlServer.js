@@ -229,6 +229,14 @@ module.exports = function (application) {
     );
   });
 
+  application.get("/pagamentos010PorCota", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.pagamentos010PorCota(
+      application,
+      req,
+      res,
+    );
+  });
+
   application.get(
     "/selecionaCotasAtivasComEmail",
     verifyJWT,

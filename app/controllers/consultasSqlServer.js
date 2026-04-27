@@ -13,6 +13,13 @@ module.exports.comissoesComReducao = async function (application, req, res) {
   res.send(comissao);
 };
 
+module.exports.pagamentos010PorCota = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.pagamentos010PorCota(req);
+  res.send(resConsulta);
+};
+
 module.exports.comissoesSemReducao = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);

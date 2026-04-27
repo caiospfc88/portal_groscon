@@ -118,6 +118,28 @@ module.exports.cadastrarHistorico = async function (req, res) {
 
     var historico = await models.historico_recuperacao.create(dadosParaSalvar);
 
+    // ==========================================
+    // NOVO: SALVAR PAGAMENTOS VINCULADOS
+    // ==========================================
+    if (req.body.pagamentos_vinculados) {
+      const pagamentosFront = JSON.parse(req.body.pagamentos_vinculados);
+
+      const pagamentosParaSalvar = pagamentosFront.map((p) => ({
+        id_historico_recuperacao: historico.id,
+        parcela: p.Parcela,
+        numero_aviso: p["Numero Aviso"],
+        data_pagamento: p["Data Pagamento"],
+        valor_seguro: p["Valor Seguro"],
+        valor_fc: p["Valor FC"],
+        valor_tx: p["Valor TX"],
+        valor_multa: p["Valor Multa"],
+        valor_juros: p["Valor Juros"],
+        total_pago: p["Total Pago"],
+      }));
+
+      await models.pagamentos_recuperacao.bulkCreate(pagamentosParaSalvar);
+    }
+
     res.json({ Historico: historico.id, Msg: "Registrado com sucesso!" });
   } catch (error) {
     res
@@ -183,9 +205,9 @@ module.exports.sincronizarTaxasAntigas = async function (req, res) {
       ...new Set(historicosZerados.map((h) => h.id_cota)),
     ];
 
-    // 3. Chama o ERP para descobrir os valores financeiros (AJUSTE A INSTÂNCIA DO SEU DAO AQUI)
-    const conexao = dbConnection(); // Puxa a função de conexão do config
-    const dao = new ConsultasDAO(conexao); // Injeta no DAO
+    // 3. Chama o ERP para descobrir os valores financeiros
+    const conexao = dbConnection();
+    const dao = new ConsultasDAO(conexao);
 
     const taxasErp = await dao.buscarTaxasPorIds(idsCotasUnicos);
 
@@ -219,5 +241,27 @@ module.exports.sincronizarTaxasAntigas = async function (req, res) {
     res
       .status(500)
       .json({ Msg: "Erro ao sincronizar taxas", error: error.message });
+  }
+};
+
+// --- NOVO: BUSCAR PAGAMENTOS PARA O MODAL FRONT-END ---
+module.exports.buscarPagamentosCota = async function (req, res) {
+  try {
+    const idCota = req.query.id_cota;
+
+    if (!idCota) {
+      return res.status(400).json({ Msg: "ID da cota é obrigatório." });
+    }
+
+    const conexao = dbConnection();
+    const dao = new ConsultasDAO(conexao);
+
+    const pagamentos = await dao.buscarPagamentosCota(idCota);
+    res.status(200).json(pagamentos);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ Msg: "Erro ao buscar pagamentos", error: error.message });
   }
 };

@@ -3487,6 +3487,30 @@ ORDER BY
   return result;
 };
 
+ConsultasDAO.prototype.pagamentos010PorCota = async function (req) {
+  let idCota = req.query.idCota;
+
+  let result = await this
+    ._connection(`select concat(mg.CODIGO_GRUPO,'/',mg.CODIGO_COTA,'-',mg.VERSAO) as 'Grupo\Cota' 
+	,cf.Numero_Parcela as 'Parcela'
+	,mg.NUMERO_AVISO as 'Numero Aviso'
+	,format(mg.DATA_PAGAMENTO,'dd/MM/yyyy','en-US') as 'Data Pagamento'
+	,mg.VALOR_SEGURO_VIDA as 'Valor Seguro'
+	,mg.VALOR_FUNDO_COMUM as 'Valor FC'
+	,mg.VALOR_TAXA_ADMINISTRACAO as 'Valor TX'
+	,mg.VALOR_MULTA as 'Valor Multa'
+	,mg.VALOR_JUROS as 'Valor Juros'
+	,mg.TOTAL_LANCAMENTO as 'Total Pago'
+from MOVIMENTOS_GRUPOS mg
+left join [NewconPlus].[dbo].[LZ_vw_Consorciado_Financeiro] cf
+on mg.NUMERO_AVISO = cf.Numero_Aviso
+where mg.ID_Cota_Pagamento = ${idCota}
+	and mg.CODIGO_MOVIMENTO = 10
+	and mg.AVISO_ESTORNO = 0
+`);
+  return result;
+};
+
 ConsultasDAO.prototype.cotasPagasAtrasoSemMultaJuros = async function (req) {
   let data_inicial = req.query.data_inicial;
   let data_final = req.query.data_final;
