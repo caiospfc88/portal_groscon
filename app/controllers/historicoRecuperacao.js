@@ -97,7 +97,8 @@ module.exports.cadastrarHistorico = async function (req, res) {
   try {
     const caminhoAudio = req.file ? req.file.filename : null;
 
-    var historico = await models.historico_recuperacao.create({
+    // Monta o pacote de dados básico
+    const dadosParaSalvar = {
       id_cota: req.body.id_cota,
       agente_id: req.body.agente_id,
       canal_contato: req.body.canal_contato,
@@ -106,11 +107,16 @@ module.exports.cadastrarHistorico = async function (req, res) {
       observacao: req.body.observacao,
       id_envio_email: req.body.id_envio_email,
       caminho_audio: caminhoAudio,
-      // NOVO CAMPO: Captura o valor financeiro enviado pelo Front-end
       valor_taxa_pendente: req.body.valor_taxa_pendente
         ? parseFloat(req.body.valor_taxa_pendente)
         : 0,
-    });
+    };
+
+    if (req.body.data_retroativa) {
+      dadosParaSalvar.createdAt = new Date(req.body.data_retroativa);
+    }
+
+    var historico = await models.historico_recuperacao.create(dadosParaSalvar);
 
     res.json({ Historico: historico.id, Msg: "Registrado com sucesso!" });
   } catch (error) {
