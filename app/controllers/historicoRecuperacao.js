@@ -1,6 +1,8 @@
 // src/controllers/historicoRecuperacao.js
 const models = require("../../db/models");
 const { Op } = require("sequelize");
+const dbConnection = require("../../config/dbConnection");
+const ConsultasDAO = require("../models/ConsultasDAO")();
 
 module.exports.listarHistorico = async function (req, res) {
   try {
@@ -151,5 +153,65 @@ module.exports.excluirHistorico = async function (req, res) {
     res
       .status(500)
       .json({ Msg: "Erro ao excluir histórico", error: error.message });
+  }
+};
+
+module.exports.sincronizarTaxasAntigas = async function (req, res) {
+  try {
+    // 1. Busca todos os históricos locais que estão com a taxa zerada
+    const historicosZerados = await models.historico_recuperacao.findAll({
+      where: {
+        [Op.or]: [{ valor_taxa_pendente: null }, { valor_taxa_pendente: 0 }],
+      },
+      attributes: ["id", "id_cota"],
+    });
+
+    if (historicosZerados.length === 0) {
+      return res.status(200).json({
+        Msg: "Nenhum histórico precisando de atualização! Tudo em dia.",
+      });
+    }
+
+    // 2. Pega apenas os IDs únicos das cotas para não sobrecarregar o ERP
+    const idsCotasUnicos = [
+      ...new Set(historicosZerados.map((h) => h.id_cota)),
+    ];
+
+    // 3. Chama o ERP para descobrir os valores financeiros (AJUSTE A INSTÂNCIA DO SEU DAO AQUI)
+    const conexao = dbConnection(); // Puxa a função de conexão do config
+    const dao = new ConsultasDAO(conexao); // Injeta no DAO
+
+    const taxasErp = await dao.buscarTaxasPorIds(idsCotasUnicos);
+
+    // Cria um mapa para achar os valores super rápido (ID_COTA -> Valor)
+    const mapaTaxas = new Map();
+    taxasErp.forEach((item) => {
+      mapaTaxas.set(item.ID_COTA, parseFloat(item.valor_taxa) || 0);
+    });
+
+    // 4. Salva no MySQL os valores encontrados
+    let atualizados = 0;
+    for (let historico of historicosZerados) {
+      const valorNovo = mapaTaxas.get(historico.id_cota);
+
+      if (valorNovo && valorNovo > 0) {
+        await models.historico_recuperacao.update(
+          { valor_taxa_pendente: valorNovo },
+          { where: { id: historico.id } },
+        );
+        atualizados++;
+      }
+    }
+
+    res.status(200).json({
+      Msg: "Sincronização Finalizada com Sucesso!",
+      total_encontrados: historicosZerados.length,
+      atualizados: atualizados,
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ Msg: "Erro ao sincronizar taxas", error: error.message });
   }
 };

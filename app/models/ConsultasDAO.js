@@ -3397,6 +3397,29 @@ ORDER BY
   return result;
 };
 
+ConsultasDAO.prototype.buscarTaxasPorIds = async function (arrayDeIds) {
+  if (!arrayDeIds || arrayDeIds.length === 0) return [];
+
+  const idsSql = arrayDeIds.join(",");
+
+  // Note que aqui eu removi o "FORMAT" e o "pt-BR" para ele devolver o número puro pro MySQL (ex: 1500.50)
+  let result = await this._connection(`
+    SELECT 
+      ct.ID_COTA,
+      ((ct.PERCENTUAL_TAXA_ADMINISTRACAO - ct.TAXA_ADMINISTRACAO_PAGA) * vb.PRECO_TABELA) / 100 as valor_taxa
+    FROM cotas ct
+    OUTER APPLY (
+        SELECT TOP 1 rb.preco_tabela
+        FROM REAJUSTES_BENS rb
+        WHERE rb.CODIGO_BEM = ct.codigo_bem
+        ORDER BY rb.DATA_REAJUSTE DESC
+    ) vb
+    WHERE ct.ID_COTA IN (${idsSql})
+  `);
+
+  return result;
+};
+
 ConsultasDAO.prototype.cotasContempladasComEntregaParcAtraso = async function (
   req,
 ) {

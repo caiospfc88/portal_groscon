@@ -1,4 +1,4 @@
-// src/routes/historico_recuperacao.js (ajuste o caminho conforme sua estrutura)
+// src/routes/historico_recuperacao.js
 const { verifyJWT } = require("../utils/auth");
 const multer = require("multer");
 const path = require("path");
@@ -6,17 +6,16 @@ const fs = require("fs");
 
 const pastaUploads = path.join(process.cwd(), "uploads", "audios");
 
-// 2. Cria a pasta automaticamente se ela não existir!
+// Cria a pasta automaticamente se ela não existir!
 if (!fs.existsSync(pastaUploads)) {
   fs.mkdirSync(pastaUploads, { recursive: true });
 }
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, pastaUploads); // Usa o caminho que garantimos que existe
+    cb(null, pastaUploads);
   },
   filename: function (req, file, cb) {
-    // Mantém o seu padrão de nome: idCota-timestamp.mp3
     cb(
       null,
       req.body.id_cota + "-" + Date.now() + path.extname(file.originalname),
@@ -38,6 +37,7 @@ module.exports = function (application) {
     },
   );
 
+  // ROTA MANTIDA (A que faz upload de áudio)
   application.post(
     "/cadastrarHistoricoRecuperacao",
     verifyJWT,
@@ -55,17 +55,6 @@ module.exports = function (application) {
     verifyJWT,
     function (req, res) {
       application.app.controllers.historicoRecuperacao.consultarHistorico(
-        req,
-        res,
-      );
-    },
-  );
-
-  application.post(
-    "/cadastrarHistoricoRecuperacao",
-    verifyJWT,
-    function (req, res) {
-      application.app.controllers.historicoRecuperacao.cadastrarHistorico(
         req,
         res,
       );
@@ -93,6 +82,7 @@ module.exports = function (application) {
       );
     },
   );
+
   application.post("/statusEmLote", verifyJWT, function (req, res) {
     application.app.controllers.historicoRecuperacao.statusEmLote(req, res);
   });
@@ -102,6 +92,20 @@ module.exports = function (application) {
     verifyJWT,
     function (req, res) {
       application.app.controllers.historicoRecuperacao.excluirHistorico(
+        req,
+        res,
+      );
+    },
+  );
+
+  // =======================================================
+  // ROTA TEMPORÁRIA PARA O BACKFILL (SCRIPT DE SINCRONIZAÇÃO)
+  // =======================================================
+  application.get(
+    "/sincronizarTaxas",
+    // verifyJWT, // <-- Deixei comentado para você rodar direto pelo navegador
+    function (req, res) {
+      application.app.controllers.historicoRecuperacao.sincronizarTaxasAntigas(
         req,
         res,
       );
