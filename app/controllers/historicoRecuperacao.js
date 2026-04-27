@@ -25,6 +25,11 @@ module.exports.listarHistorico = async function (req, res) {
           as: "agente",
           attributes: ["id", "nome"],
         },
+        // === ADICIONE ESTE BLOCO AQUI ===
+        {
+          model: models.pagamentos_recuperacao,
+          as: "pagamentos", // O mesmo alias que você colocou no associate do model pai
+        },
       ],
     });
 
