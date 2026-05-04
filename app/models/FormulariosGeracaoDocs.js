@@ -273,6 +273,9 @@ FormulariosGeracaoDocs.prototype.formularioTransferenciaCota = async function (
 	,ct.NUMERO_CONTRATO AS Contrato
 	,'GROSCON ADM. DE CONSORCIOS LTDA' as Administradora
 	,cessionario.NOME as CessionarioNome
+    ,(CASE WHEN cessionario.SEXO = 'F' THEN 'FEMININO' ELSE 
+	(CASE WHEN cessionario.SEXO = 'M' THEN 'MASCULINO' ELSE 
+	(CASE WHEN cessionario.SEXO = 'A' THEN '--------------' END)END) END) AS 'Sexo'
 	,upper(cessionario.NACIONALIDADE) as CessionarioNacionalidade
 	,CASE cessionario.ESTADO_CIVIL 
             WHEN 'C' THEN 'CASADO(A)' WHEN 'S' THEN 'SOLTEIRO(A)' WHEN 'V' THEN 'VIÚVO(A)'
@@ -383,6 +386,7 @@ OUTER APPLY (
 WHERE tp.codigo_grupo = ${grupo}
             AND tp.CODIGO_COTA = ${cota}
             AND tp.VERSAO = ${versao}
+            and cessionario.CGC_CPF_CLIENTE <> ct.CGC_CPF_CLIENTE
 
       `,
   );
