@@ -2559,7 +2559,7 @@ ConsultasDAO.prototype.dadosCliente = async function (req) {
       c.BAIRRO_OUTRO as 'BAIRRO ALTERNATIVO',
       C.COMPLEMENTO_OUTRO AS 'COMPLEMENTO ALTERNATIVO',
       C.CEP_OUTRO AS 'CEP ALTERNATIVO',
-      c.E_MAIL as 'E-mail',
+      c.E_MAIL as 'Email',
       C.FONE_FAX_OUTRO as 'TELEFONE ALTERNATIVO',
       c.RAMAL_OUTRO as 'RAMAL ALTERNATIVO',
       C.CODIGO_CIDADE_OUTRO 'CÓDIGO DA CIDADE ALTERNATIVO',
