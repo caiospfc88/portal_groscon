@@ -3791,6 +3791,36 @@ ConsultasDAO.prototype.nomeEmailPorCota = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.avisoContemplacao = async function (req) {
+  let grupo = req.query.grupo;
+  let cota = req.query.cota;
+  let versao = req.query.versao;
+
+  let result = await this._connection(
+    `select ct.CODIGO_GRUPO as Grupo,
+        ct.CODIGO_COTA as Cota,
+        ct.VERSAO as Versao,
+        case 
+        when tg.DESCRICAO = 'AUTOMOVEIS NACIONAIS' then 'automoveis'
+        when tg.DESCRICAO = 'CAMINHÕES' then 'caminhoes'
+        ELSE lower(tg.DESCRICAO) END as TipoBem,
+        C.NOME,
+        C.E_MAIL
+    from cotas ct
+    left join CLIENTES c
+    on ct.cgc_cpf_cliente = c.cgc_cpf_cliente
+    left join GRUPOS g
+    on ct.CODIGO_GRUPO = g.CODIGO_GRUPO
+    left join TIPOS_GRUPOS tg
+    on g.CODIGO_TIPO_GRUPO = tg.CODIGO_TIPO_GRUPO
+    where ct.CODIGO_GRUPO = ${grupo} 
+      and ct.codigo_cota = ${cota}	
+      and ct.VERSAO = ${versao}
+`,
+  );
+  return result;
+};
+
 ConsultasDAO.prototype.fasesProcessoAlienacao = async function (req) {
   let grupo = req.query.grupo;
   let cota = req.query.cota;

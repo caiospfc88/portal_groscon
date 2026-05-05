@@ -237,6 +237,14 @@ module.exports = function (application) {
     );
   });
 
+  application.get("/avisoContemplacao", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.avisoContemplacao(
+      application,
+      req,
+      res,
+    );
+  });
+
   application.get(
     "/selecionaCotasAtivasComEmail",
     verifyJWT,

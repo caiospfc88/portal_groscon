@@ -20,6 +20,13 @@ module.exports.pagamentos010PorCota = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.avisoContemplacao = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.avisoContemplacao(req);
+  res.send(resConsulta);
+};
+
 module.exports.comissoesSemReducao = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);
