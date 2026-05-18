@@ -3805,7 +3805,15 @@ ConsultasDAO.prototype.avisoContemplacao = async function (req) {
         when tg.DESCRICAO = 'CAMINHÕES' then 'caminhoes'
         ELSE lower(tg.DESCRICAO) END as TipoBem,
         C.NOME,
-        C.E_MAIL
+        C.E_MAIL,
+        case
+        when con.TIPO_CONTEMPLACAO = 'L' then 'Lance'
+        when con.TIPO_CONTEMPLACAO = 'S' then 'Sorteio'
+        else con.TIPO_CONTEMPLACAO end as TipoContemplacao,
+        con.VALOR_LANCE as ValorLance, 
+        con.VALOR_CREDITO as ValorCredito,
+        con.PERCENTUAL_LANCE as PercentualLance,
+        format(con.DATA_CONTEMPLACAO,'dd/MM/yyyy','en-US') as dataAssembleia
     from cotas ct
     left join CLIENTES c
     on ct.cgc_cpf_cliente = c.cgc_cpf_cliente
@@ -3813,9 +3821,13 @@ ConsultasDAO.prototype.avisoContemplacao = async function (req) {
     on ct.CODIGO_GRUPO = g.CODIGO_GRUPO
     left join TIPOS_GRUPOS tg
     on g.CODIGO_TIPO_GRUPO = tg.CODIGO_TIPO_GRUPO
-    where ct.CODIGO_GRUPO = ${grupo} 
-      and ct.codigo_cota = ${cota}	
-      and ct.VERSAO = ${versao}
+    left join CONTEMPLACOES con
+    on ct.CODIGO_GRUPO = con.CODIGO_GRUPO and ct.CODIGO_COTA = con.CODIGO_COTA and ct.VERSAO = con.VERSAO
+    where ct.CODIGO_GRUPO = '${grupo}' 
+      and ct.codigo_cota = '${cota}'
+      and ct.VERSAO = '${versao}'
+      and con.DATA_DESCLASSIFICACAO is null
+	    and con.DATA_EXCLUSAO is null
 `,
   );
   return result;
