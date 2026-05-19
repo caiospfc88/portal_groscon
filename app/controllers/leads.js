@@ -1,15 +1,28 @@
 // app/controllers/leads.js
 const models = require("../../db/models");
-const { Sequelize } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 
 // instância do sequelize
 const sequelize = models.sequelize;
 
 module.exports.listarLeads = async function (req, res) {
   try {
+    const { dataInicio, dataFim } = req.query;
+    let whereCondition = {};
+
+    // Se as datas forem enviadas pelo Front, cria o filtro
+    if (dataInicio && dataFim) {
+      whereCondition.data_primeiro_contato = {
+        // Concatena as horas para garantir que pegue o dia todo (do 00:00:00 ao 23:59:59)
+        [Op.between]: [`${dataInicio} 00:00:00`, `${dataFim} 23:59:59`],
+      };
+    }
+
     const leads = await models.leads.findAll({
-      order: [["createdAt", "DESC"]],
+      where: whereCondition,
+      order: [["data_primeiro_contato", "DESC"]], // Melhor ordenar pela data do contato do que pela criação do registro
     });
+
     res.json(leads);
   } catch (err) {
     console.error("Erro listarLeads:", err);
