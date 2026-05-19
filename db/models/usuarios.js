@@ -54,6 +54,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "agente_id",
       as: "historicos_recuperacao",
     });
+    models.usuarios.hasMany(models.leads, {
+      foreignKey: "usuario_id",
+      as: "leads",
+    });
   };
 
   // Antes de criar -> hash sempre (como já tinha)
