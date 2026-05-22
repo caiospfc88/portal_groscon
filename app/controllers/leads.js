@@ -194,6 +194,7 @@ module.exports.receberLeadSite = async function (req, res) {
         interesse: interesse || "Não especificado",
         status: "Novo",
         data_primeiro_contato: dataHoje,
+        usuario_id: 1,
       },
       { transaction },
     );
