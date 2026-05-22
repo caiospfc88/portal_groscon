@@ -116,8 +116,24 @@ module.exports.alterarLead = async function (req, res) {
     const lead = await models.leads.findOne({ where: { id: req.body.id } });
     if (!lead) return res.status(404).json({ error: "Lead não encontrado" });
 
+    // Criamos um objeto de dados limpo
+    const updateData = { ...req.body };
+
+    // Sanitização: Se a data for vazia ou a string "Invalid date", força para null
+    const camposData = ["data_primeiro_contato", "data_encaminhamento"];
+
+    camposData.forEach((campo) => {
+      if (
+        !updateData[campo] ||
+        updateData[campo] === "" ||
+        updateData[campo] === "Invalid date"
+      ) {
+        updateData[campo] = null;
+      }
+    });
+
     // Atualiza apenas os dados cadastrais (o histórico agora é independente)
-    await lead.update(req.body);
+    await lead.update(updateData);
     res.json({ Lead: lead, Msg: "Atualizado com sucesso!" });
   } catch (err) {
     console.error("Erro alterarLead:", err);
