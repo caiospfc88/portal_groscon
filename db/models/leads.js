@@ -21,9 +21,11 @@ module.exports = (sequelize, DataTypes) => {
       nome: DataTypes.STRING,
       telefone: DataTypes.STRING,
       email: DataTypes.STRING,
+      cidade: DataTypes.STRING,
+      estado: DataTypes.STRING,
       origem: DataTypes.STRING,
       interesse: DataTypes.STRING,
-      status: DataTypes.STRING, // Voltou
+      status: DataTypes.STRING,
       encaminhado_para: DataTypes.STRING,
       data_primeiro_contato: DataTypes.DATE,
       data_encaminhamento: DataTypes.DATE,

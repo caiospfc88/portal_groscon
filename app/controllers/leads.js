@@ -77,9 +77,11 @@ module.exports.cadastrarLead = async function (req, res) {
         nome: req.body.nome,
         telefone: req.body.telefone,
         email: req.body.email,
+        cidade: req.body.cidade, // NOVO
+        estado: req.body.estado, // NOVO
         origem: req.body.origem,
         interesse: req.body.interesse,
-        status: req.body.status || "Novo", // Status padrão
+        status: req.body.status || "Novo",
         encaminhado_para: req.body.encaminhado_para,
         data_primeiro_contato: req.body.data_primeiro_contato,
         data_encaminhamento: req.body.data_encaminhamento || null,
@@ -167,7 +169,16 @@ module.exports.receberLeadSite = async function (req, res) {
   const transaction = await sequelize.transaction();
   try {
     // Esses são os dados que o site vai mandar no JSON
-    const { nome, telefone, email, origem, interesse, mensagem } = req.body;
+    const {
+      nome,
+      telefone,
+      email,
+      origem,
+      interesse,
+      mensagem,
+      cidade,
+      estado,
+    } = req.body;
 
     // Gera a data de hoje no formato YYYY-MM-DD para o primeiro contato
     const dataHoje = new Date().toISOString().split("T")[0];
@@ -177,11 +188,12 @@ module.exports.receberLeadSite = async function (req, res) {
         nome: nome,
         telefone: telefone,
         email: email,
+        cidade: cidade, // NOVO
+        estado: estado, // NOVO
         origem: origem || "Site",
         interesse: interesse || "Não especificado",
         status: "Novo",
         data_primeiro_contato: dataHoje,
-        // Webhooks não possuem usuario_id, deixamos null ou colocamos o ID de um "Robô"
       },
       { transaction },
     );
