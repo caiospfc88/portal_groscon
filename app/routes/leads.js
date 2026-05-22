@@ -1,4 +1,3 @@
-// app/routes/leads.js
 const { verifyJWT } = require("../utils/auth");
 
 module.exports = function (application) {
@@ -20,5 +19,16 @@ module.exports = function (application) {
 
   application.delete("/excluirLead", verifyJWT, function (req, res) {
     application.app.controllers.leads.excluirLead(req, res);
+  });
+
+  // NOVA ROTA: Adicionar anotações ao histórico do lead
+  application.post("/adicionarHistoricoLead", verifyJWT, function (req, res) {
+    application.app.controllers.leads.adicionarHistorico(req, res);
+  });
+
+  // NOVA ROTA: WEBHOOK DO SITE (Sem verifyJWT!)
+  // Endpoint: https://recoil-taking-colt.ngrok-free.dev/webhooks/leads-site
+  application.post("/webhooks/leads-site", function (req, res) {
+    application.app.controllers.leads.receberLeadSite(req, res);
   });
 };

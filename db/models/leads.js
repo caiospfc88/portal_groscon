@@ -8,6 +8,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "usuario_id",
         as: "cadastrado_por",
       });
+      // Um Lead tem Vários históricos
+      models.leads.hasMany(models.historico_leads, {
+        foreignKey: "lead_id",
+        as: "historico",
+      });
     }
   }
 
@@ -18,16 +23,13 @@ module.exports = (sequelize, DataTypes) => {
       email: DataTypes.STRING,
       origem: DataTypes.STRING,
       interesse: DataTypes.STRING,
-      observacoes: DataTypes.TEXT,
-      usuario_id: DataTypes.INTEGER,
+      status: DataTypes.STRING, // Voltou
       encaminhado_para: DataTypes.STRING,
       data_primeiro_contato: DataTypes.DATE,
       data_encaminhamento: DataTypes.DATE,
+      usuario_id: DataTypes.INTEGER,
     },
-    {
-      sequelize,
-      modelName: "leads",
-    },
+    { sequelize, modelName: "leads" },
   );
 
   return Leads;
