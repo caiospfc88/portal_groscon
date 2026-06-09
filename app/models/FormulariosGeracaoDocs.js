@@ -293,7 +293,7 @@ FormulariosGeracaoDocs.prototype.formularioTransferenciaCota = async function (
 	,format(cessionario.DATA_NASCIMENTO,'dd/MM/yyyy','en-US') as CessionarioDataNascimento
 	,cessionario.ENDERECO as CessionarioEndereco
 	,cid.NOME as CessionarioCidade
-	,stuff(cessionario.CEP,7,0,'-') as CessionarioCep
+	,stuff(cessionario.CEP,6,0,'-') as CessionarioCep
 	,CASE 
         WHEN NULLIF(LTRIM(RTRIM(cessionario.CELULAR)), '') IS NOT NULL 
         THEN 
@@ -334,7 +334,7 @@ FormulariosGeracaoDocs.prototype.formularioTransferenciaCota = async function (
     END AS CessionarioTelefone2
 	,cessionario.ENDERECO_COMERCIAL as CessionarioEnderecoComercial
 	,cidCom.NOME as CessionarioCidadeComercial
-	,stuff(cessionario.CEP_COMERCIAL,7,0,'-') as CessionarioCepComercial
+	,stuff(cessionario.CEP_COMERCIAL,6,0,'-') as CessionarioCepComercial
 	,CASE 
         WHEN NULLIF(LTRIM(RTRIM(cessionario.FONE_FAX_COMERCIAL)), '') IS NOT NULL 
         THEN 
