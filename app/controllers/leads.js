@@ -37,6 +37,11 @@ module.exports.listarLeads = async function (req, res) {
             },
           ],
         },
+        {
+          model: models.gestores,
+          as: "gestor",
+          attributes: ["id", "nome", "email"],
+        },
       ],
     });
 
@@ -86,6 +91,7 @@ module.exports.cadastrarLead = async function (req, res) {
         data_primeiro_contato: req.body.data_primeiro_contato,
         data_encaminhamento: req.body.data_encaminhamento || null,
         usuario_id: req.body.usuario_id,
+        gestor_id: req.body.gestor_id || null,
       },
       { transaction },
     );
@@ -184,7 +190,6 @@ module.exports.adicionarHistorico = async function (req, res) {
 module.exports.receberLeadSite = async function (req, res) {
   const transaction = await sequelize.transaction();
   try {
-    // Esses são os dados que o site vai mandar no JSON
     const {
       nome,
       telefone,
@@ -195,49 +200,89 @@ module.exports.receberLeadSite = async function (req, res) {
       cidade,
       estado,
     } = req.body;
-
-    // Gera a data de hoje no formato YYYY-MM-DD para o primeiro contato
     const dataHoje = new Date().toISOString().split("T")[0];
 
+    // 1. Extrair o DDD numérico do telefone (Pega apenas os dois primeiros dígitos numéricos)
+    const numerosTelefone = telefone.replace(/\D/g, ""); // Remove tudo que não for número
+    const dddCliente =
+      numerosTelefone.length >= 10 ? numerosTelefone.substring(0, 2) : null;
+
+    // 🚨 LOG 1: Vamos ver o que ele extraiu de verdade
+    console.log(
+      `[DEBUG ROTEAMENTO] Telefone limpo: ${numerosTelefone} | DDD Extraído: ${dddCliente}`,
+    );
+
+    let gestorEncontrado = null;
+
+    // 2. Busca todos os gestores e procura qual tem o DDD na sua string "ddds"
+    if (dddCliente) {
+      const todosGestores = await models.gestores.findAll();
+      console.log("[DEBUG ROTEAMENTO] Gestores encontrados no BD:");
+      todosGestores.forEach((g) =>
+        console.log(` - ${g.nome} atende os DDDs: [${g.ddds}]`),
+      );
+      gestorEncontrado = todosGestores.find((gestor) => {
+        if (!gestor.ddds) return false;
+        // Divide a string "11, 16, 19" em array ["11", "16", "19"] e verifica
+        const listaDdds = gestor.ddds.split(",").map((d) => d.trim());
+        return listaDdds.includes(dddCliente);
+      });
+    }
+
+    console.log(
+      `[DEBUG ROTEAMENTO] Gestor Vencedor: ${gestorEncontrado ? gestorEncontrado.nome : "NENHUM"}`,
+    );
+
+    // 3. Cria o Lead, vinculando ao gestor automaticamente (se encontrou)
     const novoLead = await models.leads.create(
       {
         nome: nome,
         telefone: telefone,
         email: email,
-        cidade: cidade, // NOVO
-        estado: estado, // NOVO
+        cidade: cidade,
+        estado: estado,
         origem: origem || "Site",
         interesse: interesse || "Não especificado",
         status: "Novo",
         data_primeiro_contato: dataHoje,
-        usuario_id: 1,
+        usuario_id: 1, // Fixado como robô/admin
+        gestor_id: gestorEncontrado ? gestorEncontrado.id : null,
+        // Se encontrou gestor, a data de encaminhamento é hoje. Se não, nulo.
+        data_encaminhamento: gestorEncontrado ? dataHoje : null,
       },
       { transaction },
     );
 
-    // Se o cliente escreveu uma mensagem no site, salva no histórico
-    if (mensagem && mensagem.trim() !== "") {
-      await models.historico_leads.create(
-        {
-          lead_id: novoLead.id,
-          descricao: `Mensagem enviada pelo site: \n"${mensagem}"`,
-        },
-        { transaction },
-      );
+    let textoMensagem = `Mensagem enviada pelo site: \n"${mensagem || "Sem mensagem"}"\n\n`;
+
+    // 4. Adiciona o status do roteamento no histórico de forma visual
+    if (gestorEncontrado) {
+      textoMensagem += `🤖 Roteamento Automático: Este lead (DDD ${dddCliente}) foi encaminhado automaticamente para o coordenador ${gestorEncontrado.nome}.`;
+    } else {
+      textoMensagem += `⚠️ Alerta de Roteamento: O DDD ${dddCliente || "não identificado"} não possui nenhum coordenador vinculado no sistema. O lead entrou sem encaminhamento.`;
     }
 
+    await models.historico_leads.create(
+      {
+        lead_id: novoLead.id,
+        descricao: textoMensagem,
+      },
+      { transaction },
+    );
+
     await transaction.commit();
-    // Resposta rápida para o site saber que deu certo (padrão 201 Created)
+
+    // Devolve para o Worker os dados completos, incluindo se teve gestor
     res.status(201).json({
       success: true,
       message: "Lead recebido e integrado com sucesso!",
+      gestorAlocado: gestorEncontrado ? gestorEncontrado.nome : null,
+      gestorEmail: gestorEncontrado ? gestorEncontrado.email : null,
+      ddd: dddCliente,
     });
   } catch (err) {
     await transaction.rollback();
     console.error("Erro no Webhook (receberLeadSite):", err);
-    res.status(500).json({
-      success: false,
-      error: "Erro interno no servidor ao processar o lead",
-    });
+    res.status(500).json({ success: false, error: "Erro interno no servidor" });
   }
 };

@@ -31,4 +31,13 @@ module.exports = function (application) {
   application.post("/webhooks/leads-site", function (req, res) {
     application.app.controllers.leads.receberLeadSite(req, res);
   });
+  application.get("/listarGestores", verifyJWT, (req, res) =>
+    application.app.controllers.gestores.listarGestores(req, res),
+  );
+  application.post("/salvarGestor", verifyJWT, (req, res) =>
+    application.app.controllers.gestores.salvarGestor(req, res),
+  );
+  application.delete("/excluirGestor", verifyJWT, (req, res) =>
+    application.app.controllers.gestores.excluirGestor(req, res),
+  );
 };

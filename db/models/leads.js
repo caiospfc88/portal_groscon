@@ -13,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "lead_id",
         as: "historico",
       });
+      models.leads.belongsTo(models.gestores, {
+        foreignKey: "gestor_id",
+        as: "gestor",
+      });
     }
   }
 
@@ -30,6 +34,7 @@ module.exports = (sequelize, DataTypes) => {
       data_primeiro_contato: DataTypes.DATE,
       data_encaminhamento: DataTypes.DATE,
       usuario_id: DataTypes.INTEGER,
+      gestor_id: DataTypes.INTEGER,
     },
     { sequelize, modelName: "leads" },
   );
