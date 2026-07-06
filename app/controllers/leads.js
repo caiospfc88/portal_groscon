@@ -10,9 +10,21 @@ module.exports.listarLeads = async function (req, res) {
     let whereCondition = {};
 
     if (dataInicio && dataFim) {
-      whereCondition.data_primeiro_contato = {
-        [Op.between]: [`${dataInicio} 00:00:00`, `${dataFim} 23:59:59`],
-      };
+      // 🌟 SOLUÇÃO BLINDADA CONTRA FUSO HORÁRIO (UTC):
+      // Extraímos apenas a data (YYYY-MM-DD) da coluna no banco e comparamos direto com as strings.
+      // Isso impede o Sequelize de adicionar horas e ignorar leads do primeiro dia do mês!
+      whereCondition[Op.and] = [
+        sequelize.where(
+          sequelize.fn("DATE", sequelize.col("leads.data_primeiro_contato")),
+          ">=",
+          dataInicio,
+        ),
+        sequelize.where(
+          sequelize.fn("DATE", sequelize.col("leads.data_primeiro_contato")),
+          "<=",
+          dataFim,
+        ),
+      ];
     }
 
     const leads = await models.leads.findAll({
