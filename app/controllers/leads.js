@@ -200,7 +200,9 @@ module.exports.receberLeadSite = async function (req, res) {
       cidade,
       estado,
     } = req.body;
-    const dataHoje = new Date().toISOString().split("T")[0];
+    const dataHoje = new Date().toLocaleDateString("en-CA", {
+      timeZone: "America/Sao_Paulo",
+    });
 
     // 1. Extrair o DDD numérico do telefone (Pega apenas os dois primeiros dígitos numéricos)
     const numerosTelefone = telefone.replace(/\D/g, ""); // Remove tudo que não for número
