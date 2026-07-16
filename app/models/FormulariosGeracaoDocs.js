@@ -387,7 +387,7 @@ WHERE tp.codigo_grupo = ${grupo}
             AND tp.CODIGO_COTA = ${cota}
             AND tp.VERSAO = ${versao}
             and cessionario.CGC_CPF_CLIENTE <> ct.CGC_CPF_CLIENTE
-
+ORDER BY tp.DATA_APROVACAO desc
       `,
   );
   return result;
