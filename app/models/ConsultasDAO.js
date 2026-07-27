@@ -2442,6 +2442,7 @@ ConsultasDAO.prototype.cotasNaoContempParQuitacao = async function (req) {
     ce.CODIGO_GRUPO as 'Grupo',
     ce.CODIGO_COTA as 'Cota',
     ce.VERSAO as 'Versão',
+    c.E_MAIL as Email,
     FORMAT(ct.DATA_ADESAO, 'dd/MM/yyyy', 'en-US') as 'Adesão',
     FORMAT((ct.VALOR_FUNDO_COMUM + ct.VALOR_TAXA_ADMINISTRACAO + ct.VALOR_MULTA + ct.VALOR_JUROS + ct.VALOR_SEGURO),
 	'C', 'pt-br') as 'Total Pago',
@@ -2480,6 +2481,8 @@ INNER JOIN COBRANCAS_ESPECIAIS ce
     ON ct.CODIGO_GRUPO = ce.CODIGO_GRUPO 
     AND ct.CODIGO_COTA = ce.CODIGO_COTA 
     AND ct.VERSAO = ce.VERSAO
+LEFT JOIN CLIENTES c
+	ON ct.CGC_CPF_CLIENTE = c.CGC_CPF_CLIENTE and ct.TIPO = c.TIPO
 WHERE 
     ct.DATA_CONTEMPLACAO IS NULL 
     AND ct.VERSAO = 0 
@@ -2490,6 +2493,7 @@ GROUP BY
     ce.CODIGO_GRUPO,
     ce.CODIGO_COTA,
     ce.VERSAO,
+    c.E_MAIL,
     ct.DATA_ADESAO,
     ct.VALOR_FUNDO_COMUM,
     ct.VALOR_TAXA_ADMINISTRACAO,
