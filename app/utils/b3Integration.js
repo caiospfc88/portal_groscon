@@ -155,14 +155,14 @@ async function cancelarGravameSNG(payloadJSON) {
   }
 }
 
-async function consultarGravameSNG(apontamento) {
+async function consultarGravameSNG(apontamento, chassi) {
   try {
     const token = await gerarTokenSNG();
     const agent = criarAgenteHttps();
     const idTransacao = crypto.randomUUID();
 
-    // De acordo com o Swagger da B3, a consulta avulsa por apontamento é feita via Query Params
-    const urlConsulta = `${process.env.B3_URL}/api/rsng/v2/apontamentos/${apontamento}`;
+    // Rota correta que exige segurança em dose dupla (Apontamento + Chassi)
+    const urlConsulta = `${process.env.B3_URL}/api/rsng/v2/apontamentos/ultimas-posicoes?numApontamento=${apontamento}&numChassiVeiculo=${chassi}`;
 
     const response = await axios.get(urlConsulta, {
       headers: {
