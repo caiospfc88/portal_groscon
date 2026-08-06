@@ -21,13 +21,22 @@ module.exports = function (application) {
 
   application.get(
     "/consultarGravameB3/:apontamento",
-    verifyJWT, // Se estiver usando autenticação
+    verifyJWT,
     application.app.controllers.gravame.consultarB3,
   );
 
   application.delete(
     "/excluirGravame/:id",
-    verifyJWT, // Mantenha isso se estiver usando a autenticação JWT nas rotas
+    verifyJWT,
     application.app.controllers.gravame.excluirGravameLocal,
   );
+
+  // ROTAS NOVAS COM A AUTENTICAÇÃO JWT INCLUÍDA
+  application.post("/baixarGravame/:id", verifyJWT, function (req, res) {
+    application.app.controllers.gravame.baixarGravameLocal(req, res);
+  });
+
+  application.post("/cancelarGravame/:id", verifyJWT, function (req, res) {
+    application.app.controllers.gravame.cancelarGravameLocal(req, res);
+  });
 };

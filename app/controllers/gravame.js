@@ -1,6 +1,10 @@
 // app/controllers/gravame.js
 const models = require("../../db/models"); // Corrige o erro "models is not defined"
-const { enviarGravameSNG } = require("../utils/b3Integration");
+const {
+  enviarGravameSNG,
+  baixarGravameSNG,
+  cancelarGravameSNG,
+} = require("../utils/b3Integration");
 
 // 1. LISTAR GRAVAMES (Corrige o erro "listarGravames is not a function")
 module.exports.listarGravames = async function (req, res) {
@@ -26,37 +30,65 @@ module.exports.cadastrarGravame = async function (req, res) {
   try {
     const dados = req.body;
 
+    const idGravameLocal = dados.idGravameLocal;
+
     // O payload recebido do front-end já vem mapeado no padrão da B3
     const payloadB3 = {
       data: {
         veiculo: dados.veiculo,
         credor: {
-          nome: "GROSCON ADMINISTRADORA DE CONSORCIOS LTDA",
-          codInstitucional: 2998, // Substituir pelo Código de Participante real da B3
+          nome: "GROSCON ADM CONS SC LTDA", // Ajustado para não estourar 40 chars
+          codInstitucional: 2998,
           numDocumento: "26228270000148",
-          nomeEndereco: "RUA SÃO SEBASTIÃO DO PARAÍSO",
+          nomeEndereco: "RUA SAO SEBASTIAO DO PARAISO", // Removido acentos por segurança na B3
           numEndereco: "1035",
           descComplementoEndereco: "SALA 1",
           nomeBairroEndereco: "CENTRO",
-          siglaUfEndereco: "SP",
-          codMunicipioEndereco: 3516200,
+          siglaUfEndereco: "MG",
+          codMunicipioEndereco: 4123,
           numCepEndereco: "14405010",
           numDddTelefone: "16",
           numTelefone: "37075500",
         },
         financiado: dados.financiado,
-        contrato: dados.contrato,
+        contrato: {
+          ...dados.contrato,
+          codTipoApontamento: 3, // FORÇANDO A ALIENAÇÃO FIDUCIÁRIA AQUI
+        },
       },
     };
+    let gravameLocal;
 
-    // Salvar o registro inicial no banco de dados local como PENDENTE/TRANSMITINDO
-    const gravameLocal = await models.gravame.create({
-      chassi: dados.veiculo.numChassi,
-      contrato: dados.contrato.numContrato,
-      documento_financiado: dados.financiado.numDocumento,
-      status_b3: "TRANSMITINDO",
-      payload_enviado: JSON.stringify(payloadB3),
-    });
+    // === LÓGICA DE UPSERT (UPDATE OU INSERT) ===
+    if (idGravameLocal) {
+      // É uma EDIÇÃO de um gravame rejeitado
+      gravameLocal = await models.gravame.findByPk(idGravameLocal);
+
+      if (!gravameLocal) {
+        return res
+          .status(404)
+          .json({ Msg: "Gravame original não encontrado para edição." });
+      }
+
+      await gravameLocal.update({
+        chassi: dados.veiculo.numChassi,
+        contrato: dados.contrato.numContrato,
+        documento_financiado: dados.financiado.numDocumento,
+        status_b3: "TRANSMITINDO",
+        payload_enviado: JSON.stringify(payloadB3),
+      });
+      console.log(JSON.stringify(payloadB3));
+    } else {
+      // É um NOVO gravame
+      gravameLocal = await models.gravame.create({
+        chassi: dados.veiculo.numChassi,
+        contrato: dados.contrato.numContrato,
+        documento_financiado: dados.financiado.numDocumento,
+        status_b3: "TRANSMITINDO",
+        payload_enviado: JSON.stringify(payloadB3),
+      });
+      console.log(JSON.stringify(payloadB3));
+    }
 
     try {
       // Tentar enviar para a B3 via mTLS
@@ -77,7 +109,7 @@ module.exports.cadastrarGravame = async function (req, res) {
         Apontamento: retornoB3.data?.numApontamento,
       });
     } catch (apiError) {
-      // Se a B3 rejeitar (Erros 400, 422, etc), capturamos a falha exata
+      // Se a B3 rejeitar, capturamos a falha exata
       const erroB3 = apiError.response?.data?.erros?.[0] || {};
 
       await gravameLocal.update({
@@ -166,5 +198,86 @@ module.exports.excluirGravameLocal = async function (req, res) {
   } catch (error) {
     console.error("Erro ao excluir gravame local:", error);
     res.status(500).json({ Msg: "Erro interno ao excluir registro." });
+  }
+};
+
+// 6. BAIXAR GRAVAME (Quitação)
+module.exports.baixarGravameLocal = async function (req, res) {
+  try {
+    const { id } = req.params;
+    const models = require("../../db/models");
+
+    // 1. Encontra o gravame no banco local
+    const gravameLocal = await models.gravame.findByPk(id);
+    if (!gravameLocal)
+      return res.status(404).json({ Msg: "Gravame não encontrado." });
+
+    // 2. Monta o Payload exigido pelo Swagger da B3 para Baixas
+    const payloadBaixa = {
+      data: {
+        dadosValidacao: {
+          numChassiVeiculo: gravameLocal.chassi,
+          numDocumentoFinanciado: gravameLocal.documento_financiado,
+          numApontamento: Number(gravameLocal.numero_apontamento),
+        },
+      },
+    };
+
+    // 3. Envia para a B3
+    const retornoB3 = await baixarGravameSNG(payloadBaixa);
+
+    // 4. Atualiza o banco local
+    await gravameLocal.update({
+      status_b3: "BAIXADO",
+      codigo_retorno: retornoB3.data?.codigoRetorno,
+      mensagem_retorno: retornoB3.data?.mensagemRetorno,
+    });
+
+    res.json({ Msg: "Gravame baixado com sucesso na B3." });
+  } catch (error) {
+    const erroB3 = error.response?.data?.erros?.[0] || {};
+    res.status(400).json({
+      Msg: "Erro ao tentar baixar na B3.",
+      Detalhes: erroB3.detalhe || error.message,
+    });
+  }
+};
+
+// 7. CANCELAR GRAVAME (Erro de Inclusão)
+module.exports.cancelarGravameLocal = async function (req, res) {
+  try {
+    const { id } = req.params;
+    const models = require("../../db/models");
+
+    const gravameLocal = await models.gravame.findByPk(id);
+    if (!gravameLocal)
+      return res.status(404).json({ Msg: "Gravame não encontrado." });
+
+    // Monta o Payload exigido pelo Swagger da B3 para Cancelamentos
+    const payloadCancelamento = {
+      data: {
+        dadosValidacao: {
+          numChassiVeiculo: gravameLocal.chassi,
+          numDocumentoFinanciado: gravameLocal.documento_financiado,
+          numApontamento: Number(gravameLocal.numero_apontamento),
+        },
+      },
+    };
+
+    const retornoB3 = await cancelarGravameSNG(payloadCancelamento);
+
+    await gravameLocal.update({
+      status_b3: "CANCELADO",
+      codigo_retorno: retornoB3.data?.codigoRetorno,
+      mensagem_retorno: retornoB3.data?.mensagemRetorno,
+    });
+
+    res.json({ Msg: "Gravame cancelado com sucesso na B3." });
+  } catch (error) {
+    const erroB3 = error.response?.data?.erros?.[0] || {};
+    res.status(400).json({
+      Msg: "Erro ao tentar cancelar na B3.",
+      Detalhes: erroB3.detalhe || error.message,
+    });
   }
 };

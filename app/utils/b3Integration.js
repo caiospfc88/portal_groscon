@@ -3,155 +3,194 @@ const axios = require("axios");
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
+const { URLSearchParams } = require("url");
 
-const p12Path = path.resolve(
-  __dirname,
-  `../../certs/${process.env.B3_P12_NAME}`,
-);
+// 1. Configuração do Certificado (mTLS)
+function criarAgenteHttps() {
+  // CORREÇÃO: Apontando direto para a pasta certs na raiz do projeto
+  const certPath = path.resolve(
+    __dirname,
+    `../../certs/${process.env.B3_P12_NAME}`,
+  );
 
-const httpsAgent = new https.Agent({
-  pfx: fs.readFileSync(p12Path),
-  passphrase: process.env.B3_CERT_PASSWORD,
-  rejectUnauthorized: false,
-});
-
-let cachedToken = null;
-let tokenExpirationTime = null;
-
-const b3Client = axios.create({
-  baseURL: process.env.B3_URL,
-  httpsAgent,
-});
-
-// ESPIÃO PARA DEBUG B3
-b3Client.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error("--- LOG DE DEBUG B3 ---");
-    console.error("URL Tentada:", error.config?.url);
-    if (error.response) {
-      console.error("Status:", error.response.status);
-      console.error("Dados de Retorno:", error.response.data);
-    } else {
-      // Melhoramos a captura para pegar o código exato da queda de rede
-      console.error("Erro de Rede (Mensagem):", error.message);
-      console.error("Código do Erro (Node.js):", error.code);
-      console.error(
-        "Detalhe completo:",
-        error.cause || "Sem causa raiz listada",
-      );
-    }
-    console.error("-----------------------");
-    return Promise.reject(error);
-  },
-);
-
-async function getB3Token() {
-  const now = new Date().getTime();
-
-  if (
-    !cachedToken ||
-    (tokenExpirationTime && now > tokenExpirationTime - 600000)
-  ) {
-    try {
-      const clientId = process.env.B3_CLIENT_ID;
-      const clientSecret = process.env.B3_CLIENT_SECRET;
-
-      // 1. Formata as credenciais APENAS para o cabeçalho (Padrão Basic Auth)
-      const credentials = `${clientId}:${clientSecret}`;
-      const base64Credentials = Buffer.from(credentials).toString("base64");
-
-      // 2. No corpo (payload), mandamos APENAS o grant_type (Sem duplicar credenciais aqui)
-      const payload = new URLSearchParams();
-      payload.append("grant_type", "client_credentials");
-      payload.append("client_id", clientId);
-      payload.append("client_secret", clientSecret);
-
-      // --- GERADOR DE EVIDÊNCIA PARA O SUPORTE DA B3 ---
-      console.log(
-        "\n================================================================",
-      );
-      console.log(
-        "🕵️ EVIDÊNCIA PARA O SUPORTE DA B3 (Copie se o erro 401 persistir)",
-      );
-      console.log("Comando cURL exato da requisição sendo feita:");
-      console.log(
-        `curl --cert-type P12 --cert ./certs/${process.env.B3_P12_NAME}:${process.env.B3_CERT_PASSWORD} \\`,
-      );
-      console.log(`--request POST '${process.env.B3_URL}/api/oauth/token' \\`);
-      console.log(
-        `--header 'Content-Type: application/x-www-form-urlencoded' \\`,
-      );
-      console.log(`--header 'Authorization: Basic ${base64Credentials}' \\`);
-      console.log(`--data 'grant_type=client_credentials'`);
-      console.log(
-        "================================================================\n",
-      );
-
-      // 3. Disparo da requisição limpa
-      const authResponse = await b3Client.post(
-        "/api/oauth/token",
-        payload.toString(),
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            // Remova a linha do "Authorization: Basic..."
-          },
-        },
-      );
-
-      cachedToken = authResponse.data.access_token;
-      tokenExpirationTime = now + authResponse.data.expires_in * 1000;
-      console.log("✅ Token B3 gerado com sucesso!");
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  return cachedToken;
+  return new https.Agent({
+    pfx: fs.readFileSync(certPath),
+    passphrase: process.env.B3_CERT_PASSWORD, // Lê do seu .env
+    rejectUnauthorized: false,
+  });
 }
 
-module.exports.enviarGravameSNG = async function (payload) {
-  const token = await getB3Token();
-
-  const response = await b3Client.post(
-    "/apontamentos/transacoes/inclusoes",
-    payload,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-        "x-contexto-cliente": `GROSCON-${Date.now()}`,
-      },
-    },
-  );
-
-  return response;
-};
-
-module.exports.verificarStatusB3 = async function () {
+// 2. Geração do Token
+async function gerarTokenSNG() {
   try {
-    await b3Client.get("/api/oauth/token");
-    return true;
+    const agent = criarAgenteHttps();
+
+    const bodyParams = new URLSearchParams();
+    bodyParams.append("grant_type", "client_credentials");
+    bodyParams.append("client_id", process.env.B3_CLIENT_ID);
+    bodyParams.append("client_secret", process.env.B3_CLIENT_SECRET);
+
+    const tokenResponse = await axios.post(
+      process.env.B3_URL + "/api/oauth/token", // CORREÇÃO: Usando a sua B3_URL + o endpoint de token
+      bodyParams.toString(),
+      {
+        headers: {
+          chave: process.env.B3_CHAVE_INTEGRACAO, // CORREÇÃO: Usando o seu nome do .env
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        httpsAgent: agent,
+      },
+    );
+
+    return tokenResponse.data.access_token;
   } catch (error) {
-    if (error.response) return true;
-    return false;
+    console.error(
+      "Erro ao gerar token B3:",
+      error.response?.data || error.message,
+    );
+    throw new Error("Falha ao obter token de acesso da B3.");
   }
-};
+}
 
-module.exports.consultarGravameSNG = async function (numApontamento) {
-  const token = await getB3Token();
+// 3. Envio do Gravame
+async function enviarGravameSNG(payloadJSON) {
+  try {
+    const token = await gerarTokenSNG();
+    const agent = criarAgenteHttps();
 
-  // A rota padrão de consulta do Swagger da B3 costuma ser um GET com o número do apontamento
-  const response = await b3Client.get(
-    `/apontamentos/transacoes/${numApontamento}`,
-    {
+    // Gera um ID único para essa transação, exigido pela B3
+    const idTransacao = crypto.randomUUID();
+
+    const response = await axios.post(
+      // A URL MATADORA: B3_URL + Basepath + Endpoint
+      process.env.B3_URL + "/api/rsng/v2/apontamentos/transacoes/inclusoes",
+      payloadJSON,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          chave: process.env.B3_CHAVE_INTEGRACAO,
+          "Content-Type": "application/json",
+          // Headers Obrigatórios baseados no PDF da B3:
+          "x-v": "2.0.0", // Atualizado para acompanhar o v2 da URL
+          "x-id-transacao": idTransacao,
+          "x-contexto-cliente": "Groscon",
+        },
+        httpsAgent: agent,
+      },
+    );
+
+    return response;
+  } catch (error) {
+    console.error(
+      "Erro ao enviar Gravame para B3:",
+      error.response?.data || error.message,
+    );
+    throw error;
+  }
+}
+
+// 4. Envio de Baixa de Gravame
+async function baixarGravameSNG(payloadJSON) {
+  try {
+    const token = await gerarTokenSNG();
+    const agent = criarAgenteHttps();
+    const idTransacao = crypto.randomUUID();
+
+    const response = await axios.post(
+      process.env.B3_URL + "/api/rsng/v2/apontamentos/transacoes/baixas",
+      payloadJSON,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          chave: process.env.B3_CHAVE_INTEGRACAO,
+          "Content-Type": "application/json",
+          "x-v": "2.0.0",
+          "x-id-transacao": idTransacao,
+          "x-contexto-cliente": "Groscon",
+        },
+        httpsAgent: agent,
+      },
+    );
+
+    return response;
+  } catch (error) {
+    console.error(
+      "Erro ao Baixar Gravame na B3:",
+      error.response?.data || error.message,
+    );
+    throw error;
+  }
+}
+
+// 5. Envio de Cancelamento de Gravame
+async function cancelarGravameSNG(payloadJSON) {
+  try {
+    const token = await gerarTokenSNG();
+    const agent = criarAgenteHttps();
+    const idTransacao = crypto.randomUUID();
+
+    const response = await axios.post(
+      process.env.B3_URL + "/api/rsng/v2/apontamentos/transacoes/cancelamentos",
+      payloadJSON,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          chave: process.env.B3_CHAVE_INTEGRACAO,
+          "Content-Type": "application/json",
+          "x-v": "2.0.0",
+          "x-id-transacao": idTransacao,
+          "x-contexto-cliente": "Groscon",
+        },
+        httpsAgent: agent,
+      },
+    );
+
+    return response;
+  } catch (error) {
+    console.error(
+      "Erro ao Cancelar Gravame na B3:",
+      error.response?.data || error.message,
+    );
+    throw error;
+  }
+}
+
+async function consultarGravameSNG(apontamento) {
+  try {
+    const token = await gerarTokenSNG();
+    const agent = criarAgenteHttps();
+    const idTransacao = crypto.randomUUID();
+
+    // De acordo com o Swagger da B3, a consulta avulsa por apontamento é feita via Query Params
+    const urlConsulta = `${process.env.B3_URL}/api/rsng/v2/apontamentos/ultimas-posicoes?numApontamento=${apontamento}`;
+
+    const response = await axios.get(urlConsulta, {
       headers: {
         Authorization: `Bearer ${token}`,
-        "x-contexto-cliente": `GROSCON-CONSULTA-${Date.now()}`,
+        chave: process.env.B3_CHAVE_INTEGRACAO,
+        "Content-Type": "application/json",
+        "x-v": "2.0.0",
+        "x-id-transacao": idTransacao,
+        "x-contexto-cliente": "Groscon",
       },
-    },
-  );
+      httpsAgent: agent,
+    });
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(
+      "Erro ao Consultar Gravame na B3:",
+      error.response?.data || error.message,
+    );
+    throw error;
+  }
+}
+
+// Não esqueça de exportar as novas funções no final do arquivo:
+module.exports = {
+  gerarTokenSNG,
+  enviarGravameSNG,
+  baixarGravameSNG,
+  cancelarGravameSNG,
+  consultarGravameSNG,
 };
