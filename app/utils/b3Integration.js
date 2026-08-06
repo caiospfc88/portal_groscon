@@ -162,7 +162,7 @@ async function consultarGravameSNG(apontamento) {
     const idTransacao = crypto.randomUUID();
 
     // De acordo com o Swagger da B3, a consulta avulsa por apontamento é feita via Query Params
-    const urlConsulta = `${process.env.B3_URL}/api/rsng/v2/apontamentos/ultimas-posicoes?numApontamento=${apontamento}`;
+    const urlConsulta = `${process.env.B3_URL}/api/rsng/v2/apontamentos/${apontamento}`;
 
     const response = await axios.get(urlConsulta, {
       headers: {
