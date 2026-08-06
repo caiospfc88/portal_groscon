@@ -156,13 +156,14 @@ module.exports.buscarDadosERP = async function (application, req, res) {
 module.exports.consultarB3 = async function (req, res) {
   try {
     const { apontamento } = req.params;
-    const { chassi } = req.query;
+    const { chassi, placa } = req.query;
 
     // Chama a função que criamos no passo anterior
     const retornoB3 =
       await require("../utils/b3Integration").consultarGravameSNG(
         apontamento,
         chassi,
+        placa,
       );
 
     res.json(retornoB3.data);

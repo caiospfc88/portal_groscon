@@ -155,14 +155,14 @@ async function cancelarGravameSNG(payloadJSON) {
   }
 }
 
-async function consultarGravameSNG(apontamento, chassi) {
+async function consultarGravameSNG(apontamento, chassi, placa) {
   try {
     const token = await gerarTokenSNG();
     const agent = criarAgenteHttps();
     const idTransacao = crypto.randomUUID();
 
-    // Rota correta que exige segurança em dose dupla (Apontamento + Chassi)
-    const urlConsulta = `${process.env.B3_URL}/api/rsng/v2/apontamentos/ultimas-posicoes?numApontamento=${apontamento}&numChassiVeiculo=${chassi}`;
+    // Rota com a trinca completa: Apontamento + Chassi + Placa
+    const urlConsulta = `${process.env.B3_URL}/api/rsng/v2/apontamentos/ultimas-posicoes?numApontamento=${apontamento}&numChassiVeiculo=${chassi}&numPlacaVeiculo=${placa}`;
 
     const response = await axios.get(urlConsulta, {
       headers: {
