@@ -162,7 +162,7 @@ async function consultarGravameSNG(apontamento, chassi, placa) {
     const idTransacao = crypto.randomUUID();
 
     // Rota com a trinca completa: Apontamento + Chassi + Placa
-    const urlConsulta = `${process.env.B3_URL}/api/rsng/v2/apontamentos/ultimas-posicoes?numApontamento=${apontamento}&numChassiVeiculo=${chassi}&numPlacaVeiculo=${placa}`;
+    const urlConsulta = `${process.env.B3_URL}/api/rsng/v2/apontamentos/ultimas-posicoes?numApontamento=${apontamento}&numChassi=${chassi}&numPlaca=${placa}`;
 
     const response = await axios.get(urlConsulta, {
       headers: {
