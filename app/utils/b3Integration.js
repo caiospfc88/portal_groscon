@@ -186,11 +186,80 @@ async function consultarGravameSNG(apontamento, chassi, placa) {
   }
 }
 
-// Não esqueça de exportar as novas funções no final do arquivo:
+async function alterarContratoGravameSNG(numContrato, payloadJSON) {
+  try {
+    const token = await gerarTokenSNG();
+    const agent = criarAgenteHttps();
+    const idTransacao = crypto.randomUUID();
+
+    // Rota PUT identificada no Swagger para alteração de contrato
+    const urlAlteracao = `${process.env.B3_URL}/api/rsng/v2/apontamentos/contratos/${numContrato}`;
+
+    const response = await axios.put(urlAlteracao, payloadJSON, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        chave: process.env.B3_CHAVE_INTEGRACAO,
+        "Content-Type": "application/json",
+        "x-v": "2.0.0",
+        "x-id-transacao": idTransacao,
+        "x-contexto-cliente": "Groscon",
+      },
+      httpsAgent: agent,
+    });
+
+    return response;
+  } catch (error) {
+    console.error(
+      "Erro ao Alterar Contrato na B3:",
+      error.response?.data || error.message,
+    );
+    throw error;
+  }
+}
+
+async function consultarHistoricoGravameSNG(chassi, dtInicio, dtFim) {
+  try {
+    const token = await gerarTokenSNG();
+    const agent = criarAgenteHttps();
+    const idTransacao = crypto.randomUUID();
+
+    // Monta a Query String dinamicamente
+    const params = new URLSearchParams();
+    if (chassi) params.append("numChassi", chassi);
+    if (dtInicio) params.append("dtInicioPeriodo", dtInicio);
+    if (dtFim) params.append("dtFimPeriodo", dtFim);
+
+    // Rota GET de Histórico identificada no Swagger
+    const urlHistorico = `${process.env.B3_URL}/api/rsng/v2/apontamentos/historicos?${params.toString()}`;
+
+    const response = await axios.get(urlHistorico, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        chave: process.env.B3_CHAVE_INTEGRACAO,
+        "Content-Type": "application/json",
+        "x-v": "2.0.0",
+        "x-id-transacao": idTransacao,
+        "x-contexto-cliente": "Groscon",
+      },
+      httpsAgent: agent,
+    });
+
+    return response;
+  } catch (error) {
+    console.error(
+      "Erro ao Consultar Histórico na B3:",
+      error.response?.data || error.message,
+    );
+    throw error;
+  }
+}
+
 module.exports = {
   gerarTokenSNG,
   enviarGravameSNG,
   baixarGravameSNG,
   cancelarGravameSNG,
   consultarGravameSNG,
+  alterarContratoGravameSNG,
+  consultarHistoricoGravameSNG,
 };

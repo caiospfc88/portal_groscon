@@ -1,12 +1,12 @@
 // app/controllers/gravame.js
-const models = require("../../db/models"); // Corrige o erro "models is not defined"
+const models = require("../../db/models");
 const {
   enviarGravameSNG,
   baixarGravameSNG,
   cancelarGravameSNG,
 } = require("../utils/b3Integration");
 
-// 1. LISTAR GRAVAMES (Corrige o erro "listarGravames is not a function")
+// 1. LISTAR GRAVAMES
 module.exports.listarGravames = async function (req, res) {
   try {
     const models = require("../../db/models");
@@ -16,8 +16,6 @@ module.exports.listarGravames = async function (req, res) {
       order: [["createdAt", "DESC"]],
     });
 
-    // O segredo está aqui: Enviamos o array puro do Sequelize,
-    // com TODOS os campos (inclusive o payload_enviado e status_b3)
     res.json(gravames);
   } catch (error) {
     console.error("Erro ao listar gravames:", error);
@@ -29,18 +27,16 @@ module.exports.listarGravames = async function (req, res) {
 module.exports.cadastrarGravame = async function (req, res) {
   try {
     const dados = req.body;
-
     const idGravameLocal = dados.idGravameLocal;
 
-    // O payload recebido do front-end já vem mapeado no padrão da B3
     const payloadB3 = {
       data: {
         veiculo: dados.veiculo,
         credor: {
-          nome: "GROSCON ADM CONS SC LTDA", // Ajustado para não estourar 40 chars
+          nome: "GROSCON ADM CONS SC LTDA",
           codInstitucional: 2998,
           numDocumento: "26228270000148",
-          nomeEndereco: "RUA SAO SEBASTIAO DO PARAISO", // Removido acentos por segurança na B3
+          nomeEndereco: "RUA SAO SEBASTIAO DO PARAISO",
           numEndereco: "1035",
           descComplementoEndereco: "SALA 1",
           nomeBairroEndereco: "CENTRO",
@@ -53,17 +49,15 @@ module.exports.cadastrarGravame = async function (req, res) {
         financiado: dados.financiado,
         contrato: {
           ...dados.contrato,
-          codTipoApontamento: 3, // FORÇANDO A ALIENAÇÃO FIDUCIÁRIA AQUI
+          codTipoApontamento: 3,
         },
       },
     };
+
     let gravameLocal;
 
-    // === LÓGICA DE UPSERT (UPDATE OU INSERT) ===
     if (idGravameLocal) {
-      // É uma EDIÇÃO de um gravame rejeitado
       gravameLocal = await models.gravame.findByPk(idGravameLocal);
-
       if (!gravameLocal) {
         return res
           .status(404)
@@ -77,9 +71,7 @@ module.exports.cadastrarGravame = async function (req, res) {
         status_b3: "TRANSMITINDO",
         payload_enviado: JSON.stringify(payloadB3),
       });
-      console.log(JSON.stringify(payloadB3));
     } else {
-      // É um NOVO gravame
       gravameLocal = await models.gravame.create({
         chassi: dados.veiculo.numChassi,
         contrato: dados.contrato.numContrato,
@@ -87,14 +79,11 @@ module.exports.cadastrarGravame = async function (req, res) {
         status_b3: "TRANSMITINDO",
         payload_enviado: JSON.stringify(payloadB3),
       });
-      console.log(JSON.stringify(payloadB3));
     }
 
     try {
-      // Tentar enviar para a B3 via mTLS
       const retornoB3 = await enviarGravameSNG(payloadB3);
 
-      // Se deu certo, atualiza o banco local com os dados de sucesso
       await gravameLocal.update({
         status_b3: "REGISTRADO",
         numero_apontamento: retornoB3.data?.numApontamento?.toString(),
@@ -109,9 +98,7 @@ module.exports.cadastrarGravame = async function (req, res) {
         Apontamento: retornoB3.data?.numApontamento,
       });
     } catch (apiError) {
-      // Se a B3 rejeitar, capturamos a falha exata
       const erroB3 = apiError.response?.data?.erros?.[0] || {};
-
       await gravameLocal.update({
         status_b3: "REJEITADO",
         codigo_retorno: erroB3.codigo || 500,
@@ -133,13 +120,9 @@ module.exports.cadastrarGravame = async function (req, res) {
 module.exports.buscarDadosERP = async function (application, req, res) {
   try {
     const { grupo, cota } = req.params;
-
-    // Injetando a conexão SQL Server através do Consign
     const connection = application.config.dbConnection;
-
     const gravamesERP = new application.app.models.GravamesERP(connection);
 
-    // O 0 representa a "versao" do contrato
     const dadosB3 = await gravamesERP.buscarDadosCotaParaB3(grupo, cota, 0);
 
     if (!dadosB3) {
@@ -153,12 +136,12 @@ module.exports.buscarDadosERP = async function (application, req, res) {
   }
 };
 
+// 4. CONSULTA AVULSA B3
 module.exports.consultarB3 = async function (req, res) {
   try {
     const { apontamento } = req.params;
     const { chassi, placa } = req.query;
 
-    // Chama a função que criamos no passo anterior
     const retornoB3 =
       await require("../utils/b3Integration").consultarGravameSNG(
         apontamento,
@@ -180,6 +163,7 @@ module.exports.consultarB3 = async function (req, res) {
   }
 };
 
+// 5. EXCLUIR LOCAL
 module.exports.excluirGravameLocal = async function (req, res) {
   try {
     const { id } = req.params;
@@ -191,7 +175,6 @@ module.exports.excluirGravameLocal = async function (req, res) {
       return res.status(404).json({ Msg: "Registro não encontrado." });
     }
 
-    // Trava de segurança no back-end
     if (gravame.status_b3 !== "REJEITADO") {
       return res
         .status(400)
@@ -212,12 +195,10 @@ module.exports.baixarGravameLocal = async function (req, res) {
     const { id } = req.params;
     const models = require("../../db/models");
 
-    // 1. Encontra o gravame no banco local
     const gravameLocal = await models.gravame.findByPk(id);
     if (!gravameLocal)
       return res.status(404).json({ Msg: "Gravame não encontrado." });
 
-    // 2. Monta o Payload exigido pelo Swagger da B3 para Baixas
     const payloadBaixa = {
       data: {
         dadosValidacao: {
@@ -228,10 +209,8 @@ module.exports.baixarGravameLocal = async function (req, res) {
       },
     };
 
-    // 3. Envia para a B3
     const retornoB3 = await baixarGravameSNG(payloadBaixa);
 
-    // 4. Atualiza o banco local
     await gravameLocal.update({
       status_b3: "BAIXADO",
       codigo_retorno: retornoB3.data?.codigoRetorno,
@@ -258,7 +237,6 @@ module.exports.cancelarGravameLocal = async function (req, res) {
     if (!gravameLocal)
       return res.status(404).json({ Msg: "Gravame não encontrado." });
 
-    // Monta o Payload exigido pelo Swagger da B3 para Cancelamentos
     const payloadCancelamento = {
       data: {
         dadosValidacao: {
@@ -283,6 +261,152 @@ module.exports.cancelarGravameLocal = async function (req, res) {
     res.status(400).json({
       Msg: "Erro ao tentar cancelar na B3.",
       Detalhes: erroB3.detalhe || error.message,
+    });
+  }
+};
+
+// 8. ALTERAR CONTRATO B3
+module.exports.alterarContratoGravameLocal = async function (req, res) {
+  try {
+    const { numContrato } = req.params;
+    const dados = req.body;
+    const models = require("../../db/models");
+
+    // Mapeamento EXATO do payload exigido pelo Swagger (ContratoAltDadosReq)
+    const payloadAlteracao = {
+      data: {
+        dadosValidacao: {
+          numChassiVeiculo: dados.veiculo.numChassi,
+          numDocumentoFinanciado: dados.financiado.numDocumento,
+        },
+        contatoCredor: {
+          nomeEndereco: "RUA SAO SEBASTIAO DO PARAISO",
+          numEndereco: "1035",
+          descComplementoEndereco: "SALA 1",
+          nomeBairroEndereco: "CENTRO",
+          siglaUfEndereco: "MG", // Fixo da integração
+          codMunicipioEndereco: 4123,
+          numCepEndereco: "14405010",
+          numDddTelefone: "16",
+          numTelefone: "37075500",
+        },
+        contatoFinanciado: {
+          nomeEndereco: dados.financiado.nomeEndereco,
+          numEndereco: dados.financiado.numEndereco,
+          descComplementoEndereco:
+            dados.financiado.descComplementoEndereco || "",
+          nomeBairroEndereco: dados.financiado.nomeBairroEndereco,
+          siglaUfEndereco: dados.financiado.siglaUfEndereco,
+          codMunicipioEndereco: Number(dados.financiado.codMunicipioEndereco),
+          numCepEndereco: dados.financiado.numCepEndereco,
+          numDddTelefone: dados.financiado.numDddTelefone,
+          numTelefone: dados.financiado.numTelefone,
+        },
+        contrato: {
+          valPrincipal: Number(dados.contrato.valPrincipal),
+          dtLiberacao: dados.contrato.dtLiberacao,
+          siglaUfLiberacao: dados.contrato.siglaUfLiberacao,
+          nomeCidadeLiberacao: dados.contrato.nomeCidadeLiberacao,
+          dtVencimentoPrimeiraParcela:
+            dados.contrato.dtVencimentoPrimeiraParcela,
+          dtVencimentoUltimaParcela: dados.contrato.dtVencimentoUltimaParcela,
+          valParcela: Number(dados.contrato.valParcela),
+          nomeIndiceCorrecaoUtilizado:
+            dados.contrato.nomeIndiceCorrecaoUtilizado,
+          valTaxaContrato: Number(dados.contrato.valTaxaContrato || 0),
+          valIof: Number(dados.contrato.valIof || 0),
+          indMulta: Number(dados.contrato.indMulta),
+          valPercentualMulta: Number(dados.contrato.valPercentualMulta || 0),
+          valPercentualTaxaJurosMes: Number(
+            dados.contrato.valPercentualTaxaJurosMes || 0,
+          ),
+          valPercentualTaxaJurosAno: Number(
+            dados.contrato.valPercentualTaxaJurosAno || 0,
+          ),
+          indJurosMora: Number(dados.contrato.indJurosMora),
+          valPercentualJurosMora: Number(
+            dados.contrato.valPercentualJurosMora || 0,
+          ),
+          indPenalidade: Number(dados.contrato.indPenalidade),
+          descPenalidade: dados.contrato.descPenalidade || "",
+          indComissao: Number(dados.contrato.indComissao),
+          valComissao: Number(dados.contrato.valComissao || 0),
+          numDocumentoVendedor: dados.contrato.numDocumentoVendedor,
+          indTipoDocumentoRecebedor: Number(
+            dados.contrato.indTipoDocumentoRecebedor,
+          ),
+          numDocumentoRecebedor: dados.contrato.numDocumentoRecebedor,
+          codGrupoConsorcio: dados.contrato.codGrupoConsorcio,
+          numCotaConsorcio: Number(dados.contrato.numCotaConsorcio),
+          txtObservacao: dados.contrato.txtObservacao || "",
+        },
+      },
+    };
+
+    const retornoB3 =
+      await require("../utils/b3Integration").alterarContratoGravameSNG(
+        numContrato,
+        payloadAlteracao,
+      );
+
+    // Se o gravame estava na nossa base local, atualizamos o JSON dele
+    if (dados.idGravameLocal) {
+      const gravameLocal = await models.gravame.findByPk(dados.idGravameLocal);
+      if (gravameLocal) {
+        // Recria um payload de cadastro atualizado para manter sincronizado caso editem de novo
+        const payloadAtualizado = {
+          data: {
+            veiculo: dados.veiculo,
+            credor: payloadAlteracao.data.contatoCredor,
+            financiado: dados.financiado,
+            contrato: dados.contrato,
+          },
+        };
+        await gravameLocal.update({
+          payload_enviado: JSON.stringify(payloadAtualizado),
+        });
+      }
+    }
+
+    res.json({
+      Msg: "Contrato alterado com sucesso",
+      Detalhes: retornoB3.data,
+    });
+  } catch (error) {
+    console.error(
+      "Erro ao alterar contrato B3:",
+      error.response?.data || error.message,
+    );
+    res.status(400).json({
+      Msg: "Erro ao alterar contrato na B3",
+      Detalhes:
+        error.response?.data?.erros?.[0]?.detalhe || "Falha na comunicação",
+    });
+  }
+};
+
+// 9. CONSULTAR HISTÓRICO B3
+module.exports.consultarHistoricoB3 = async function (req, res) {
+  try {
+    const { chassi, dtInicio, dtFim } = req.query;
+
+    const retornoB3 =
+      await require("../utils/b3Integration").consultarHistoricoGravameSNG(
+        chassi,
+        dtInicio,
+        dtFim,
+      );
+
+    res.json(retornoB3.data);
+  } catch (error) {
+    console.error(
+      "Erro ao consultar Histórico B3:",
+      error.response?.data || error.message,
+    );
+    res.status(400).json({
+      Msg: "Erro ao consultar histórico na B3",
+      Detalhes:
+        error.response?.data?.erros?.[0]?.detalhe || "Falha na comunicação",
     });
   }
 };

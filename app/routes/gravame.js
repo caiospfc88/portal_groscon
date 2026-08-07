@@ -31,12 +31,25 @@ module.exports = function (application) {
     application.app.controllers.gravame.excluirGravameLocal,
   );
 
-  // ROTAS NOVAS COM A AUTENTICAÇÃO JWT INCLUÍDA
   application.post("/baixarGravame/:id", verifyJWT, function (req, res) {
     application.app.controllers.gravame.baixarGravameLocal(req, res);
   });
 
   application.post("/cancelarGravame/:id", verifyJWT, function (req, res) {
     application.app.controllers.gravame.cancelarGravameLocal(req, res);
+  });
+
+  // Rota de alteração de dados de contrato existente (PUT)
+  application.put(
+    "/alterarContratoGravame/:numContrato",
+    verifyJWT,
+    function (req, res) {
+      application.app.controllers.gravame.alterarContratoGravameLocal(req, res);
+    },
+  );
+
+  // Rota para consulta de histórico do chassi (GET)
+  application.get("/historicoB3", verifyJWT, function (req, res) {
+    application.app.controllers.gravame.consultarHistoricoB3(req, res);
   });
 };
