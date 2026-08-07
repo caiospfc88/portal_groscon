@@ -14,8 +14,19 @@ module.exports = function (application) {
     "/buscarDadosERP/:grupo/:cota",
     verifyJWT,
     function (req, res) {
-      console.log("chegou aqui");
       application.app.controllers.gravame.buscarDadosERP(application, req, res);
+    },
+  );
+
+  application.get(
+    "/buscarVeiculosCota/:grupo/:cota/:versao",
+    verifyJWT,
+    function (req, res) {
+      application.app.controllers.gravame.buscarVeiculosCota(
+        application,
+        req,
+        res,
+      );
     },
   );
 
@@ -51,5 +62,9 @@ module.exports = function (application) {
   // Rota para consulta de histórico do chassi (GET)
   application.get("/historicoB3", verifyJWT, function (req, res) {
     application.app.controllers.gravame.consultarHistoricoB3(req, res);
+  });
+
+  application.post("/baixarGravameDireto", verifyJWT, function (req, res) {
+    application.app.controllers.gravame.baixarGravameDiretoB3(req, res);
   });
 };

@@ -136,6 +136,29 @@ module.exports.buscarDadosERP = async function (application, req, res) {
   }
 };
 
+module.exports.buscarVeiculosCota = async function (application, req, res) {
+  try {
+    const { grupo, cota, versao = 0 } = req.params;
+    const connection = application.config.dbConnection;
+    const gravamesERP = new application.app.models.GravamesERP(connection);
+
+    const dadosVeiculos = await gravamesERP.buscarVeiculosCota(
+      grupo,
+      cota,
+      versao,
+    );
+
+    if (!dadosVeiculos) {
+      return res.status(404).json({ Msg: "Cota não encontrada no ERP." });
+    }
+
+    res.json(dadosVeiculos);
+  } catch (error) {
+    console.error("Erro na controller buscarDadosERP:", error);
+    res.status(500).json({ Msg: "Erro interno ao buscar cota." });
+  }
+};
+
 // 4. CONSULTA AVULSA B3
 module.exports.consultarB3 = async function (req, res) {
   try {
@@ -407,6 +430,39 @@ module.exports.consultarHistoricoB3 = async function (req, res) {
       Msg: "Erro ao consultar histórico na B3",
       Detalhes:
         error.response?.data?.erros?.[0]?.detalhe || "Falha na comunicação",
+    });
+  }
+};
+
+module.exports.baixarGravameDiretoB3 = async function (req, res) {
+  try {
+    const { chassi, documento_financiado, numero_apontamento } = req.body;
+
+    const payloadBaixa = {
+      data: {
+        dadosValidacao: {
+          numChassiVeiculo: chassi,
+          numDocumentoFinanciado: documento_financiado,
+          numApontamento: Number(numero_apontamento),
+        },
+      },
+    };
+
+    const retornoB3 = await require("../utils/b3Integration").baixarGravameSNG(
+      payloadBaixa,
+    );
+
+    // Se você quiser, pode até criar a lógica aqui para buscar se existe um gravame local com esse apontamento e atualizar o status dele para "BAIXADO" também!
+
+    res.json({
+      Msg: "Gravame baixado com sucesso na B3.",
+      Detalhes: retornoB3.data,
+    });
+  } catch (error) {
+    const erroB3 = error.response?.data?.erros?.[0] || {};
+    res.status(400).json({
+      Msg: "Erro ao tentar baixar na B3.",
+      Detalhes: erroB3.detalhe || error.message,
     });
   }
 };

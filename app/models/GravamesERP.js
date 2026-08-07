@@ -145,6 +145,26 @@ GravamesERP.prototype.buscarDadosCotaParaB3 = async function (
   return result && result.length > 0 ? result[0] : null;
 };
 
+GravamesERP.prototype.buscarVeiculosCota = async function (
+  grupo,
+  cota,
+  versao = 0,
+) {
+  let result = await this._connection(`
+    select co.MODELO as veiculo,
+        co.COR as cor,
+        co.ANO_MODELO as ano,
+        co.VALOR_BEM as valor,
+        co.CHASSI as chassi,
+        co.PLACA as placa,
+        format(co.DATA_LIBERACAO,'dd/MM/yyyy','en-US') as liberacao
+    from CONTROLES_OPCOES co
+    WHERE co.codigo_grupo = ${grupo} AND co.CODIGO_COTA = ${cota} AND co.VERSAO = ${versao} and co.VALOR_BEM > 10000;
+  `);
+
+  return result && result.length > 0 ? result : [];
+};
+
 module.exports = function () {
   return GravamesERP;
 };
