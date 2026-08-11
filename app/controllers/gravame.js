@@ -84,18 +84,20 @@ module.exports.cadastrarGravame = async function (req, res) {
     try {
       const retornoB3 = await enviarGravameSNG(payloadB3);
 
+      const dadosResposta = retornoB3.data?.data || retornoB3.data;
+
       await gravameLocal.update({
         status_b3: "REGISTRADO",
-        numero_apontamento: retornoB3.data?.numApontamento?.toString(),
-        codigo_retorno: retornoB3.data?.codigoRetorno,
-        mensagem_retorno: retornoB3.data?.mensagemRetorno,
+        numero_apontamento: dadosResposta?.numApontamento?.toString(),
+        codigo_retorno: dadosResposta?.codigoRetorno,
+        mensagem_retorno: dadosResposta?.mensagemRetorno,
       });
 
       res.json({
         Status: "Transmitido",
-        CodigoB3: retornoB3.data?.codigoRetorno,
-        MensagemB3: retornoB3.data?.mensagemRetorno,
-        Apontamento: retornoB3.data?.numApontamento,
+        CodigoB3: dadosResposta?.codigoRetorno,
+        MensagemB3: dadosResposta?.mensagemRetorno,
+        Apontamento: dadosResposta?.numApontamento,
       });
     } catch (apiError) {
       const erroB3 = apiError.response?.data?.erros?.[0] || {};
