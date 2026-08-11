@@ -110,6 +110,7 @@ module.exports.cadastrarGravame = async function (req, res) {
       res.status(400).json({
         Msg: "Gravame rejeitado pela B3.",
         Detalhes: erroB3.detalhe || apiError.message,
+        idGravameLocal: gravameLocal.id,
       });
     }
   } catch (error) {
