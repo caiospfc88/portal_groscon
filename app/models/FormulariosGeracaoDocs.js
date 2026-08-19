@@ -402,7 +402,7 @@ FormulariosGeracaoDocs.prototype.formularioSolicitacaoResgate = async function (
 
   let result = await this._connection(
     `
-    select
+    select top 1
         ct.CGC_CPF_CLIENTE as doc,
         c.nome,
         format(ct.DATA_CONTEMPLACAO,'dd/MM/yyyy','en-US') as dtContemplacao,
@@ -425,9 +425,9 @@ FormulariosGeracaoDocs.prototype.formularioSolicitacaoResgate = async function (
             cc.VALOR_CORRECAO as valorCorrigido     
         FROM [NewconPlus].[dbo].[vw_Correcoes_Creditos] cc
         where cc.codigo_grupo = ct.CODIGO_GRUPO 
-        and cc.CODIGO_COTA = ct.CODIGO_COTA 
-        and cc.VERSAO = ct.VERSAO
-        order by cc.VALOR_CORRECAO desc
+            and cc.CODIGO_COTA = ct.CODIGO_COTA 
+            and cc.VERSAO = ct.VERSAO
+            order by cc.VALOR_CORRECAO desc
     ) valor
 
     outer apply (
@@ -435,9 +435,10 @@ FormulariosGeracaoDocs.prototype.formularioSolicitacaoResgate = async function (
             mg.TOTAL_LANCAMENTO as lanceEmbutido
         from MOVIMENTOS_GRUPOS mg
         where mg.codigo_movimento = 750 
-        and mg.CODIGO_GRUPO = ct.CODIGO_GRUPO 
-        and mg.codigo_cota = ct.CODIGO_COTA 
-        and mg.VERSAO = ct.VERSAO
+            and mg.AVISO_ESTORNO = ''
+            and mg.CODIGO_GRUPO = ct.CODIGO_GRUPO 
+            and mg.codigo_cota = ct.CODIGO_COTA 
+            and mg.VERSAO = ct.VERSAO
     ) lance
 
     WHERE ct.codigo_grupo = ${grupo}
