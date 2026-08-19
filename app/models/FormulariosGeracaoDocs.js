@@ -406,19 +406,40 @@ FormulariosGeracaoDocs.prototype.formularioSolicitacaoResgate = async function (
         ct.CGC_CPF_CLIENTE as doc,
         c.nome,
         format(ct.DATA_CONTEMPLACAO,'dd/MM/yyyy','en-US') as dtContemplacao,
-        format(valor.valorCorrigido,'C','pt-BR') as valorCorrigido,
+        format(
+            valor.valorCorrigido - COALESCE(lance.lanceEmbutido, 0),
+            'C',
+            'pt-BR'
+        ) as valorCorrigido,
         ct.NOME_AGENCIA as nomeAgencia,
         ct.NUMERO_AGENCIA as numeroAgencia,
         ct.NUMERO_CONTA_CORRENTE as numeroConta
     from COTAS ct
-    inner join clientes c on c.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE and c.TIPO = ct.TIPO
+
+    inner join clientes c 
+        on c.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE 
+        and c.TIPO = ct.TIPO
+
     outer apply (
-	SELECT TOP (1) 
-     [VALOR_CORRECAO] as valorCorrigido     
-    FROM [NewconPlus].[dbo].[vw_Correcoes_Creditos] cc
-    where cc.codigo_grupo = ct.CODIGO_GRUPO and cc.CODIGO_COTA = ct.CODIGO_COTA and cc.VERSAO = ct.VERSAO
-    order by VALOR_CORRECAO desc
+        SELECT TOP (1) 
+            cc.VALOR_CORRECAO as valorCorrigido     
+        FROM [NewconPlus].[dbo].[vw_Correcoes_Creditos] cc
+        where cc.codigo_grupo = ct.CODIGO_GRUPO 
+        and cc.CODIGO_COTA = ct.CODIGO_COTA 
+        and cc.VERSAO = ct.VERSAO
+        order by cc.VALOR_CORRECAO desc
     ) valor
+
+    outer apply (
+        select
+            mg.TOTAL_LANCAMENTO as lanceEmbutido
+        from MOVIMENTOS_GRUPOS mg
+        where mg.codigo_movimento = 750 
+        and mg.CODIGO_GRUPO = ct.CODIGO_GRUPO 
+        and mg.codigo_cota = ct.CODIGO_COTA 
+        and mg.VERSAO = ct.VERSAO
+    ) lance
+
     WHERE ct.codigo_grupo = ${grupo}
             AND ct.CODIGO_COTA = ${cota}
             AND ct.VERSAO = ${versao}
