@@ -393,6 +393,40 @@ ORDER BY tp.DATA_APROVACAO desc
   return result;
 };
 
+FormulariosGeracaoDocs.prototype.formularioSolicitacaoResgate = async function (
+  req,
+) {
+  let grupo = req.query.grupo;
+  let cota = req.query.cota;
+  let versao = req.query.versao;
+
+  let result = await this._connection(
+    `
+    select
+        ct.CGC_CPF_CLIENTE as doc,
+        c.nome,
+        format(ct.DATA_CONTEMPLACAO,'dd/MM/yyyy','en-US') as dtContemplacao,
+        format(valor.valorCorrigido,'C','pt-BR') as valorCorrigido,
+        ct.NOME_AGENCIA as nomeAgencia,
+        ct.NUMERO_AGENCIA as numeroAgencia,
+        ct.NUMERO_CONTA_CORRENTE as numeroConta
+    from COTAS ct
+    inner join clientes c on c.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE and c.TIPO = ct.TIPO
+    outer apply (
+	SELECT TOP (1) 
+     [VALOR_CORRECAO] as valorCorrigido     
+    FROM [NewconPlus].[dbo].[vw_Correcoes_Creditos] cc
+    where cc.codigo_grupo = ct.CODIGO_GRUPO and cc.CODIGO_COTA = ct.CODIGO_COTA and cc.VERSAO = ct.VERSAO
+    order by VALOR_CORRECAO desc
+    ) valor
+    WHERE ct.codigo_grupo = ${grupo}
+            AND ct.CODIGO_COTA = ${cota}
+            AND ct.VERSAO = ${versao}
+      `,
+  );
+  return result;
+};
+
 module.exports = function () {
   return FormulariosGeracaoDocs;
 };

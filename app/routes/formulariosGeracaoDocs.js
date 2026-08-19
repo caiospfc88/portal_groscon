@@ -39,4 +39,17 @@ module.exports = function (application) {
       );
     },
   );
+
+  application.get(
+    "/formularioSolicitacaoResgate",
+    verifyJWT,
+    function (req, res) {
+      // E aqui a mesma coisa para a segunda rota
+      application.app.controllers.formulariosGeracaoDocs.formularioSolicitacaoResgate(
+        application,
+        req,
+        res,
+      );
+    },
+  );
 };

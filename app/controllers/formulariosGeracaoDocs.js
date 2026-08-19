@@ -40,3 +40,17 @@ module.exports.formularioTransferenciaCota = async function (
 
   res.send(resConsulta);
 };
+
+module.exports.formularioSolicitacaoResgate = async function (
+  application,
+  req,
+  res,
+) {
+  var connection = application.config.dbConnection;
+  var formulariosGeracaoDocs =
+    new application.app.models.FormulariosGeracaoDocs(connection);
+  var resConsulta =
+    await formulariosGeracaoDocs.formularioSolicitacaoResgate(req);
+
+  res.send(resConsulta);
+};
