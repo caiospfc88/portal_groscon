@@ -254,6 +254,37 @@ async function consultarHistoricoGravameSNG(chassi, dtInicio, dtFim) {
   }
 }
 
+// 10. Transferência de Propriedade
+async function transferirGravameSNG(payloadJSON) {
+  try {
+    const token = await gerarTokenSNG();
+    const agent = criarAgenteHttps();
+    const idTransacao = crypto.randomUUID();
+
+    const urlTransferencia = `${process.env.B3_URL}/api/rsng/v2/apontamentos/transacoes/transferencias`;
+
+    const response = await axios.post(urlTransferencia, payloadJSON, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        chave: process.env.B3_CHAVE_INTEGRACAO,
+        "Content-Type": "application/json",
+        "x-v": "2.0.0",
+        "x-id-transacao": idTransacao,
+        "x-contexto-cliente": "Groscon",
+      },
+      httpsAgent: agent,
+    });
+
+    return response;
+  } catch (error) {
+    console.error(
+      "Erro ao Transferir na B3:",
+      error.response?.data || error.message,
+    );
+    throw error;
+  }
+}
+
 module.exports = {
   gerarTokenSNG,
   enviarGravameSNG,
@@ -262,4 +293,5 @@ module.exports = {
   consultarGravameSNG,
   alterarContratoGravameSNG,
   consultarHistoricoGravameSNG,
+  transferirGravameSNG,
 };

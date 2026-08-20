@@ -437,6 +437,129 @@ module.exports.consultarHistoricoB3 = async function (req, res) {
   }
 };
 
+// 10. TRANSFERIR PROPRIEDADE
+module.exports.transferirPropriedadeGravame = async function (req, res) {
+  try {
+    const dados = req.body;
+    const models = require("../../db/models");
+
+    // Mapeamento EXATO do payload exigido pelo Swagger (ApontamentoTransfDadosReq)
+    const payloadTransferencia = {
+      data: {
+        dadosValidacao: {
+          numChassiVeiculo: dados.veiculo.numChassi,
+          // PULO DO GATO: Passamos o documento ANTIGO aqui para a B3 validar
+          numDocumentoFinanciado: dados.documentoAntigo,
+        },
+        contatoCredor: {
+          nomeEndereco: "RUA SAO SEBASTIAO DO PARAISO",
+          numEndereco: "1035",
+          descComplementoEndereco: "SALA 1",
+          nomeBairroEndereco: "CENTRO",
+          siglaUfEndereco: "MG",
+          codMunicipioEndereco: 4123,
+          numCepEndereco: "14405010",
+          numDddTelefone: "16",
+          numTelefone: "37075500",
+        },
+        novoFinanciado: {
+          nome: dados.financiado.nome,
+          indTipoDocumento: Number(dados.financiado.indTipoDocumento),
+          numDocumento: dados.financiado.numDocumento,
+          nomeEndereco: dados.financiado.nomeEndereco,
+          numEndereco: dados.financiado.numEndereco,
+          ...(dados.financiado.descComplementoEndereco
+            ? {
+                descComplementoEndereco:
+                  dados.financiado.descComplementoEndereco,
+              }
+            : {}),
+          nomeBairroEndereco: dados.financiado.nomeBairroEndereco,
+          siglaUfEndereco: dados.financiado.siglaUfEndereco,
+          codMunicipioEndereco: Number(dados.financiado.codMunicipioEndereco),
+          numCepEndereco: dados.financiado.numCepEndereco,
+          numDddTelefone: dados.financiado.numDddTelefone,
+          numTelefone: dados.financiado.numTelefone,
+        },
+        aditivo: {
+          numAditivo: dados.contrato.numAditivo,
+          dtAditivo: dados.contrato.dtAditivo,
+        },
+        contrato: {
+          valPrincipal: Number(dados.contrato.valPrincipal),
+          dtLiberacao: dados.contrato.dtLiberacao,
+          siglaUfLiberacao: dados.contrato.siglaUfLiberacao,
+          nomeCidadeLiberacao: dados.contrato.nomeCidadeLiberacao,
+          dtVencimentoPrimeiraParcela:
+            dados.contrato.dtVencimentoPrimeiraParcela,
+          dtVencimentoUltimaParcela: dados.contrato.dtVencimentoUltimaParcela,
+          valParcela: Number(dados.contrato.valParcela),
+          nomeIndiceCorrecaoUtilizado:
+            dados.contrato.nomeIndiceCorrecaoUtilizado,
+          valTaxaContrato: Number(dados.contrato.valTaxaContrato || 0),
+          valIof: Number(dados.contrato.valIof || 0),
+          indMulta: Number(dados.contrato.indMulta),
+          valPercentualMulta: Number(dados.contrato.valPercentualMulta || 0),
+          valPercentualTaxaJurosMes: Number(
+            dados.contrato.valPercentualTaxaJurosMes || 0,
+          ),
+          valPercentualTaxaJurosAno: Number(
+            dados.contrato.valPercentualTaxaJurosAno || 0,
+          ),
+          indJurosMora: Number(dados.contrato.indJurosMora),
+          valPercentualJurosMora: Number(
+            dados.contrato.valPercentualJurosMora || 0,
+          ),
+          indPenalidade: Number(dados.contrato.indPenalidade),
+          descPenalidade: dados.contrato.descPenalidade || "",
+          indComissao: Number(dados.contrato.indComissao),
+          valComissao: Number(dados.contrato.valComissao || 0),
+          numDocumentoVendedor: dados.contrato.numDocumentoVendedor,
+          indTipoDocumentoRecebedor: Number(
+            dados.contrato.indTipoDocumentoRecebedor,
+          ),
+          numDocumentoRecebedor: dados.contrato.numDocumentoRecebedor,
+          codGrupoConsorcio: dados.contrato.codGrupoConsorcio,
+          numCotaConsorcio: Number(dados.contrato.numCotaConsorcio),
+          txtObservacao: dados.contrato.txtObservacao || "",
+        },
+      },
+    };
+
+    const retornoB3 =
+      await require("../utils/b3Integration").transferirGravameSNG(
+        payloadTransferencia,
+      );
+
+    // Opcional: Atualizar o banco local se o apontamento for originado do ERP
+    if (dados.idGravameLocal) {
+      const gravameLocal = await models.gravame.findByPk(dados.idGravameLocal);
+      if (gravameLocal) {
+        // Atualiza o CPF do novo dono e salva o novo payload
+        await gravameLocal.update({
+          documento_financiado: dados.financiado.numDocumento,
+          payload_enviado: JSON.stringify(payloadTransferencia),
+        });
+      }
+    }
+
+    res.json({
+      Msg: "Transferência realizada com sucesso",
+      Detalhes: retornoB3.data,
+    });
+  } catch (error) {
+    console.error(
+      "Erro ao transferir na B3:",
+      error.response?.data || error.message,
+    );
+    res.status(400).json({
+      Msg: "Erro ao transferir na B3",
+      Detalhes:
+        error.response?.data?.erros?.[0]?.detalhe || "Falha na comunicação",
+    });
+  }
+};
+
 module.exports.baixarGravameDiretoB3 = async function (req, res) {
   try {
     const { chassi, documento_financiado, numero_apontamento } = req.body;

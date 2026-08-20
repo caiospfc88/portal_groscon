@@ -67,4 +67,8 @@ module.exports = function (application) {
   application.post("/baixarGravameDireto", verifyJWT, function (req, res) {
     application.app.controllers.gravame.baixarGravameDiretoB3(req, res);
   });
+
+  application.post("/transferirGravame", verifyJWT, function (req, res) {
+    application.app.controllers.gravame.transferirPropriedadeGravame(req, res);
+  });
 };
