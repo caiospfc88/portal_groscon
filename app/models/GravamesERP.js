@@ -8,7 +8,10 @@ GravamesERP.prototype.buscarDadosCotaParaB3 = async function (
   grupo,
   cota,
   versao = 0,
+  chassi = null,
 ) {
+  // Se o front-end mandar um chassi, nós forçamos o JOIN a encontrar o veículo específico
+  let filtroChassi = chassi ? ` AND co.CHASSI = '${chassi}' ` : "";
   let result = await this._connection(`
     SELECT TOP 1
         -- ==========================================
@@ -118,6 +121,7 @@ GravamesERP.prototype.buscarDadosCotaParaB3 = async function (
     LEFT JOIN CIDADES cid ON c.CODIGO_CIDADE = cid.CODIGO_CIDADE
     LEFT JOIN CONTROLES_OPCOES co ON co.codigo_grupo = ct.codigo_grupo AND co.codigo_cota = ct.codigo_cota AND co.VERSAO = ct.VERSAO
     LEFT JOIN CIDADES cidl ON co.CODIGO_CIDADE_LICENCIAMENTO = cidl.CODIGO_CIDADE
+    LEFT JOIN CONTROLES_OPCOES co ON co.codigo_grupo = ct.codigo_grupo AND co.codigo_cota = ct.codigo_cota AND co.VERSAO = ct.VERSAO ${filtroChassi}
 
     OUTER APPLY (
         SELECT COUNT(*) AS qtdMeses 

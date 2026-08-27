@@ -123,10 +123,18 @@ module.exports.cadastrarGravame = async function (req, res) {
 module.exports.buscarDadosERP = async function (application, req, res) {
   try {
     const { grupo, cota } = req.params;
+    const { chassi } = req.query; // Captura o chassi caso tenha múltiplos veículos
+
     const connection = application.config.dbConnection;
     const gravamesERP = new application.app.models.GravamesERP(connection);
 
-    const dadosB3 = await gravamesERP.buscarDadosCotaParaB3(grupo, cota, 0);
+    // Repassa o Chassi como 4º parâmetro
+    const dadosB3 = await gravamesERP.buscarDadosCotaParaB3(
+      grupo,
+      cota,
+      0,
+      chassi,
+    );
 
     if (!dadosB3) {
       return res.status(404).json({ Msg: "Cota não encontrada no ERP." });
