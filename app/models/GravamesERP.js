@@ -10,13 +10,13 @@ GravamesERP.prototype.buscarDadosCotaParaB3 = async function (
   versao = 0,
   chassi = null,
 ) {
-  // Se o front-end mandar um chassi, nós forçamos o JOIN a encontrar o veículo específico
-  let filtroChassi = chassi ? ` AND co.CHASSI = '${chassi}' ` : "";
+  // A MÁGICA: O filtro foi ajustado para remover espaços e vai ser injetado no WHERE
+  let filtroChassi = chassi
+    ? ` AND LTRIM(RTRIM(co.CHASSI)) = '${chassi.trim()}' `
+    : "";
+
   let result = await this._connection(`
     SELECT TOP 1
-        -- ==========================================
-        -- 1. DADOS DO VEÍCULO (B3)
-        -- ==========================================
         ISNULL(co.CHASSI, '') AS numChassi,
         '0' AS indRemarcacao,
         ISNULL(co.UF_PLACA, '') AS siglaUfPlaca,
@@ -27,14 +27,10 @@ GravamesERP.prototype.buscarDadosCotaParaB3 = async function (
         CASE WHEN co.procedencia = 'N' THEN '1' ELSE '0' END AS indVeiculoNovo, 
         ISNULL(cidl.ESTADO, cid.ESTADO) AS siglaUfLicenciamento, 
 
-        -- ==========================================
-        -- 2. DADOS DO FINANCIADO (B3)
-        -- ==========================================
         LEFT(c.NOME, 40) AS nomeFinanciado, 
         CASE WHEN LEN(REPLACE(REPLACE(REPLACE(c.CGC_CPF_CLIENTE,'.',''),'-',''),'/','')) > 11 THEN '2' ELSE '1' END AS indTipoDocumentoFinanciado,
         REPLACE(REPLACE(REPLACE(c.CGC_CPF_CLIENTE,'.',''),'-',''),'/','') AS numDocumentoFinanciado,
         
-        -- TRATAMENTO DE ENDEREÇO
         SUBSTRING(
             CASE 
                 WHEN CHARINDEX(',', c.ENDERECO) > 0 
@@ -62,19 +58,12 @@ GravamesERP.prototype.buscarDadosCotaParaB3 = async function (
         cid.ESTADO AS siglaUfEnderecoFinanciado,
         REPLACE(c.CEP, '-', '') AS numCepEnderecoFinanciado,
         
-        -- ==========================================
-        -- O PULO DO GATO: CODIGO TOM DIRETO DA TABELA CIDADES
-        -- ==========================================
         ISNULL(cid.CODIGO_MUNICIPIO_DETRAN, '') AS codMunicipioEnderecoFinanciado,
-        ISNULL(cid.NOME, '') AS nomeCidadeAuxiliar, -- Para mostrar no aviso do front-end
+        ISNULL(cid.NOME, '') AS nomeCidadeAuxiliar,
         
-        -- TRATAMENTO ESTRITO DE TELEFONE (Apenas números e limites de tamanho)
         LEFT(REPLACE(REPLACE(REPLACE(ISNULL(c.DDD_RESIDENCIAL, '00'), '-', ''), ' ', ''), '(', ''), 3) AS numDddTelefoneFinanciado,
         LEFT(REPLACE(REPLACE(REPLACE(ISNULL(c.CELULAR, '000000000'), '-', ''), ' ', ''), ')', ''), 9) AS numTelefoneFinanciado,
 
-        -- ==========================================
-        -- 3. DADOS DO CONTRATO E FINANCEIRO (B3)
-        -- ==========================================
         3 AS codTipoApontamento, 
         
         (convert(VARCHAR(10),ct.CODIGO_GRUPO) + convert(VARCHAR(10),ct.CODIGO_COTA)) AS numContrato,
@@ -102,16 +91,10 @@ GravamesERP.prototype.buscarDadosCotaParaB3 = async function (
         '0' AS indComissao,
         '0.00' AS valComissao,
 
-        -- ==========================================
-        -- 4. DADOS DO VENDEDOR/RECEBEDOR (B3)
-        -- ==========================================
         REPLACE(REPLACE(REPLACE(ISNULL(co.CGC_CPF_FAVORECIDO, ''),'.',''),'-',''),'/','') AS numDocumentoVendedor,
         CASE WHEN LEN(REPLACE(REPLACE(REPLACE(ISNULL(co.CGC_CPF_FAVORECIDO, ''),'.',''),'-',''),'/','')) > 11 THEN '2' ELSE '1' END AS indTipoDocumentoRecebedor,
         REPLACE(REPLACE(REPLACE(ISNULL(co.CGC_CPF_FAVORECIDO, ''),'.',''),'-',''),'/','') AS numDocumentoRecebedor,
         
-        -- ==========================================
-        -- 5. IDENTIFICAÇÃO DO CONSÓRCIO
-        -- ==========================================
         ct.CODIGO_GRUPO AS codGrupoConsorcio,
         ct.CODIGO_COTA AS numCotaConsorcio,
         ISNULL(co.OBSERVACOES, 'GRAVAME INSERIDO VIA API') AS txtObservacao
@@ -121,7 +104,6 @@ GravamesERP.prototype.buscarDadosCotaParaB3 = async function (
     LEFT JOIN CIDADES cid ON c.CODIGO_CIDADE = cid.CODIGO_CIDADE
     LEFT JOIN CONTROLES_OPCOES co ON co.codigo_grupo = ct.codigo_grupo AND co.codigo_cota = ct.codigo_cota AND co.VERSAO = ct.VERSAO
     LEFT JOIN CIDADES cidl ON co.CODIGO_CIDADE_LICENCIAMENTO = cidl.CODIGO_CIDADE
-    LEFT JOIN CONTROLES_OPCOES co ON co.codigo_grupo = ct.codigo_grupo AND co.codigo_cota = ct.codigo_cota AND co.VERSAO = ct.VERSAO ${filtroChassi}
 
     OUTER APPLY (
         SELECT COUNT(*) AS qtdMeses 
@@ -141,9 +123,13 @@ GravamesERP.prototype.buscarDadosCotaParaB3 = async function (
       FROM REAJUSTES_BENS rb
       WHERE ct.codigo_bem = rb.CODIGO_BEM 
       ORDER BY DATA_REAJUSTE DESC
-  ) as ValorBem
+    ) as ValorBem
 
-    WHERE ct.codigo_grupo = ${grupo} AND ct.CODIGO_COTA = ${cota} AND ct.VERSAO = ${versao};
+    WHERE ct.codigo_grupo = ${grupo} 
+      AND ct.CODIGO_COTA = ${cota} 
+      AND ct.VERSAO = ${versao}
+      ${filtroChassi} -- O FILTRO AGORA RODA NO WHERE, OBRIGANDO O BANCO A TRAZER ESTE CARRO ESPECÍFICO
+    ORDER BY co.DATA_LIBERACAO DESC
   `);
 
   return result && result.length > 0 ? result[0] : null;
