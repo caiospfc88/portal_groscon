@@ -58,6 +58,11 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "usuario_id",
       as: "leads",
     });
+    // NOVA ASSOCIAÇÃO: Para puxarmos quantas atualizações o usuário aprovou
+    models.usuarios.hasMany(models.solicitacaoAtualizacao, {
+      foreignKey: "usuario_aprovador_id",
+      as: "atualizacoes_aprovadas",
+    });
   };
 
   // Antes de criar -> hash sempre (como já tinha)
