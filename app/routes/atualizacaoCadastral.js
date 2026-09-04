@@ -4,7 +4,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// Configuração segura do Multer para armazenamento local
+// Configuração segura do Multer para o cofre
 const storageInterno = multer.diskStorage({
   destination: (req, file, cb) => {
     const dir = path.join(__dirname, "../../uploads/comprovantes_cadastrais");
@@ -17,25 +17,23 @@ const storageInterno = multer.diskStorage({
     cb(null, `comprovante_${suffix}${ext}`);
   },
 });
-
 const uploadLocal = multer({
+  limits: { fileSize: 5 * 1024 * 1024 },
   storage: storageInterno,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 });
 
-// Middleware escudo (Chave entre VPS e Servidor Interno)
 const verificarApiKeyInterna = (req, res, next) => {
   const apiKey = req.headers["x-api-key"];
   if (apiKey !== process.env.INTERNAL_API_KEY) {
     return res
       .status(403)
-      .json({ Msg: "Acesso negado. Origem da DMZ não confirmada." });
+      .json({ Msg: "Acesso negado. Origem não confirmada." });
   }
   next();
 };
 
 module.exports = function (application) {
-  // 🚀 ROTA ACESSADA PELA VPS (KONG) -> Recebe os dados e salva o arquivo
+  // ROTA DA DMZ (A VPS POSTA OS DADOS AQUI)
   application.post(
     "/api/interno/receber-atualizacao",
     verificarApiKeyInterna,
@@ -48,12 +46,25 @@ module.exports = function (application) {
     },
   );
 
-  // 👤 ROTA ACESSADA PELO PORTAL (Next.js interno) -> Lista a fila de trabalho
+  // ROTA DO FRONT-END (PORTAL NODE) - Lista a fila de trabalho para a moderação
   application.get(
     "/api/atualizacoes/pendentes",
     verifyJWT,
     function (req, res) {
       application.app.controllers.atualizacaoCadastral.listarPendentes(
+        req,
+        res,
+      );
+    },
+  );
+
+  // ROTA DO FRONT-END (PORTAL NODE) - Botão que o atendente clica para gerar o e-mail pro cliente
+  application.post(
+    "/api/atualizacoes/disparar",
+    verifyJWT,
+    function (req, res) {
+      application.app.controllers.atualizacaoCadastral.dispararCampanha(
+        application,
         req,
         res,
       );
