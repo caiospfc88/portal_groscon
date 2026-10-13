@@ -18,4 +18,12 @@ module.exports = function (application) {
       res,
     );
   });
+
+  application.get("/listaDadosFcPagoSituacao", verifyJWT, function (req, res) {
+    application.app.controllers.dadosComunicacao.listaDadosFcPagoSituacao(
+      application,
+      req,
+      res,
+    );
+  });
 };
