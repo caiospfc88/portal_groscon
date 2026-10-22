@@ -547,6 +547,13 @@ module.exports = function (application) {
       res,
     );
   });
+  application.get("/veiculosPorSituacao", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.veiculosPorSituacao(
+      application,
+      req,
+      res,
+    );
+  });
   application.get("/cotasPorSituacao", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.cotasPorSituacao(
       application,

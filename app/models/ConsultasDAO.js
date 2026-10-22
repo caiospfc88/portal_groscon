@@ -3795,6 +3795,55 @@ ConsultasDAO.prototype.nomeEmailPorCota = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.veiculosPorSituacao = async function (req) {
+  let situacoes_cruas = req.query.situacoes || "";
+
+  let situacoesFormatadas = situacoes_cruas
+    .split(",")
+    .filter((sit) => sit.trim() !== "")
+    .map((sit) => `'${sit.trim()}'`)
+    .join(",");
+
+  if (!situacoesFormatadas) {
+    situacoesFormatadas = "''";
+  }
+
+  console.log("chegou aqui com os params: ", situacoesFormatadas);
+
+  // 🌟 OTIMIZADO: Usando GROUP BY para garantir apenas 1 CPF por linha!
+  let sql = `SELECT
+                ct.CODIGO_GRUPO AS grupo,
+                ct.CODIGO_COTA AS cota,
+                ct.VERSAO AS versao,
+                ct.CGC_CPF_CLIENTE AS 'cpf/cnpj',
+                cl.NOME AS nome,
+                cid.NOME AS cidade,
+                co.MODELO AS veiculo,
+                co.COR AS cor,
+                co.ANO_MODELO AS ano,
+                co.VALOR_BEM AS valor,
+                co.CHASSI AS chassi,
+                co.PLACA AS placa,
+                FORMAT(co.DATA_LIBERACAO, 'dd/MM/yyyy', 'en-US') AS liberacao
+            FROM CONTROLES_OPCOES co
+            INNER JOIN COTAS ct
+                ON co.CODIGO_GRUPO = ct.CODIGO_GRUPO
+                AND co.CODIGO_COTA = ct.CODIGO_COTA
+                AND co.VERSAO = ct.VERSAO
+            INNER JOIN GRUPOS GP
+	              ON ct.CODIGO_GRUPO = gp.CODIGO_GRUPO
+            LEFT JOIN CLIENTES cl
+                ON ct.CGC_CPF_CLIENTE = cl.CGC_CPF_CLIENTE
+            LEFT JOIN CIDADES cid
+                ON cl.CODIGO_CIDADE = cid.CODIGO_CIDADE
+            WHERE ct.CODIGO_SITUACAO in (${situacoesFormatadas})
+                AND gp.CODIGO_TIPO_GRUPO not like 'IM'
+  `;
+
+  let result = await this._connection(sql);
+  return result;
+};
+
 ConsultasDAO.prototype.avisoContemplacao = async function (req) {
   let grupo = req.query.grupo;
   let cota = req.query.cota;

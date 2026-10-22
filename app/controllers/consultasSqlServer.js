@@ -232,6 +232,13 @@ module.exports.selecionaCliente = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.veiculosPorSituacao = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.veiculosPorSituacao(req);
+  res.send(resConsulta);
+};
+
 module.exports.selecionaContatosCliente = async function (
   application,
   req,
