@@ -3285,54 +3285,82 @@ ConsultasDAO.prototype.cotasPorSituacao = async function (req) {
 	ct.CODIGO_GRUPO as Grupo,
 	ct.CODIGO_COTA as Cota,
 	ct.VERSAO as 'Ver.',
-  format(round(valorBemVenda.PRECO_TABELA,2),'c','pt-BR') as 'Valor Bem',
-  ct.PERCENTUAL_TAXA_ADMINISTRACAO as 'Taxa Contratada',
+	format(round(valorBemVenda.PRECO_TABELA,2),'c','pt-BR') as 'Valor Bem',
+	ct.PERCENTUAL_TAXA_ADMINISTRACAO as 'Taxa Contratada',
 	(ct.PERCENTUAL_TAXA_ADMINISTRACAO - ct.TAXA_ADMINISTRACAO_PAGA) as 'Taxa A Receber',
-	format(((ct.PERCENTUAL_TAXA_ADMINISTRACAO - ct.TAXA_ADMINISTRACAO_PAGA) * vb.PRECO_TABELA) / 100,'c','pt-BR')  as 'Valor Taxa A Receber',
+	((ct.PERCENTUAL_TAXA_ADMINISTRACAO - ct.TAXA_ADMINISTRACAO_PAGA) * vb.PRECO_TABELA) / 100 as 'Valor Taxa A Receber',
 	ct.CODIGO_SITUACAO as 'Situação',
 	sc.NOMENCLATURA as 'Descrição Situação',
-  format(data_situacao.[DT. Situação],'dd/MM/yyyy','en-US') as 'Dt. Situação',
+	format(data_situacao.[DT. Situação],'dd/MM/yyyy','en-US') as 'Dt. Situação',
 	c.NOME as Nome,
+  ct.CGC_CPF_CLIENTE as Documento, 
 	c.E_MAIL AS 'Email',
-	CASE 
-        WHEN NULLIF(LTRIM(RTRIM(c.CELULAR)), '') IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.DDD_RESIDENCIAL)), '') IS NOT NULL 
-        THEN CONCAT(CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
-             CASE 
-                 -- Se começa com 0 e tem DDD embutido (ex: 035998487041), tira os 3 primeiros caracteres
-                 WHEN LTRIM(RTRIM(c.CELULAR)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.CELULAR, '-', ''), ' ', '')) >= 10 
-                     THEN SUBSTRING(LTRIM(RTRIM(c.CELULAR)), 4, LEN(c.CELULAR))
-                 -- Se começa direto com o DDD (ex: 35998487041), tira os 2 primeiros caracteres
-                 WHEN LTRIM(RTRIM(c.CELULAR)) LIKE '[1-9][1-9]%' AND LEN(REPLACE(REPLACE(c.CELULAR, '-', ''), ' ', '')) >= 10 
-                     THEN SUBSTRING(LTRIM(RTRIM(c.CELULAR)), 3, LEN(c.CELULAR))
-                 -- Se já está certinho, mantém como está
-                 ELSE LTRIM(RTRIM(REPLACE(c.CELULAR, '-', '')))
-             END)
-        ELSE '' 
-    END AS 'Tel. 1',
+    
+    -- O Select fica extremamente limpo, o trabalho pesado foi para os OUTER APPLY abaixo
+    step3.CEL_FINAL AS 'Tel. 1',
+    step3.TEL_FINAL AS 'Tel. 2'
 
-    -- PHONE 2: Telefone Residencial
-    CASE 
-        WHEN NULLIF(LTRIM(RTRIM(c.FONE_FAX)), '') IS NOT NULL AND NULLIF(LTRIM(RTRIM(c.DDD_RESIDENCIAL)), '') IS NOT NULL 
-        THEN CONCAT(CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR), 
-             CASE 
-                 WHEN LTRIM(RTRIM(c.FONE_FAX)) LIKE '0[0-9][0-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX, '-', ''), ' ', '')) >= 10 
-                     THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX)), 4, LEN(c.FONE_FAX))
-                 WHEN LTRIM(RTRIM(c.FONE_FAX)) LIKE '[1-9][1-9]%' AND LEN(REPLACE(REPLACE(c.FONE_FAX, '-', ''), ' ', '')) >= 10 
-                     THEN SUBSTRING(LTRIM(RTRIM(c.FONE_FAX)), 3, LEN(c.FONE_FAX))
-                 ELSE LTRIM(RTRIM(REPLACE(c.FONE_FAX, '-', '')))
-             END)
-        ELSE '' 
-    END AS 'Tel. 2'
 from cotas ct
-left join CLIENTES c
-on c.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
-LEFT JOIN SITUACOES_COBRANCAS sc
-ON ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
+left join CLIENTES c 
+    on c.CGC_CPF_CLIENTE = ct.CGC_CPF_CLIENTE
+LEFT JOIN SITUACOES_COBRANCAS sc 
+    ON ct.CODIGO_SITUACAO = sc.CODIGO_SITUACAO
+
+-------------------------------------------------------------------------
+-- PASSO 1: Extermina todos os caracteres especiais deixando apenas números
+-------------------------------------------------------------------------
+OUTER APPLY (
+    SELECT 
+        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(c.CELULAR)), '-', ''), ' ', ''), '(', ''), ')', ''), '.', ''), '+', '') AS CEL_RAW,
+        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(c.FONE_FAX)), '-', ''), ' ', ''), '(', ''), ')', ''), '.', ''), '+', '') AS TEL_RAW,
+        CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR) AS DDD_CLEAN
+) step1
+
+-------------------------------------------------------------------------
+-- PASSO 2: Normaliza. Remove '55' ou '0' da frente se o cliente digitou
+-------------------------------------------------------------------------
+OUTER APPLY (
+    SELECT 
+        CASE 
+            WHEN step1.CEL_RAW LIKE '550%' AND LEN(step1.CEL_RAW) >= 13 THEN SUBSTRING(step1.CEL_RAW, 4, 20)
+            WHEN step1.CEL_RAW LIKE '55%'  AND LEN(step1.CEL_RAW) >= 12 THEN SUBSTRING(step1.CEL_RAW, 3, 20)
+            WHEN step1.CEL_RAW LIKE '0%'   AND LEN(step1.CEL_RAW) >= 11 THEN SUBSTRING(step1.CEL_RAW, 2, 20)
+            ELSE step1.CEL_RAW
+        END AS CEL_NORM,
+        
+        CASE 
+            WHEN step1.TEL_RAW LIKE '550%' AND LEN(step1.TEL_RAW) >= 13 THEN SUBSTRING(step1.TEL_RAW, 4, 20)
+            WHEN step1.TEL_RAW LIKE '55%'  AND LEN(step1.TEL_RAW) >= 12 THEN SUBSTRING(step1.TEL_RAW, 3, 20)
+            WHEN step1.TEL_RAW LIKE '0%'   AND LEN(step1.TEL_RAW) >= 11 THEN SUBSTRING(step1.TEL_RAW, 2, 20)
+            ELSE step1.TEL_RAW
+        END AS TEL_NORM
+) step2
+
+-------------------------------------------------------------------------
+-- PASSO 3: Verifica se precisa do DDD_RESIDENCIAL baseado no tamanho
+-------------------------------------------------------------------------
+OUTER APPLY (
+    SELECT 
+        CASE 
+            WHEN NULLIF(step2.CEL_NORM, '') IS NULL THEN ''
+            -- Se tem 9 ou menos dígitos, ele não tem DDD. Juntamos com o DDD_RESIDENCIAL.
+            WHEN LEN(step2.CEL_NORM) <= 9 THEN '+55' + ISNULL(step1.DDD_CLEAN, '') + step2.CEL_NORM
+            -- Se tem 10 ou mais dígitos, ele JÁ TEM DDD no próprio campo. Ignoramos o DDD_RESIDENCIAL.
+            ELSE '+55' + step2.CEL_NORM
+        END AS CEL_FINAL,
+
+        CASE 
+            WHEN NULLIF(step2.TEL_NORM, '') IS NULL THEN ''
+            WHEN LEN(step2.TEL_NORM) <= 9 THEN '+55' + ISNULL(step1.DDD_CLEAN, '') + step2.TEL_NORM
+            ELSE '+55' + step2.TEL_NORM
+        END AS TEL_FINAL
+) step3
+
 outer apply (
-select top 1 rb.PRECO_TABELA 
-from REAJUSTES_BENS rb
-where rb.codigo_bem = ct.CODIGO_BEM and DATA_REAJUSTE <= ct.DATA_ADESAO
-order by DATA_REAJUSTE desc
+    select top 1 rb.PRECO_TABELA 
+    from REAJUSTES_BENS rb
+    where rb.codigo_bem = ct.CODIGO_BEM and DATA_REAJUSTE <= ct.DATA_ADESAO
+    order by DATA_REAJUSTE desc
 ) as valorBemVenda
 OUTER APPLY (
     SELECT TOP 1 rb.preco_tabela
@@ -3342,11 +3370,11 @@ OUTER APPLY (
 ) vb
 outer apply (
 	select top 1 cs.data_alteracao as 'DT. Situação' 
-from COTAS_SITUACOES cs 
-where CODIGO_GRUPO = ct.CODIGO_GRUPO 
-	and CODIGO_COTA = ct.CODIGO_COTA 
-	and VERSAO = ct.VERSAO
-order by cs.DATA_ALTERACAO desc
+    from COTAS_SITUACOES cs 
+    where CODIGO_GRUPO = ct.CODIGO_GRUPO 
+        and CODIGO_COTA = ct.CODIGO_COTA 
+        and VERSAO = ct.VERSAO
+    order by cs.DATA_ALTERACAO desc
 ) as data_situacao
 where ct.CODIGO_SITUACAO in (${situacoesSql}) 
       and ct.CODIGO_GRUPO in (${gruposSql}) 
