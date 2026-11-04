@@ -561,6 +561,13 @@ module.exports = function (application) {
       res,
     );
   });
+  application.get("/telefonesPorDoc", verifyJWT, function (req, res) {
+    application.app.controllers.consultasSqlServer.telefonesPorDoc(
+      application,
+      req,
+      res,
+    );
+  });
   application.get("/historicoSituacaoCota", verifyJWT, function (req, res) {
     application.app.controllers.consultasSqlServer.historicoSituacaoCota(
       application,

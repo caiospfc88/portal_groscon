@@ -564,6 +564,13 @@ module.exports.cotasPorSituacao = async function (application, req, res) {
   res.send(resConsulta);
 };
 
+module.exports.telefonesPorDoc = async function (application, req, res) {
+  var connection = application.config.dbConnection;
+  var consultaModel = new application.app.models.ConsultasDAO(connection);
+  var resConsulta = await consultaModel.telefonesPorDoc(req);
+  res.send(resConsulta);
+};
+
 module.exports.historicoSituacaoCota = async function (application, req, res) {
   var connection = application.config.dbConnection;
   var consultaModel = new application.app.models.ConsultasDAO(connection);

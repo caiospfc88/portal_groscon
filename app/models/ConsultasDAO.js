@@ -1845,6 +1845,56 @@ ConsultasDAO.prototype.selecionaCliente = async function (req) {
   return result;
 };
 
+ConsultasDAO.prototype.telefonesPorDoc = async function (req) {
+  let doc = req.query.documento;
+
+  let result = await this._connection(`select top 1
+              step3.CEL_FINAL AS 'telefone1',
+              step3.TEL_FINAL AS 'telefone2'
+          from CLIENTES c
+          OUTER APPLY (
+              SELECT 
+                  REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(c.CELULAR)), '-', ''), ' ', ''), '(', ''), ')', ''), '.', ''), '+', '') AS CEL_RAW,
+                  REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(c.FONE_FAX)), '-', ''), ' ', ''), '(', ''), ')', ''), '.', ''), '+', '') AS TEL_RAW,
+                  CAST(TRY_CAST(c.DDD_RESIDENCIAL AS INT) AS VARCHAR) AS DDD_CLEAN
+          ) step1
+          OUTER APPLY (
+              SELECT 
+                  CASE 
+                      WHEN step1.CEL_RAW LIKE '550%' AND LEN(step1.CEL_RAW) >= 13 THEN SUBSTRING(step1.CEL_RAW, 4, 20)
+                      WHEN step1.CEL_RAW LIKE '55%'  AND LEN(step1.CEL_RAW) >= 12 THEN SUBSTRING(step1.CEL_RAW, 3, 20)
+                      WHEN step1.CEL_RAW LIKE '0%'   AND LEN(step1.CEL_RAW) >= 11 THEN SUBSTRING(step1.CEL_RAW, 2, 20)
+                      ELSE step1.CEL_RAW
+                  END AS CEL_NORM,
+                  
+                  CASE 
+                      WHEN step1.TEL_RAW LIKE '550%' AND LEN(step1.TEL_RAW) >= 13 THEN SUBSTRING(step1.TEL_RAW, 4, 20)
+                      WHEN step1.TEL_RAW LIKE '55%'  AND LEN(step1.TEL_RAW) >= 12 THEN SUBSTRING(step1.TEL_RAW, 3, 20)
+                      WHEN step1.TEL_RAW LIKE '0%'   AND LEN(step1.TEL_RAW) >= 11 THEN SUBSTRING(step1.TEL_RAW, 2, 20)
+                      ELSE step1.TEL_RAW
+                  END AS TEL_NORM
+          ) step2
+          OUTER APPLY (
+              SELECT 
+                  CASE 
+                      WHEN NULLIF(step2.CEL_NORM, '') IS NULL THEN ''
+                      -- Se tem 9 ou menos dígitos, ele não tem DDD. Juntamos com o DDD_RESIDENCIAL.
+                      WHEN LEN(step2.CEL_NORM) <= 9 THEN '+55' + ISNULL(step1.DDD_CLEAN, '') + step2.CEL_NORM
+                      -- Se tem 10 ou mais dígitos, ele JÁ TEM DDD no próprio campo. Ignoramos o DDD_RESIDENCIAL.
+                      ELSE '+55' + step2.CEL_NORM
+                  END AS CEL_FINAL,
+
+                  CASE 
+                      WHEN NULLIF(step2.TEL_NORM, '') IS NULL THEN ''
+                      WHEN LEN(step2.TEL_NORM) <= 9 THEN '+55' + ISNULL(step1.DDD_CLEAN, '') + step2.TEL_NORM
+                      ELSE '+55' + step2.TEL_NORM
+                  END AS TEL_FINAL
+          ) step3
+          where c.CGC_CPF_CLIENTE = '${doc}'`);
+
+  return result;
+};
+
 ConsultasDAO.prototype.selecionaContatosCliente = async function (req) {
   let grupo = req.query.grupo;
   let cota = req.query.cota;
