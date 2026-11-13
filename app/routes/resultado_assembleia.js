@@ -17,6 +17,16 @@ module.exports = function (application) {
     );
   });
 
+  application.get(
+    "/publico/resultadosAssembleiaAtendimento",
+    function (req, res) {
+      application.app.controllers.resultado_assembleia.listarContempladosAtendimento(
+        req,
+        res,
+      );
+    },
+  );
+
   application.post("/publicarContemplado", verifyJWT, function (req, res) {
     application.app.controllers.resultado_assembleia.publicarContemplado(
       req,
